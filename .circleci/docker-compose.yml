@@ -1,0 +1,18 @@
+version: '3'
+services:
+  redis:
+    image: redis
+  postgres:
+    image: postgres:10.4
+    environment:
+      POSTGRES_USER: "binsen"
+      POSTGRES_PASSWORD: "binsen"
+      POSTGRES_DB: "binsen_test"
+  mailhog:
+    image: mailhog/mailhog
+  minio:
+    image: minio/minio
+    environment:
+      MINIO_ACCESS_KEY: minio
+      MINIO_SECRET_KEY: miniominio
+    command: server /export

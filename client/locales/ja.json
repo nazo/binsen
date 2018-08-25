@@ -1,0 +1,27 @@
+{
+  "links": {
+    "home": "ホーム",
+    "about": "アバウト",
+    "english": "英語 version",
+    "french": "French version"
+  },
+  "home": {
+    "title": "ようこそ",
+    "introduction": "This is an introduction in English."
+  },
+  "pages": {
+    "signin": {
+      "title": "ログイン",
+      "google_signin": "Googleアカウントでログイン"
+    }
+  },
+  "menu": {
+    "home": "ホーム",
+    "newpost": "新規メモ",
+    "workspacesadmin": "ワークスペースの管理",
+    "usersadmin": "ユーザーの管理",
+    "groupsadmin": "グループの管理",
+    "rolesadmin": "権限の管理",
+    "signout": "ログアウト"
+  }
+}

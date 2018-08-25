@@ -1,0 +1,23 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: circleci/buildpack-deps:stable-curl-browsers
+    working_directory: /app
+    steps:
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - checkout
+      - run:
+          name: build docker image
+          no_output_timeout: 10m
+          command: |
+            docker build -f production.Dockerfile --rm=false -t nazo/binsen-build:latest .
+      - run:
+          name: boot backend process
+          command: |
+            docker-compose -p binsen -f .circleci/docker-compose.yml up -d
+      - run:
+          name: test
+          command: |
+            docker run --env-file=./.circleci/env --net=binsen_default -it nazo/binsen-build:latest ./.circleci/test.sh

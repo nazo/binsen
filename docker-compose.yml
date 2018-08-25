@@ -1,0 +1,58 @@
+version: '3'
+services:
+  server:
+    build:
+      context: ./server
+    command: /bin/sh -c "dep ensure -update && godo server --watch"
+    volumes:
+      - ./server:/app/src/github.com/nazo/binsen/server
+      - /app/vendor
+    links:
+      - postgres
+      - redis
+      - minio
+    ports:
+      - 50001:5000
+    env_file:
+      - ./server/.env
+  client:
+    build:
+      context: ./client
+    ports:
+      - 50002:3000
+    links:
+      - server
+    command: /bin/sh -c "npm install && npm run dev"
+    environment:
+      HOST: 0.0.0.0
+      API_CLIENT_BASE_URI: "http://localhost:50001"
+      API_SERVER_BASE_URI: "http://server:5000"
+    volumes:
+      - ./client:/app
+      - /app/node_modules
+  redis:
+    image: redis
+  postgres:
+    image: postgres:10.4
+    environment:
+      POSTGRES_USER: "binsen"
+      POSTGRES_PASSWORD: "binsen"
+      POSTGRES_DB: "binsen_dev"
+    volumes:
+      - ./tmp/docker/postgres/data:/var/lib/postgresql/data
+    ports:
+      - 50004:5432
+  mailhog:
+    image: mailhog/mailhog
+    ports:
+      - 50005:8025
+  minio:
+    image: minio/minio
+    ports:
+      - 50006:9000
+    volumes:
+      - ./tmp/docker/minio/data:/export
+    environment:
+      MINIO_ACCESS_KEY: minio
+      MINIO_SECRET_KEY: miniominio
+    command: server /export
