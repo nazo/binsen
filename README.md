@@ -1,3 +1,5 @@
+[![CircleCI](https://circleci.com/gh/nazo/binsen/tree/master.svg?style=svg)](https://circleci.com/gh/nazo/binsen/tree/master)
+
 # binsen - Shared Markdown Document Editor
 
 This project is WIP, DO NOT USE PRODCUTION.

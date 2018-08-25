@@ -2,12 +2,17 @@ version: 2
 jobs:
   build:
     docker:
-      - image: circleci/buildpack-deps:stable-curl-browsers
-    working_directory: /app
+      - image: alpine:3.8
+    working_directory: /tmp/binsen
     steps:
       - setup_remote_docker:
           docker_layer_caching: true
       - checkout
+      - run:
+          name: install tools
+          command: |
+            apk --no-cache --update add docker py-pip curl
+            pip install docker-compose
       - run:
           name: build docker image
           no_output_timeout: 10m

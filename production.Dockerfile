@@ -15,10 +15,14 @@ WORKDIR /client
 ADD ./client/package.json /client
 ADD ./client/package-lock.json /client
 RUN npm install
-ADD ./client /client
 
 WORKDIR /server/src/github.com/nazo/binsen/server
 ADD ./server/Gopkg.toml /server/src/github.com/nazo/binsen/server
 ADD ./server/Gopkg.lock /server/src/github.com/nazo/binsen/server
 RUN dep ensure -vendor-only
+
+ADD ./client /client
+RUN cd /client && npm run build
+
 ADD ./server /server/src/github.com/nazo/binsen/server
+RUN cd /server/src/github.com/nazo/binsen/server && go build -o /server/binsen cmd/main.go
