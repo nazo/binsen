@@ -21,6 +21,8 @@ ADD ./server/Gopkg.toml /server/src/github.com/nazo/binsen/server
 ADD ./server/Gopkg.lock /server/src/github.com/nazo/binsen/server
 RUN dep ensure -vendor-only
 
+ADD ./.circleci /deploy
+
 ADD ./client /client
 RUN cd /client && npm run build
 

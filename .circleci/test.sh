@@ -2,10 +2,8 @@
 
 set -eux
 
-cd ./server
+cd /server/src/github.com/nazo/binsen/server
 go test -v ./...
-cd ..
 
-cd ./client
+cd /client
 npm test
-cd ..

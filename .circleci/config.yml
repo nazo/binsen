@@ -25,4 +25,4 @@ jobs:
       - run:
           name: test
           command: |
-            docker run --env-file=./.circleci/env --net=binsen_default -it nazo/binsen-build:latest ./.circleci/test.sh
+            docker run --env-file=./.circleci/env --net=binsen_default -it nazo/binsen-build:latest /bin/sh /deploy/test.sh
