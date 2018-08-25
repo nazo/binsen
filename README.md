@@ -1,4 +1,5 @@
 [![CircleCI](https://circleci.com/gh/nazo/binsen/tree/master.svg?style=svg)](https://circleci.com/gh/nazo/binsen/tree/master)
+[![codecov](https://codecov.io/gh/nazo/binsen/branch/master/graph/badge.svg)](https://codecov.io/gh/nazo/binsen)
 
 # binsen - Shared Markdown Document Editor
 

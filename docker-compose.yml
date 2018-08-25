@@ -3,7 +3,7 @@ services:
   server:
     build:
       context: ./server
-    command: /bin/sh -c "dep ensure -update && godo server --watch"
+    command: /bin/sh -c "dep ensure && godo server --watch"
     volumes:
       - ./server:/app/src/github.com/nazo/binsen/server
       - /app/vendor

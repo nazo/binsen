@@ -17,7 +17,7 @@ jobs:
           name: build docker image
           no_output_timeout: 10m
           command: |
-            docker build -f production.Dockerfile --rm=false -t nazo/binsen-build:latest .
+            docker build -f production.Dockerfile --rm=false -t nazo/binsen:latest .
       - run:
           name: boot backend process
           command: |
@@ -25,4 +25,11 @@ jobs:
       - run:
           name: test
           command: |
-            docker run --env-file=./.circleci/env --net=binsen_default -it nazo/binsen-build:latest /bin/sh /deploy/test.sh
+            docker run -e CIRCLE_BRANCH=${CIRCLE_BRANCH} -e CIRCLE_SHA1=${CIRCLE_SHA1} -e CIRCLE_BUILD_NUM=${CIRCLE_BUILD_NUM} -e CIRCLE_PULL_REQUEST=${CIRCLE_PULL_REQUEST} -e CODECOV_TOKEN=${CODECOV_TOKEN} --env-file=./.circleci/env --net=binsen_default -it nazo/binsen:latest /bin/bash /deploy/test.sh
+      - run:
+          name: deploy
+          command: |
+            if [ "${CIRCLE_BRANCH}" == "master" ]; then
+              docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}
+              docker push nazo/binsen:latest
+            fi

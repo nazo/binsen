@@ -1,4 +1,3 @@
-import test from 'ava';
 import assert from 'power-assert';
 import { State, mutations } from './index';
 

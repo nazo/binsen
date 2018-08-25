@@ -27,11 +27,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:c0f969582d76658ba7578ee4aceba71200c80506abf9c0c3d4002ed4b0969052"
+  digest = "1:872784fa8829636901985d14e1b3414ce03d97044175ff4878795764915062f8"
   name = "github.com/boj/redistore"
   packages = ["."]
   pruneopts = "UT"
-  revision = "82b86d293eb292dd6949fadc09388c47f095dc54"
+  revision = "0920d8493e7ffca5adae72308d5d8edd7e8aea3a"
 
 [[projects]]
   digest = "1:76dc72490af7174349349838f2fe118996381b31ea83243812a97e5a0fd5ed55"
@@ -423,7 +423,7 @@
   version = "v8.0.0"
 
 [[projects]]
-  digest = "1:1d1e399341fa6d71e26f17d4047c7dc09f37594ffe5680dc100af1c32db1a0ce"
+  digest = "1:2b4108dbe9dd74dd4f96c92fa0ef24325d380e24b7c95c5fc1f2a30724333edb"
   name = "github.com/volatiletech/sqlboiler"
   packages = [
     ".",
@@ -438,8 +438,8 @@
     "templatebin",
   ]
   pruneopts = "UT"
-  revision = "7d3d954a4be10dc06b9464fb3e6d74836274c467"
-  version = "v3.0.0"
+  revision = "1340e5544bc5880f10808da79ebb3ee80cf8abb1"
+  version = "v3.0.1"
 
 [[projects]]
   branch = "master"

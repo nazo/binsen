@@ -9,8 +9,8 @@
     "build": "nuxt build",
     "start": "nuxt start",
     "generate": "nuxt generate",
-    "lint": "eslint --ext .js,.ts,.vue --ignore-path .gitignore .",
-    "lint-fix": "eslint --fix --ext .js,.ts,.vue --ignore-path .gitignore .",
+    "lint": "eslint --ext ts,.vue --ignore-pattern *.d.ts --ignore-path .gitignore .",
+    "lint-fix": "eslint --fix --ext .ts,.vue --ignore-pattern *.d.ts --ignore-path .gitignore .",
     "precommit": "npm run lint",
     "test": "jest"
   },
@@ -29,7 +29,9 @@
       "jsx",
       "json",
       "node"
-    ]
+    ],
+    "coverageDirectory": "./coverage/",
+    "collectCoverage": true
   },
   "dependencies": {
     "@nuxtjs/axios": "^5.3.1",
