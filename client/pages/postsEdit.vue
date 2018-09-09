@@ -75,7 +75,10 @@
 import marked from 'marked';
 import { Component, Prop, Emit, Watch, Vue } from 'nuxt-property-decorator';
 import { State, Getter, Action, Mutation, namespace } from 'vuex-class';
-import CFooter from '../components/footer';
+import CFooter from '../components/footer.vue';
+import { User } from '../api/types/user';
+import { Post } from '../api/types/post';
+import { Workspace } from '../api/types/workspace';
 
 const PostsModule = namespace('posts');
 
@@ -87,9 +90,9 @@ const PostsModule = namespace('posts');
   }
 })
 export default class extends Vue {
-  @Getter('loggedUser') loggedUser: object
-  @Getter('currentWorkspace') currentWorkspace: object
-  @PostsModule.Getter('currentPost') currentPost: any
+  @Getter('loggedUser') loggedUser: User | null = null;
+  @Getter('currentWorkspace') currentWorkspace: Workspace | null = null;
+  @PostsModule.Getter('currentPost') currentPost: Post | null = null;
   @PostsModule.Action('createPost') createPost: any
   @PostsModule.Action('updatePost') updatePost: any
   @PostsModule.Action('getPost') getPost: any
@@ -118,8 +121,10 @@ export default class extends Vue {
 
   async submitPost() {
     if (this.currentPost === null) {
-      const response = await this.createPost({ workspaceId: this.currentWorkspace.id, title: this.$data.title, body: this.$data.body });
-      this.$router.push('/posts/' + response.post.id);
+      if (this.currentWorkspace !== null) {
+        const response = await this.createPost({ workspaceId: this.currentWorkspace.id, title: this.$data.title, body: this.$data.body });
+        this.$router.push('/posts/' + response.post.id);
+      }
     } else {
       const response = await this.updatePost({ id: this.currentPost.id, title: this.$data.title, body: this.$data.body });
       this.$router.push('/posts/' + response.post.id);

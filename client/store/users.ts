@@ -5,21 +5,22 @@ import {
   update as apiUserUpdate,
   destroy as apiUserDestroy,
 } from '../api/user';
+import { User } from '../api/types/user';
 
 export class State {
-  users: Array<object> = null;
+  users: Array<User> = [];
 }
 
 export const state = (): State => new State();
 
 export const mutations: MutationTree<State> = {
-  setUsers(state: State, { users }) {
-    state.users = users || null;
+  setUsers(state: State, { users }: { users: Array<User> }) {
+    state.users = users;
   },
 };
 
 export const getters: GetterTree<State, any> = {
-  users(state: State) {
+  users(state: State): Array<User> {
     return state.users;
   },
 };

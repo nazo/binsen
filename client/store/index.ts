@@ -1,9 +1,10 @@
 import { GetterTree, MutationTree, ActionTree, ActionContext } from 'vuex';
 import { callback as apiGoogleCallback } from '../api/auth/google';
 import { list as apiWorkspaceList } from '../api/workspace';
+import { User } from '../api/types/user';
 
 export class State {
-  user: object | null = null;
+  user: User | null = null;
   currentWorkspaceId: number | null = null;
   workspaces: object | null = null;
   locales: Array<string> = ['en', 'ja'];
@@ -18,7 +19,7 @@ export const mutations: MutationTree<State> = {
       state.locale = locale;
     }
   },
-  setUser(state: State, { user }) {
+  setUser(state: State, { user }: { user: User }) {
     state.user = user || null;
   },
   setCurrentWorkspace(state: State, { workspaceId }) {
@@ -51,11 +52,14 @@ export const getters: GetterTree<State, any> = {
   isAuthenticated(state: State) {
     return !!state.user;
   },
-  loggedUser(state: State) {
+  loggedUser(state: State): User | null {
     return state.user;
   },
   currentWorkspace(state: State) {
     if (state.currentWorkspaceId === null) {
+      return null;
+    }
+    if (state.workspaces === null) {
       return null;
     }
     if (!(state.currentWorkspaceId in state.workspaces)) {
@@ -76,8 +80,8 @@ export const actions: ActionTree<State, any> = {
   setWorkspace({ commit }, { workspaceId }) {
     commit('setCurrentWorkspace', { workspaceId });
   },
-  async loginFromGoogleCallback({ commit }, { code, state }) {
-    const { user } = await apiGoogleCallback(this.$axios, code, state);
+  async loginFromGoogleCallback({ commit }, { code, state }: { code: string, state: string }) {
+    const { user } = await apiGoogleCallback(this.$axios, { code, state });
     commit('setUser', { user });
   },
 };

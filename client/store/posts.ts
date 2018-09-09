@@ -5,28 +5,29 @@ import {
   create as apiPostCreate,
   update as apiPostUpdate,
 } from '../api/post';
+import { Post } from '../api/types/post';
 
 export class State {
-  currentPost: object = null;
-  posts: Array<object> = null;
+  currentPost: Post | null = null;
+  posts: Array<Post> = [];
 }
 
 export const state = (): State => new State();
 
 export const mutations: MutationTree<State> = {
-  setCurrentPost(state: State, { post }) {
+  setCurrentPost(state: State, { post }: { post: Post }) {
     state.currentPost = post || null;
   },
-  setPosts(state: State, { posts }) {
+  setPosts(state: State, { posts }: { posts: Array<Post> }) {
     state.posts = posts || null;
   },
 };
 
 export const getters: GetterTree<State, any> = {
-  posts(state: State) {
+  posts(state: State): Array<Post> {
     return state.posts;
   },
-  currentPost(state: State) {
+  currentPost(state: State): Post | null {
     return state.currentPost;
   },
 };
@@ -41,23 +42,25 @@ export const actions: ActionTree<State, any> = {
     if (!workspace) {
       return;
     }
-    const { posts } = await apiPostList(this.$axios, workspace.id, page);
+    const { posts } = await apiPostList(this.$axios, { workspace_id: workspace.id, page });
     commit('setPosts', { posts });
   },
   createPost({ commit }, { workspaceId, title, body }) {
     return apiPostCreate(
-      this.$axios,
-      workspaceId,
-      title,
-      body,
+      this.$axios, {
+        workspace_id: workspaceId,
+        title,
+        body,
+      }
     );
   },
   updatePost({ commit }, { id, title, body }) {
     return apiPostUpdate(
-      this.$axios,
-      id,
-      title,
-      body,
+      this.$axios, {
+        id,
+        title,
+        body,
+      }
     );
   },
 };

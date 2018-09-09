@@ -7,7 +7,7 @@ import {
 } from '../api/group';
 
 export class State {
-  groups: Array<object> = null;
+  groups: Array<object> = [];
 }
 
 export const state = (): State => new State();

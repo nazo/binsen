@@ -62,12 +62,14 @@
 <script lang="ts">
 import { Component, Prop, Emit, Watch, Vue } from 'nuxt-property-decorator';
 import { State, Getter, Action, Mutation, namespace } from 'vuex-class';
+import { User } from '../api/types/user';
+import { Workspace } from '../api/types/workspace';
 
-@Component()
+@Component({})
 export default class extends Vue {
-  @Getter('loggedUser') loggedUser: object
-  @Getter('workspaces') workspaces: object
-  @Getter('currentWorkspace') currentWorkspace: object
+  @Getter('loggedUser') loggedUser: User | null
+  @Getter('workspaces') workspaces: Array<Workspace>
+  @Getter('currentWorkspace') currentWorkspace: Workspace | null
   @Action('setWorkspace') setWorkspace: any
 
   get currentWorkspaceName() {

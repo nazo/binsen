@@ -2,12 +2,10 @@ import { GetterTree, MutationTree, ActionTree, ActionContext } from 'vuex';
 import {
   list as apiWorkspaceList,
   create as apiWorkspaceCreate,
-  update as apiWorkspaceUpdate,
-  destroy as apiWorkspaceDestroy,
 } from '../api/workspace';
 
 export class State {
-  workspaces: Array<object> = null;
+  workspaces: Array<object> = [];
 }
 
 export const state = (): State => new State();
@@ -34,11 +32,9 @@ export const actions: ActionTree<State, any> = {
     dispatch('listWorkspaces');
   },
   async updateWorkspace({ commit, state, rootGetters, dispatch }, { workspace }) {
-    await apiWorkspaceUpdate(this.$axios, { id: workspace.id, name: workspace.name });
     dispatch('listWorkspaces');
   },
   async destroyWorkspace({ commit, state, rootGetters, dispatch }, { id }) {
-    await apiWorkspaceDestroy(this.$axios, { id });
     dispatch('listWorkspaces');
   },
 };
