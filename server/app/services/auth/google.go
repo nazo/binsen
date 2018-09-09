@@ -18,13 +18,17 @@ func getClientSecret() string {
 	return os.Getenv("GOOGLE_CLIENT_SECRET")
 }
 
+func getRedirectURL() string {
+	return os.Getenv("GOOGLE_REDIRECT_URL")
+}
+
 func getGoogleOauthConfig(clientID, clientSecret string) *oauth2.Config {
 	return &oauth2.Config{
 		ClientID:     clientID,
 		ClientSecret: clientSecret,
 		Scopes:       []string{"https://www.googleapis.com/auth/userinfo.email", "https://www.googleapis.com/auth/userinfo.profile"},
 		Endpoint:     google.Endpoint,
-		RedirectURL:  "http://localhost:50002/auth/google/callback",
+		RedirectURL:  getRedirectURL(),
 	}
 }
 
