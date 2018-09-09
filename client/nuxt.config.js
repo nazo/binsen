@@ -95,5 +95,15 @@ module.exports = {
     browserBaseURL: process.env.API_CLIENT_BASE_URI,
     credentials: true,
     proxyHeadersIgnore: ['host', 'accept'],
+  },
+  workbox: {
+    dev: true,
+    runtimeCaching: [
+      {
+        urlPattern: '/',
+        handler: 'networkFirst',
+        method: 'GET'
+      }
+    ]
   }
 };
