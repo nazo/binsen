@@ -22,9 +22,9 @@ type postService struct {
 }
 
 // NewPostService todo
-func NewPostService(db *sql.DB) PostService {
+func NewPostService() PostService {
 	return &postService{
-		postsRepository: repositories.NewPostsRepository(db),
+		postsRepository: repositories.NewPostsRepository(),
 	}
 }
 

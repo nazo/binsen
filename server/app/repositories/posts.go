@@ -5,6 +5,7 @@ import (
 	"database/sql"
 
 	"github.com/nazo/binsen/server/app/orm"
+	"github.com/nazo/binsen/server/lib/db"
 	"github.com/volatiletech/sqlboiler/boil"
 	"github.com/volatiletech/sqlboiler/queries/qm"
 )
@@ -24,8 +25,10 @@ type postsRepository struct {
 }
 
 // NewPostsRepository todo
-func NewPostsRepository(db *sql.DB) PostsRepository {
-	return &postsRepository{db: db}
+func NewPostsRepository() PostsRepository {
+	return &postsRepository{
+		db: db.InjectDB(),
+	}
 }
 
 // GetPosts get posts

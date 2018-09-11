@@ -1,13 +1,26 @@
+import Vue from 'vue';
+import { AxiosStatic } from 'axios';
+import VueRouter, { Route } from 'vue-router';
+import { Validator, VeeValidateComponentOptions } from 'vee-validate';
+
 declare module '*.vue' {
-  import Vue from 'vue'
-  import '@nuxtjs/pwa'
-  import '@nuxtjs/axios'
-  import ''
-  const _default: Vue
-  export default _default
+  const _default: Vue;
+  export default _default;
 }
 
-declare module "*.json" {
-  const value: any;
-  export default value;
+declare module 'vue/types/vue' {
+  interface Vue {
+    $axios: AxiosStatic;
+    $router: VueRouter;
+    $route: Route;
+    $validator: Validator;
+  }
+}
+
+declare module 'vue/types/options' {
+  interface ComponentOptions<V extends Vue> {
+    middleware?: string | string[];
+    layout?: string | string[];
+    $_veeValidate?: VeeValidateComponentOptions;
+  }
 }

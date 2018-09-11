@@ -5,6 +5,7 @@ import (
 	"database/sql"
 
 	"github.com/nazo/binsen/server/app/orm"
+	"github.com/nazo/binsen/server/lib/db"
 	"github.com/volatiletech/sqlboiler/boil"
 	"github.com/volatiletech/sqlboiler/queries/qm"
 )
@@ -23,8 +24,10 @@ type rolesRepository struct {
 }
 
 // NewRolesRepository todo
-func NewRolesRepository(db *sql.DB) RolesRepository {
-	return &rolesRepository{db: db}
+func NewRolesRepository() RolesRepository {
+	return &rolesRepository{
+		db: db.InjectDB(),
+	}
 }
 
 // GetRoles get roles

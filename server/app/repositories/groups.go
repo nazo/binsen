@@ -5,6 +5,7 @@ import (
 	"database/sql"
 
 	"github.com/nazo/binsen/server/app/orm"
+	"github.com/nazo/binsen/server/lib/db"
 	"github.com/volatiletech/sqlboiler/boil"
 	"github.com/volatiletech/sqlboiler/queries/qm"
 )
@@ -25,8 +26,10 @@ type groupsRepository struct {
 }
 
 // NewGroupsRepository todo
-func NewGroupsRepository(db *sql.DB) GroupsRepository {
-	return &groupsRepository{db: db}
+func NewGroupsRepository() GroupsRepository {
+	return &groupsRepository{
+		db: db.InjectDB(),
+	}
 }
 
 // GetGroups get groups

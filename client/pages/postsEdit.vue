@@ -93,9 +93,9 @@ export default class extends Vue {
   @Getter('loggedUser') loggedUser: User | null = null;
   @Getter('currentWorkspace') currentWorkspace: Workspace | null = null;
   @PostsModule.Getter('currentPost') currentPost: Post | null = null;
-  @PostsModule.Action('createPost') createPost: any
-  @PostsModule.Action('updatePost') updatePost: any
-  @PostsModule.Action('getPost') getPost: any
+  @PostsModule.Action('createPost') createPost: any;
+  @PostsModule.Action('updatePost') updatePost: any;
+  @PostsModule.Action('getPost') getPost: any;
 
   title: string = ''
   body: string = ''

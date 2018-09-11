@@ -5,6 +5,7 @@ import (
 	"database/sql"
 
 	"github.com/nazo/binsen/server/app/orm"
+	"github.com/nazo/binsen/server/lib/db"
 	"github.com/volatiletech/sqlboiler/boil"
 	"github.com/volatiletech/sqlboiler/queries/qm"
 )
@@ -28,8 +29,10 @@ type usersRepository struct {
 }
 
 // NewUsersRepository todo
-func NewUsersRepository(db *sql.DB) UsersRepository {
-	return &usersRepository{db: db}
+func NewUsersRepository() UsersRepository {
+	return &usersRepository{
+		db: db.InjectDB(),
+	}
 }
 
 // GetUserByEmail get user by email

@@ -1,8 +1,6 @@
 package services
 
 import (
-	"database/sql"
-
 	"github.com/nazo/binsen/server/app/orm"
 	"github.com/nazo/binsen/server/app/repositories"
 )
@@ -21,9 +19,9 @@ type workspaceService struct {
 }
 
 // NewWorkspaceService todo
-func NewWorkspaceService(db *sql.DB) WorkspaceService {
+func NewWorkspaceService() WorkspaceService {
 	return &workspaceService{
-		workspacesRepository: repositories.NewWorkspacesRepository(db),
+		workspacesRepository: repositories.NewWorkspacesRepository(),
 	}
 }
 

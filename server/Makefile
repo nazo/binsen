@@ -10,3 +10,10 @@ sqlboiler:
 .PHONY: test
 test:
 	docker-compose exec server go test -v ./...
+
+.PHONY: deps-install
+deps-install:
+	./bin/dep-install github.com/volatiletech/sqlboiler
+	./bin/dep-install gopkg.in/godo.v2/cmd/godo
+	./bin/dep-install github.com/pressly/goose/cmd/goose
+	./bin/dep-install github.com/volatiletech/sqlboiler/drivers/sqlboiler-psql

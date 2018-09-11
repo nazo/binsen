@@ -9,7 +9,6 @@ import (
 	"github.com/nazo/binsen/server/app/orm"
 	"github.com/nazo/binsen/server/app/services"
 	authServices "github.com/nazo/binsen/server/app/services/auth"
-	"github.com/nazo/binsen/server/lib/db"
 )
 
 type getGoogleAuthResponse struct {
@@ -40,9 +39,8 @@ type getGoogleCallbackResponse struct {
 
 // GetGoogleCallback receive google auth callback action
 func GetGoogleCallback(c echo.Context) error {
-	db := db.Default(c)
 	googleService := authServices.NewGoogleService(context.Background())
-	userService := services.NewUserService(db)
+	userService := services.NewUserService()
 	req := &getGoogleCallbackRequest{}
 	if err := c.Bind(req); err != nil {
 		c.Logger().Error(err)

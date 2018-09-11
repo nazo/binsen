@@ -67,9 +67,9 @@ import { Workspace } from '../api/types/workspace';
 
 @Component({})
 export default class extends Vue {
-  @Getter('loggedUser') loggedUser: User | null
-  @Getter('workspaces') workspaces: Array<Workspace>
-  @Getter('currentWorkspace') currentWorkspace: Workspace | null
+  @Getter('loggedUser') loggedUser!: User | null
+  @Getter('workspaces') workspaces!: Array<Workspace>
+  @Getter('currentWorkspace') currentWorkspace!: Workspace | null
   @Action('setWorkspace') setWorkspace: any
 
   get currentWorkspaceName() {

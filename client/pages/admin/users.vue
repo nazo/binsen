@@ -130,6 +130,7 @@
 <script lang="ts">
 import { Component, Prop, Emit, Watch, Vue } from 'nuxt-property-decorator';
 import { State, Getter, Action, Mutation, namespace } from 'vuex-class';
+import { User } from '../../api/types/user';
 
 const UsersModule = namespace('users');
 
@@ -141,7 +142,6 @@ const UsersModule = namespace('users');
 })
 export default class extends Vue {
   @UsersModule.Getter('users') users: any;
-  @Getter('loggedUser') loggedUser: object;
   @UsersModule.Action('listUsers') listUsers: any;
   @UsersModule.Action('destroyUser') destroyUser: any;
   @UsersModule.Action('createUser') createUser: any;
@@ -151,9 +151,9 @@ export default class extends Vue {
     return this.editedIndex === -1 ? 'New Item' : 'Edit Item';
   }
 
-  dialog = false
-  deleteDialog = false
-  deleteDialogItem = null
+  dialog: Boolean = false
+  deleteDialog: Boolean = false
+  deleteDialogItem: User | null = null
   headers = [
     { text: 'ID', value: 'id' },
     { text: 'Name', value: 'name' },
@@ -207,10 +207,12 @@ export default class extends Vue {
 
   deleteItem () {
     const item = this.deleteDialogItem;
-    this.destroyUser({ id: item.id });
+    if (item != null) {
+      this.destroyUser({ id: item.id });
+    }
   }
 
-  showDeleteDialog (item) {
+  showDeleteDialog (item: User) {
     this.deleteDialog = true;
     this.deleteDialogItem = item;
   }

@@ -1,0 +1,9 @@
+#!/bin/bash
+
+PACKAGE=$1
+
+set -eu
+
+pushd vendor/${PACKAGE}
+go install .
+popd

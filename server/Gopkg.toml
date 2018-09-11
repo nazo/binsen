@@ -24,7 +24,7 @@
 #   go-tests = true
 #   unused-packages = true
 
-required = ["github.com/volatiletech/sqlboiler"]
+required = ["github.com/volatiletech/sqlboiler", "gopkg.in/godo.v2/cmd/godo", "github.com/pressly/goose/cmd/goose", "github.com/volatiletech/sqlboiler/drivers/sqlboiler-psql"]
 
 [[constraint]]
   name = "github.com/labstack/echo"

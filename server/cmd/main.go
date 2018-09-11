@@ -34,20 +34,27 @@ func main() {
 					Name:  "add",
 					Usage: "add a new user",
 					Action: func(c *cli.Context) error {
-						conn, err := db.NewDB()
+						_, err := db.NewDB(&db.NewDBConfig{
+							Host:     "postgres",
+							Port:     "5432",
+							User:     "binsen",
+							Password: "binsen",
+							Database: "binsen_dev",
+							SSLMode:  "disable",
+						})
 						if err != nil {
 							panic(err)
 						}
-						group, err := services.NewGroupService(conn).GetDefaultGroup()
+						group, err := services.NewGroupService().GetDefaultGroup()
 						if err != nil {
 							panic(err)
 						}
-						role, err := services.NewRoleService(conn).GetDefaultRole()
+						role, err := services.NewRoleService().GetDefaultRole()
 						if err != nil {
 							panic(err)
 						}
 						email := c.Args().First()
-						_, err = services.NewUserService(conn).CreateUser(email, email, role, group)
+						_, err = services.NewUserService().CreateUser(email, email, role, group)
 						if err != nil {
 							return cli.NewExitError(fmt.Sprintf("user create failed: %s", err), 2)
 						}

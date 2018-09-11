@@ -116,6 +116,7 @@
 <script lang="ts">
 import { Component, Prop, Emit, Watch, Vue } from 'nuxt-property-decorator';
 import { State, Getter, Action, Mutation, namespace } from 'vuex-class';
+import { Workspace } from '../../api/types/workspace';
 
 const WorkspacesModule = namespace('workspaces');
 
@@ -127,7 +128,6 @@ const WorkspacesModule = namespace('workspaces');
 })
 export default class extends Vue {
   @WorkspacesModule.Getter('workspaces') workspaces: any;
-  @Getter('loggedWorkspace') loggedWorkspace: object;
   @WorkspacesModule.Action('listWorkspaces') listWorkspaces: any;
   @WorkspacesModule.Action('destroyWorkspace') destroyWorkspace: any;
   @WorkspacesModule.Action('createWorkspace') createWorkspace: any;
@@ -137,9 +137,9 @@ export default class extends Vue {
     return this.editedIndex === -1 ? 'New Item' : 'Edit Item';
   }
 
-  dialog = false
-  deleteDialog = false
-  deleteDialogItem = null
+  dialog: Boolean = false
+  deleteDialog: Boolean = false
+  deleteDialogItem: Workspace | null = null
   headers = [
     { text: 'ID', value: 'id' },
     { text: 'Name', value: 'name' },
@@ -180,7 +180,7 @@ export default class extends Vue {
     this.listWorkspaces();
   }
 
-  editItem (item) {
+  editItem (item: Workspace) {
     this.editedIndex = this.workspaces.indexOf(item);
     this.editedItem = Object.assign({}, item);
     this.dialog = true;
@@ -188,10 +188,12 @@ export default class extends Vue {
 
   deleteItem () {
     const item = this.deleteDialogItem;
-    this.destroyWorkspace({ id: item.id });
+    if (item != null) {
+      this.destroyWorkspace({ id: item.id });
+    }
   }
 
-  showDeleteDialog (item) {
+  showDeleteDialog (item: Workspace) {
     this.deleteDialog = true;
     this.deleteDialogItem = item;
   }

@@ -1,8 +1,6 @@
 package services
 
 import (
-	"database/sql"
-
 	"github.com/nazo/binsen/server/app/orm"
 	"github.com/nazo/binsen/server/app/repositories"
 )
@@ -22,9 +20,9 @@ type roleService struct {
 }
 
 // NewRoleService todo
-func NewRoleService(db *sql.DB) RoleService {
+func NewRoleService() RoleService {
 	return &roleService{
-		rolesRepository: repositories.NewRolesRepository(db),
+		rolesRepository: repositories.NewRolesRepository(),
 	}
 }
 

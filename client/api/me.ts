@@ -1,8 +1,8 @@
 import { NuxtAxiosInstance, AxiosPromise } from '@nuxtjs/axios';
 import { User } from './types/user';
 
-interface getMeResponse {
+interface GetMeResponse {
     user: User;
 }
 
-export const get = (axios: NuxtAxiosInstance): AxiosPromise<getMeResponse> => axios.$get<getMeResponse>('/api/me/v1/get');
+export const get = (axios: NuxtAxiosInstance): AxiosPromise<GetMeResponse> => axios.$get<GetMeResponse>('/api/me/v1/get');
