@@ -104,6 +104,14 @@
   version = "v0.16.0"
 
 [[projects]]
+  digest = "1:adea5a94903eb4384abef30f3d878dc9ff6b6b5b0722da25b82e5169216dfb61"
+  name = "github.com/go-sql-driver/mysql"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "d523deb1b23d913de5bdada721a6071e71283618"
+  version = "v1.4.0"
+
+[[projects]]
   digest = "1:26f2ad8a198a88c3605401186a6be538326e7fbf1f14cb3ef4e0027c4f755f2a"
   name = "github.com/gofrs/uuid"
   packages = ["."]
@@ -257,6 +265,14 @@
   version = "v0.0.3"
 
 [[projects]]
+  digest = "1:3cafc6a5a1b8269605d9df4c6956d43d8011fc57f266ca6b9d04da6c09dee548"
+  name = "github.com/mattn/go-sqlite3"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "25ecb14adfc7543176f7d85291ec7dba82c6f7e4"
+  version = "v1.9.0"
+
+[[projects]]
   branch = "master"
   digest = "1:2b32af4d2a529083275afc192d1067d8126b578c7a9613b26600e4df9c735155"
   name = "github.com/mgutz/ansi"
@@ -319,6 +335,17 @@
   pruneopts = "UT"
   revision = "645ef00459ed84a119197bfb8d8205042c6df63d"
   version = "v0.8.0"
+
+[[projects]]
+  digest = "1:e97b85dd679107b8a0fa8eb7ca844548276064b4cf9632057b8db495a95402ed"
+  name = "github.com/pressly/goose"
+  packages = [
+    ".",
+    "cmd/goose",
+  ]
+  pruneopts = "UT"
+  revision = "f9980cee258976cd89b5edeaee57983104b9180f"
+  version = "v1.0"
 
 [[projects]]
   branch = "master"
@@ -423,13 +450,15 @@
   version = "v8.0.0"
 
 [[projects]]
-  digest = "1:2b4108dbe9dd74dd4f96c92fa0ef24325d380e24b7c95c5fc1f2a30724333edb"
+  digest = "1:a7416cbc43bf24ea218f60bd17ed038cb077f00eeeee756aee4a787d2d912bdd"
   name = "github.com/volatiletech/sqlboiler"
   packages = [
     ".",
     "boil",
     "boilingcore",
     "drivers",
+    "drivers/sqlboiler-psql",
+    "drivers/sqlboiler-psql/driver",
     "importers",
     "queries",
     "queries/qm",
@@ -440,6 +469,18 @@
   pruneopts = "UT"
   revision = "1340e5544bc5880f10808da79ebb3ee80cf8abb1"
   version = "v3.0.1"
+
+[[projects]]
+  digest = "1:19fd46009e9bad71f7e9a8367e7317ed632f89926352a7d59822edec785ae4f3"
+  name = "github.com/ziutek/mymysql"
+  packages = [
+    "godrv",
+    "mysql",
+    "native",
+  ]
+  pruneopts = "UT"
+  revision = "e08c2f35356576b3c3690c252fe5dca728ae9292"
+  version = "v1.5.4"
 
 [[projects]]
   branch = "master"
@@ -505,10 +546,11 @@
   version = "v0.3.0"
 
 [[projects]]
-  digest = "1:c8907869850adaa8bd7631887948d0684f3787d0912f1c01ab72581a6c34432e"
+  digest = "1:77ecc625329a7797b3e24a8432692cd388e87ecd2e8aea2660e9673c3059f36c"
   name = "google.golang.org/appengine"
   packages = [
     ".",
+    "cloudsql",
     "internal",
     "internal/app_identity",
     "internal/base",
@@ -532,10 +574,11 @@
   version = "v9.21.0"
 
 [[projects]]
-  digest = "1:5f6b4da023890e325d29ac3212cada4a2ee006b108ba6c4022b8cee56fee31d1"
+  digest = "1:f21a1b737a1d87a53fee6dca0047c9b73c5c2963630e1d9b13fa459dd5122dd5"
   name = "gopkg.in/godo.v2"
   packages = [
     ".",
+    "cmd/godo",
     "glob",
     "util",
     "watcher",
@@ -563,12 +606,14 @@
     "github.com/labstack/echo/middleware",
     "github.com/lib/pq",
     "github.com/pkg/errors",
+    "github.com/pressly/goose/cmd/goose",
     "github.com/satori/go.uuid",
     "github.com/urfave/cli",
     "github.com/volatiletech/null",
     "github.com/volatiletech/sqlboiler",
     "github.com/volatiletech/sqlboiler/boil",
     "github.com/volatiletech/sqlboiler/drivers",
+    "github.com/volatiletech/sqlboiler/drivers/sqlboiler-psql",
     "github.com/volatiletech/sqlboiler/queries",
     "github.com/volatiletech/sqlboiler/queries/qm",
     "github.com/volatiletech/sqlboiler/strmangle",
@@ -576,6 +621,7 @@
     "golang.org/x/oauth2/google",
     "gopkg.in/go-playground/validator.v9",
     "gopkg.in/godo.v2",
+    "gopkg.in/godo.v2/cmd/godo",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1

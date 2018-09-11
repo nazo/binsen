@@ -47,8 +47,8 @@ const PostsModule = namespace('posts');
   middleware: ['authenticated', 'workspaces']
 })
 export default class extends Vue {
-  @PostsModule.Getter('posts') posts: any
-  @Getter('loggedUser') loggedUser: object
+  @PostsModule.Getter('posts') posts: any;
+  @Getter('loggedUser') loggedUser!: object;
 
   page: number = 1
 

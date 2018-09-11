@@ -1,8 +1,6 @@
 package services
 
 import (
-	"database/sql"
-
 	"github.com/nazo/binsen/server/app/orm"
 	"github.com/nazo/binsen/server/app/repositories"
 	"github.com/nazo/binsen/server/app/services/auth"
@@ -26,9 +24,9 @@ type userService struct {
 }
 
 // NewUserService todo
-func NewUserService(db *sql.DB) UserService {
+func NewUserService() UserService {
 	return &userService{
-		usersRepository: repositories.NewUsersRepository(db),
+		usersRepository: repositories.NewUsersRepository(),
 	}
 }
 

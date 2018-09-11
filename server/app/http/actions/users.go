@@ -6,7 +6,6 @@ import (
 	"github.com/labstack/echo"
 	"github.com/nazo/binsen/server/app/orm"
 	"github.com/nazo/binsen/server/app/services"
-	"github.com/nazo/binsen/server/lib/db"
 )
 
 type getUsersRequest struct {
@@ -18,7 +17,6 @@ type getUsersResponse struct {
 
 // GetUsers get users
 func GetUsers(c echo.Context) error {
-	db := db.Default(c)
 	req := &getUsersRequest{}
 	if err := c.Bind(req); err != nil {
 		c.Logger().Error(err)
@@ -28,7 +26,7 @@ func GetUsers(c echo.Context) error {
 		c.Logger().Error(err)
 		return echo.NewHTTPError(http.StatusInternalServerError, "missing required parameters")
 	}
-	userService := services.NewUserService(db)
+	userService := services.NewUserService()
 	users, err := userService.GetUsers()
 	if err != nil {
 		c.Logger().Error(err)
@@ -49,7 +47,6 @@ type createUserResponse struct {
 
 // CreateUser create user
 func CreateUser(c echo.Context) error {
-	db := db.Default(c)
 	req := &createUserRequest{}
 	if err := c.Bind(req); err != nil {
 		c.Logger().Error(err)
@@ -59,15 +56,15 @@ func CreateUser(c echo.Context) error {
 		c.Logger().Error(err)
 		return echo.NewHTTPError(http.StatusInternalServerError, "missing required parameters")
 	}
-	group, err := services.NewGroupService(db).GetDefaultGroup()
+	group, err := services.NewGroupService().GetDefaultGroup()
 	if err != nil {
 		panic(err)
 	}
-	role, err := services.NewRoleService(db).GetDefaultRole()
+	role, err := services.NewRoleService().GetDefaultRole()
 	if err != nil {
 		panic(err)
 	}
-	userService := services.NewUserService(db)
+	userService := services.NewUserService()
 	user, err := userService.CreateUser(req.Name, req.Email, role, group)
 	if err != nil {
 		c.Logger().Error(err)
@@ -89,7 +86,6 @@ type updateUserResponse struct {
 
 // UpdateUser update user
 func UpdateUser(c echo.Context) error {
-	db := db.Default(c)
 	req := &updateUserRequest{}
 	if err := c.Bind(req); err != nil {
 		c.Logger().Error(err)
@@ -99,7 +95,7 @@ func UpdateUser(c echo.Context) error {
 		c.Logger().Error(err)
 		return echo.NewHTTPError(http.StatusInternalServerError, "missing required parameters")
 	}
-	userService := services.NewUserService(db)
+	userService := services.NewUserService()
 	user, err := userService.GetUser(req.ID)
 	if err != nil {
 		c.Logger().Error(err)
@@ -123,7 +119,6 @@ type deleteUserResponse struct {
 
 // DeleteUser delete user
 func DeleteUser(c echo.Context) error {
-	db := db.Default(c)
 	req := &deleteUserRequest{}
 	if err := c.Bind(req); err != nil {
 		c.Logger().Error(err)
@@ -133,7 +128,7 @@ func DeleteUser(c echo.Context) error {
 		c.Logger().Error(err)
 		return echo.NewHTTPError(http.StatusInternalServerError, "missing required parameters")
 	}
-	userService := services.NewUserService(db)
+	userService := services.NewUserService()
 	user, err := userService.GetUser(req.ID)
 	c.Logger().Error(req.ID)
 	if err != nil {

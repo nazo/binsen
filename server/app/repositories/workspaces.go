@@ -5,6 +5,7 @@ import (
 	"database/sql"
 
 	"github.com/nazo/binsen/server/app/orm"
+	"github.com/nazo/binsen/server/lib/db"
 	"github.com/volatiletech/sqlboiler/boil"
 	"github.com/volatiletech/sqlboiler/queries/qm"
 )
@@ -23,8 +24,10 @@ type workspacesRepository struct {
 }
 
 // NewWorkspacesRepository todo
-func NewWorkspacesRepository(db *sql.DB) WorkspacesRepository {
-	return &workspacesRepository{db: db}
+func NewWorkspacesRepository() WorkspacesRepository {
+	return &workspacesRepository{
+		db: db.InjectDB(),
+	}
 }
 
 // GetWorkspaces get workspaces

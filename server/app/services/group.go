@@ -1,8 +1,6 @@
 package services
 
 import (
-	"database/sql"
-
 	"github.com/nazo/binsen/server/app/orm"
 	"github.com/nazo/binsen/server/app/repositories"
 )
@@ -24,9 +22,9 @@ type groupService struct {
 }
 
 // NewGroupService todo
-func NewGroupService(db *sql.DB) GroupService {
+func NewGroupService() GroupService {
 	return &groupService{
-		groupsRepository: repositories.NewGroupsRepository(db),
+		groupsRepository: repositories.NewGroupsRepository(),
 	}
 }
 

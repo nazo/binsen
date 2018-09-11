@@ -8,7 +8,6 @@ import (
 	"github.com/nazo/binsen/server/app/http/context"
 	"github.com/nazo/binsen/server/app/orm"
 	"github.com/nazo/binsen/server/app/services"
-	"github.com/nazo/binsen/server/lib/db"
 	"github.com/pkg/errors"
 )
 
@@ -23,7 +22,6 @@ type getPostsResponse struct {
 
 // GetPosts get posts
 func GetPosts(c echo.Context) error {
-	db := db.Default(c)
 	req := &getPostsRequest{}
 	if err := c.Bind(req); err != nil {
 		c.Logger().Error(err)
@@ -33,13 +31,13 @@ func GetPosts(c echo.Context) error {
 		c.Logger().Error(err)
 		return echo.NewHTTPError(http.StatusInternalServerError, "missing required parameters")
 	}
-	workspaceService := services.NewWorkspaceService(db)
+	workspaceService := services.NewWorkspaceService()
 	workspace, err := workspaceService.GetWorkspace(req.WorkspaceID)
 	if err != nil {
 		c.Logger().Error(err)
 		return echo.NewHTTPError(http.StatusInternalServerError, "invalid workspace")
 	}
-	postService := services.NewPostService(db)
+	postService := services.NewPostService()
 	posts, err := postService.GetPosts(workspace, req.Page)
 	if err != nil {
 		c.Logger().Error(err)
@@ -59,13 +57,12 @@ type getPostResponse struct {
 
 // GetPost get post
 func GetPost(c echo.Context) error {
-	db := db.Default(c)
 	req := &getPostRequest{}
 	if err := c.Bind(req); err != nil {
 		c.Logger().Error(err)
 		return echo.NewHTTPError(http.StatusInternalServerError, "missing required parameters")
 	}
-	postService := services.NewPostService(db)
+	postService := services.NewPostService()
 	post, err := postService.GetPost(req.ID)
 	if err != nil {
 		c.Logger().Error(err)
@@ -87,7 +84,6 @@ type createPostsResponse struct {
 
 // CreatePost get posts
 func CreatePost(c echo.Context) error {
-	db := db.Default(c)
 	req := &createPostsRequest{}
 	if err := c.Bind(req); err != nil {
 		c.Logger().Error(err)
@@ -102,13 +98,13 @@ func CreatePost(c echo.Context) error {
 		c.Logger().Error(err)
 		return echo.NewHTTPError(http.StatusInternalServerError, "invalid user")
 	}
-	workspaceService := services.NewWorkspaceService(db)
+	workspaceService := services.NewWorkspaceService()
 	workspace, err := workspaceService.GetWorkspace(req.WorkspaceID)
 	if err != nil {
 		c.Logger().Error(errors.Wrap(err, fmt.Sprintf("workspaceService.GetWorkspace ID:[%d]", req.WorkspaceID)))
 		return echo.NewHTTPError(http.StatusInternalServerError, "invalid workspace")
 	}
-	postService := services.NewPostService(db)
+	postService := services.NewPostService()
 	post, err := postService.CreatePost(workspace, req.Title, req.Body, user)
 	if err != nil {
 		c.Logger().Error(err)
@@ -130,7 +126,6 @@ type updatePostsResponse struct {
 
 // UpdatePost get posts
 func UpdatePost(c echo.Context) error {
-	db := db.Default(c)
 	req := &updatePostsRequest{}
 	if err := c.Bind(req); err != nil {
 		c.Logger().Error(err)
@@ -145,7 +140,7 @@ func UpdatePost(c echo.Context) error {
 		c.Logger().Error(err)
 		return echo.NewHTTPError(http.StatusInternalServerError, "invalid user")
 	}
-	postService := services.NewPostService(db)
+	postService := services.NewPostService()
 	post, err := postService.GetPost(req.ID)
 	if err != nil {
 		c.Logger().Error(err)

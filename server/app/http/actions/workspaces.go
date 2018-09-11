@@ -6,7 +6,6 @@ import (
 	"github.com/labstack/echo"
 	"github.com/nazo/binsen/server/app/orm"
 	"github.com/nazo/binsen/server/app/services"
-	"github.com/nazo/binsen/server/lib/db"
 )
 
 type getWorkspacesRequest struct {
@@ -18,7 +17,6 @@ type getWorkspacesResponse struct {
 
 // GetWorkspaces get workspaces
 func GetWorkspaces(c echo.Context) error {
-	db := db.Default(c)
 	req := &getWorkspacesRequest{}
 	if err := c.Bind(req); err != nil {
 		c.Logger().Error(err)
@@ -28,7 +26,7 @@ func GetWorkspaces(c echo.Context) error {
 		c.Logger().Error(err)
 		return echo.NewHTTPError(http.StatusInternalServerError, "missing required parameters")
 	}
-	workspaceService := services.NewWorkspaceService(db)
+	workspaceService := services.NewWorkspaceService()
 	workspaces, err := workspaceService.GetWorkspaces()
 	if err != nil {
 		c.Logger().Error(err)
@@ -48,7 +46,6 @@ type createWorkspacesResponse struct {
 
 // CreateWorkspace get workspaces
 func CreateWorkspace(c echo.Context) error {
-	db := db.Default(c)
 	req := &createWorkspacesRequest{}
 	if err := c.Bind(req); err != nil {
 		c.Logger().Error(err)
@@ -58,7 +55,7 @@ func CreateWorkspace(c echo.Context) error {
 		c.Logger().Error(err)
 		return echo.NewHTTPError(http.StatusInternalServerError, "missing required parameters")
 	}
-	workspaceService := services.NewWorkspaceService(db)
+	workspaceService := services.NewWorkspaceService()
 	workspace, err := workspaceService.CreateWorkspace(req.Name)
 	if err != nil {
 		c.Logger().Error(err)

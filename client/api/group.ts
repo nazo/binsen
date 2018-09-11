@@ -1,22 +1,22 @@
 import { NuxtAxiosInstance, AxiosPromise } from '@nuxtjs/axios';
 import { Group } from './types/group';
 
-interface getGroupsResponse {
+interface GetGroupsResponse {
   groups: Array<Group>;
 }
 
-interface createGroupResponse {
+interface CreateGroupResponse {
   group: Group;
 }
 
-interface updateGroupResponse {
+interface UpdateGroupResponse {
   group: Group;
 }
 
-interface deleteGroupResponse {
+interface DeleteGroupResponse {
 }
 
-export const list = (axios: NuxtAxiosInstance): AxiosPromise<getGroupsResponse> => axios.$get<getGroupsResponse>('/api/group/v1/list', { });
-export const create = (axios: NuxtAxiosInstance, { name }: { name: string }): AxiosPromise<createGroupResponse> => axios.$put<createGroupResponse>('/api/group/v1/create', { name });
-export const update = (axios: NuxtAxiosInstance, { id, name }: { id: number, name: string }): AxiosPromise<updateGroupResponse> => axios.$patch<updateGroupResponse>('/api/group/v1/update', { id, name });
-export const destroy = (axios: NuxtAxiosInstance, { id }: { id: number }): AxiosPromise<deleteGroupResponse> => axios.$delete<deleteGroupResponse>('/api/group/v1/delete', { params: { id } });
+export const list = (axios: NuxtAxiosInstance): AxiosPromise<GetGroupsResponse> => axios.$get<GetGroupsResponse>('/api/group/v1/list', { });
+export const create = (axios: NuxtAxiosInstance, { name }: { name: string }): AxiosPromise<CreateGroupResponse> => axios.$put<CreateGroupResponse>('/api/group/v1/create', { name });
+export const update = (axios: NuxtAxiosInstance, { id, name }: { id: number, name: string }): AxiosPromise<UpdateGroupResponse> => axios.$patch<UpdateGroupResponse>('/api/group/v1/update', { id, name });
+export const destroy = (axios: NuxtAxiosInstance, { id }: { id: number }): AxiosPromise<DeleteGroupResponse> => axios.$delete<DeleteGroupResponse>('/api/group/v1/delete', { params: { id } });

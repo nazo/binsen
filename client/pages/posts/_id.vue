@@ -33,6 +33,7 @@
 import marked from 'marked';
 import { Component, Prop, Emit, Watch, Vue } from 'nuxt-property-decorator';
 import { State, Getter, Action, Mutation, namespace } from 'vuex-class';
+import { User } from '../../api/types/user';
 
 const PostsModule = namespace('posts');
 
@@ -41,7 +42,7 @@ const PostsModule = namespace('posts');
 })
 export default class extends Vue {
   @PostsModule.Getter('currentPost') currentPost: any
-  @Getter('loggedUser') loggedUser: object
+  @Getter('loggedUser') loggedUser!: User | null;
 
   get editUrl() {
     return `/postsEdit?id=${this.currentPost.id}`;

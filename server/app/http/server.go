@@ -32,7 +32,14 @@ func Server() {
 		panic(err)
 	}
 	e.Use(session.Sessions("binsen_session", store))
-	conn, err := db.NewDB()
+	conn, err := db.NewDB(&db.NewDBConfig{
+		Host:     "postgres",
+		Port:     "5432",
+		User:     "binsen",
+		Password: "binsen",
+		Database: "binsen_dev",
+		SSLMode:  "disable",
+	})
 	if err != nil {
 		panic(err)
 	}

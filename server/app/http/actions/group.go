@@ -6,7 +6,6 @@ import (
 	"github.com/labstack/echo"
 	"github.com/nazo/binsen/server/app/orm"
 	"github.com/nazo/binsen/server/app/services"
-	"github.com/nazo/binsen/server/lib/db"
 )
 
 type getGroupsRequest struct {
@@ -18,7 +17,6 @@ type getGroupsResponse struct {
 
 // GetGroups get groups
 func GetGroups(c echo.Context) error {
-	db := db.Default(c)
 	req := &getGroupsRequest{}
 	if err := c.Bind(req); err != nil {
 		c.Logger().Error(err)
@@ -28,7 +26,7 @@ func GetGroups(c echo.Context) error {
 		c.Logger().Error(err)
 		return echo.NewHTTPError(http.StatusInternalServerError, "missing required parameters")
 	}
-	groupService := services.NewGroupService(db)
+	groupService := services.NewGroupService()
 	groups, err := groupService.GetGroups()
 	if err != nil {
 		c.Logger().Error(err)
@@ -48,7 +46,6 @@ type createGroupResponse struct {
 
 // CreateGroup create group
 func CreateGroup(c echo.Context) error {
-	db := db.Default(c)
 	req := &createGroupRequest{}
 	if err := c.Bind(req); err != nil {
 		c.Logger().Error(err)
@@ -58,7 +55,7 @@ func CreateGroup(c echo.Context) error {
 		c.Logger().Error(err)
 		return echo.NewHTTPError(http.StatusInternalServerError, "missing required parameters")
 	}
-	groupService := services.NewGroupService(db)
+	groupService := services.NewGroupService()
 	group, err := groupService.CreateGroup(req.Name)
 	if err != nil {
 		c.Logger().Error(err)
@@ -79,7 +76,6 @@ type updateGroupResponse struct {
 
 // UpdateGroup update group
 func UpdateGroup(c echo.Context) error {
-	db := db.Default(c)
 	req := &updateGroupRequest{}
 	if err := c.Bind(req); err != nil {
 		c.Logger().Error(err)
@@ -89,7 +85,7 @@ func UpdateGroup(c echo.Context) error {
 		c.Logger().Error(err)
 		return echo.NewHTTPError(http.StatusInternalServerError, "missing required parameters")
 	}
-	groupService := services.NewGroupService(db)
+	groupService := services.NewGroupService()
 	group, err := groupService.GetGroup(req.ID)
 	if err != nil {
 		c.Logger().Error(err)
@@ -113,7 +109,6 @@ type deleteGroupResponse struct {
 
 // DeleteGroup delete group
 func DeleteGroup(c echo.Context) error {
-	db := db.Default(c)
 	req := &deleteGroupRequest{}
 	if err := c.Bind(req); err != nil {
 		c.Logger().Error(err)
@@ -123,7 +118,7 @@ func DeleteGroup(c echo.Context) error {
 		c.Logger().Error(err)
 		return echo.NewHTTPError(http.StatusInternalServerError, "missing required parameters")
 	}
-	groupService := services.NewGroupService(db)
+	groupService := services.NewGroupService()
 	group, err := groupService.GetGroup(req.ID)
 	c.Logger().Error(req.ID)
 	if err != nil {

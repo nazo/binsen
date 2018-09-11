@@ -116,6 +116,7 @@
 <script lang="ts">
 import { Component, Prop, Emit, Watch, Vue } from 'nuxt-property-decorator';
 import { State, Getter, Action, Mutation, namespace } from 'vuex-class';
+import { Group } from '../../api/types/group';
 
 const GroupsModule = namespace('groups');
 
@@ -127,7 +128,6 @@ const GroupsModule = namespace('groups');
 })
 export default class extends Vue {
   @GroupsModule.Getter('groups') groups: any;
-  @Getter('loggedGroup') loggedGroup: object;
   @GroupsModule.Action('listGroups') listGroups: any;
   @GroupsModule.Action('destroyGroup') destroyGroup: any;
   @GroupsModule.Action('createGroup') createGroup: any;
@@ -137,9 +137,9 @@ export default class extends Vue {
     return this.editedIndex === -1 ? 'New Item' : 'Edit Item';
   }
 
-  dialog = false
-  deleteDialog = false
-  deleteDialogItem = null
+  dialog: Boolean = false
+  deleteDialog: Boolean = false
+  deleteDialogItem: Group | null = null
   headers = [
     { text: 'ID', value: 'id' },
     { text: 'Name', value: 'name' },
@@ -188,10 +188,12 @@ export default class extends Vue {
 
   deleteItem () {
     const item = this.deleteDialogItem;
-    this.destroyGroup({ id: item.id });
+    if (item != null) {
+      this.destroyGroup({ id: item.id });
+    }
   }
 
-  showDeleteDialog (item) {
+  showDeleteDialog (item: Group) {
     this.deleteDialog = true;
     this.deleteDialogItem = item;
   }
