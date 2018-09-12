@@ -7,7 +7,7 @@ module.exports = function() {
       loader: 'ts-loader',
       options: {
         appendTsSuffixTo: [/\.vue$/],
-        transpileOnly: true
+        transpileOnly: false
       },
       exclude: [
         /vendor/,
