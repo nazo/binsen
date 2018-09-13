@@ -10,8 +10,6 @@
     "experimentalDecorators": true,
     "noImplicitAny": false,
     "esModuleInterop": true,
-    "strictNullChecks": true,
-    "strictPropertyInitialization": true,
     "allowSyntheticDefaultImports": true,
     "sourceMap": true,
     "baseUrl": ".",
