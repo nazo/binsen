@@ -27,11 +27,17 @@ export const actions: ActionTree<State, any> = {
     const { workspaces } = await apiWorkspaceList(this.$axios);
     commit('setWorkspaces', { workspaces });
   },
-  async createWorkspace({ commit, state, rootGetters, dispatch }, { workspace }) {
+  async createWorkspace(
+    { commit, state, rootGetters, dispatch },
+    { workspace }
+  ) {
     await apiWorkspaceCreate(this.$axios, { name: workspace.name });
     dispatch('listWorkspaces');
   },
-  async updateWorkspace({ commit, state, rootGetters, dispatch }, { workspace }) {
+  async updateWorkspace(
+    { commit, state, rootGetters, dispatch },
+    { workspace }
+  ) {
     dispatch('listWorkspaces');
   },
   async destroyWorkspace({ commit, state, rootGetters, dispatch }, { id }) {

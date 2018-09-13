@@ -67,10 +67,17 @@ import { Workspace } from '../api/types/workspace';
 
 @Component({})
 export default class extends Vue {
-  @Getter('loggedUser') loggedUser!: User | null
-  @Getter('workspaces') workspaces!: Array<Workspace>
-  @Getter('currentWorkspace') currentWorkspace!: Workspace | null
-  @Action('setWorkspace') setWorkspace: any
+  @Getter('loggedUser')
+  loggedUser!: User | null;
+
+  @Getter('workspaces')
+  workspaces!: Array<Workspace>;
+
+  @Getter('currentWorkspace')
+  currentWorkspace!: Workspace | null;
+
+  @Action('setWorkspace')
+  setWorkspace: any;
 
   get currentWorkspaceName() {
     if (this.currentWorkspace === null) {
@@ -82,13 +89,29 @@ export default class extends Vue {
   items = [
     { icon: 'apps', title: this.$root.$t('menu.home'), to: '/' },
     { icon: 'edit', title: this.$root.$t('menu.newpost'), to: '/postsEdit' },
-    { icon: 'edit', title: this.$root.$t('menu.workspacesadmin'), to: '/admin/workspaces' },
-    { icon: 'people', title: this.$root.$t('menu.usersadmin'), to: '/admin/users' },
-    { icon: 'group', title: this.$root.$t('menu.groupsadmin'), to: '/admin/groups' },
-    { icon: 'exit_to_app', title: this.$root.$t('menu.signout'), to: '/signout' },
-  ]
+    {
+      icon: 'edit',
+      title: this.$root.$t('menu.workspacesadmin'),
+      to: '/admin/workspaces',
+    },
+    {
+      icon: 'people',
+      title: this.$root.$t('menu.usersadmin'),
+      to: '/admin/users',
+    },
+    {
+      icon: 'group',
+      title: this.$root.$t('menu.groupsadmin'),
+      to: '/admin/groups',
+    },
+    {
+      icon: 'exit_to_app',
+      title: this.$root.$t('menu.signout'),
+      to: '/signout',
+    },
+  ];
 
-  changeWorkspace(workspaceId) {
+  changeWorkspace(workspaceId: number) {
     this.setWorkspace({ workspaceId });
   }
 }

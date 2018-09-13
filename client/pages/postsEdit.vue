@@ -86,24 +86,35 @@ const PostsModule = namespace('posts');
   layout: 'clean',
   middleware: ['authenticated', 'workspaces'],
   components: {
-    CFooter: CFooter
-  }
+    CFooter: CFooter,
+  },
 })
 export default class extends Vue {
-  @Getter('loggedUser') loggedUser: User | null = null;
-  @Getter('currentWorkspace') currentWorkspace: Workspace | null = null;
-  @PostsModule.Getter('currentPost') currentPost: Post | null = null;
-  @PostsModule.Action('createPost') createPost: any;
-  @PostsModule.Action('updatePost') updatePost: any;
-  @PostsModule.Action('getPost') getPost: any;
+  @Getter('loggedUser')
+  loggedUser: User | null = null;
 
-  title: string = ''
-  body: string = ''
+  @Getter('currentWorkspace')
+  currentWorkspace: Workspace | null = null;
 
-  clipped = true
-  drawer = true
-  fixed = false
-  miniVariant = false
+  @PostsModule.Getter('currentPost')
+  currentPost: Post | null = null;
+
+  @PostsModule.Action('createPost')
+  createPost: any;
+
+  @PostsModule.Action('updatePost')
+  updatePost: any;
+
+  @PostsModule.Action('getPost')
+  getPost: any;
+
+  title: string = '';
+  body: string = '';
+
+  clipped = true;
+  drawer = true;
+  fixed = false;
+  miniVariant = false;
 
   get markedBody() {
     return marked(this.$data.body);
@@ -116,17 +127,24 @@ export default class extends Vue {
     return 'edit post';
   }
 
-  saveDraft() {
-  }
+  saveDraft() {}
 
   async submitPost() {
     if (this.currentPost === null) {
       if (this.currentWorkspace !== null) {
-        const response = await this.createPost({ workspaceId: this.currentWorkspace.id, title: this.$data.title, body: this.$data.body });
+        const response = await this.createPost({
+          workspaceId: this.currentWorkspace.id,
+          title: this.$data.title,
+          body: this.$data.body,
+        });
         this.$router.push('/posts/' + response.post.id);
       }
     } else {
-      const response = await this.updatePost({ id: this.currentPost.id, title: this.$data.title, body: this.$data.body });
+      const response = await this.updatePost({
+        id: this.currentPost.id,
+        title: this.$data.title,
+        body: this.$data.body,
+      });
       this.$router.push('/posts/' + response.post.id);
     }
   }
@@ -144,7 +162,7 @@ export default class extends Vue {
     }
     try {
       await store.dispatch('posts/getPost', { id: query.id });
-    } catch(e) {
+    } catch (e) {
       redirect('/');
     }
   }

@@ -35,7 +35,11 @@ export const actions: ActionTree<State, any> = {
     dispatch('listUsers');
   },
   async updateUser({ commit, state, rootGetters, dispatch }, { user }) {
-    await apiUserUpdate(this.$axios, { id: user.id, name: user.name, email: user.email });
+    await apiUserUpdate(this.$axios, {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+    });
     dispatch('listUsers');
   },
   async destroyUser({ commit, state, rootGetters, dispatch }, { id }) {

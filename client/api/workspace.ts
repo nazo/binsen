@@ -9,5 +9,13 @@ interface CreateWorkspacesResponse {
   workspaces: Workspace;
 }
 
-export const list = (axios: NuxtAxiosInstance): AxiosPromise<GetWorkspacesResponse> => axios.$get<GetWorkspacesResponse>('/api/workspace/v1/list', { });
-export const create = (axios: NuxtAxiosInstance, { name }: { name: string }): AxiosPromise<CreateWorkspacesResponse> => axios.$put<CreateWorkspacesResponse>('/api/workspace/v1/create', { name });
+export const list = (
+  axios: NuxtAxiosInstance
+): AxiosPromise<GetWorkspacesResponse> =>
+  axios.$get<GetWorkspacesResponse>('/api/workspace/v1/list', {});
+
+export const create = (
+  axios: NuxtAxiosInstance,
+  { name }: { name: string }
+): AxiosPromise<CreateWorkspacesResponse> =>
+  axios.$put<CreateWorkspacesResponse>('/api/workspace/v1/create', { name });

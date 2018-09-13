@@ -38,7 +38,7 @@ export const mutations: MutationTree<State> = {
       return;
     }
     const workspacesById = {};
-    workspaces.forEach((workspace) => {
+    workspaces.forEach(workspace => {
       workspacesById[workspace.id] = workspace;
     });
     state.workspaces = workspacesById;
@@ -80,7 +80,10 @@ export const actions: ActionTree<State, any> = {
   setWorkspace({ commit }, { workspaceId }) {
     commit('setCurrentWorkspace', { workspaceId });
   },
-  async loginFromGoogleCallback({ commit }, { code, state }: { code: string, state: string }) {
+  async loginFromGoogleCallback(
+    { commit },
+    { code, state }: { code: string; state: string }
+  ) {
     const { user } = await apiGoogleCallback(this.$axios, { code, state });
     commit('setUser', { user });
   },

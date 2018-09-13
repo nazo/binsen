@@ -34,15 +34,19 @@ import marked from 'marked';
 import { Component, Prop, Emit, Watch, Vue } from 'nuxt-property-decorator';
 import { State, Getter, Action, Mutation, namespace } from 'vuex-class';
 import { User } from '../../api/types/user';
+import { Post } from '../../api/types/post';
 
 const PostsModule = namespace('posts');
 
 @Component({
-  middleware: ['authenticated', 'workspaces']
+  middleware: ['authenticated', 'workspaces'],
 })
 export default class extends Vue {
-  @PostsModule.Getter('currentPost') currentPost: any
-  @Getter('loggedUser') loggedUser!: User | null;
+  @PostsModule.Getter('currentPost')
+  currentPost!: Post;
+
+  @Getter('loggedUser')
+  loggedUser!: User | null;
 
   get editUrl() {
     return `/postsEdit?id=${this.currentPost.id}`;
@@ -55,12 +59,12 @@ export default class extends Vue {
   async fetch({ store, params, redirect }) {
     try {
       await store.dispatch('posts/getPost', { id: params.id });
-    } catch(e) {
+    } catch (e) {
       redirect('/');
     }
   }
 
-  validate ({ params }) {
+  validate({ params }) {
     return /^\d+$/.test(params.id);
   }
 }

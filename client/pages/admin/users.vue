@@ -137,87 +137,96 @@ const UsersModule = namespace('users');
 @Component({
   middleware: ['authenticated'],
   $_veeValidate: {
-    validator: 'new'
-  }
+    validator: 'new',
+  },
 })
 export default class extends Vue {
-  @UsersModule.Getter('users') users: any;
-  @UsersModule.Action('listUsers') listUsers: any;
-  @UsersModule.Action('destroyUser') destroyUser: any;
-  @UsersModule.Action('createUser') createUser: any;
-  @UsersModule.Action('updateUser') updateUser: any;
+  @UsersModule.Getter('users')
+  users: any;
 
-  get formTitle () {
+  @UsersModule.Action('listUsers')
+  listUsers: any;
+
+  @UsersModule.Action('destroyUser')
+  destroyUser: any;
+
+  @UsersModule.Action('createUser')
+  createUser: any;
+
+  @UsersModule.Action('updateUser')
+  updateUser: any;
+
+  get formTitle() {
     return this.editedIndex === -1 ? 'New Item' : 'Edit Item';
   }
 
-  dialog: Boolean = false
-  deleteDialog: Boolean = false
-  deleteDialogItem: User | null = null
+  dialog: Boolean = false;
+  deleteDialog: Boolean = false;
+  deleteDialogItem: User | null = null;
   headers = [
     { text: 'ID', value: 'id' },
     { text: 'Name', value: 'name' },
     { text: 'Email', value: 'email' },
     { text: 'Groups', value: 'groups' },
-    { text: 'Actions', value: 'name', sortable: false }
-  ]
-  editedIndex = -1
+    { text: 'Actions', value: 'name', sortable: false },
+  ];
+  editedIndex = -1;
   editedItem = {
     id: 0,
     name: '',
-  }
+  };
   defaultItem = {
     id: 0,
     name: '',
-  }
+  };
   dictionary = {
     attributes: {
-      email: 'E-mail Address'
+      email: 'E-mail Address',
     },
     custom: {
       name: {
         required: () => 'Name can not be empty',
-        max: 'The name field may not be greater than 10 characters'
+        max: 'The name field may not be greater than 10 characters',
       },
-    }
-  }
+    },
+  };
 
   @Watch('dialog')
-  onDialogChange (newValue: string, oldValue: string): void {
+  onDialogChange(newValue: string, oldValue: string): void {
     newValue || this.close();
   }
 
-  async fetch ({ store }) {
+  async fetch({ store }) {
     await store.dispatch('users/listUsers');
   }
 
-  mounted () {
+  mounted() {
     this.$validator.localize('en', this.dictionary);
   }
 
-  initialize () {
+  initialize() {
     this.listUsers();
   }
 
-  editItem (item) {
+  editItem(item) {
     this.editedIndex = this.users.indexOf(item);
     this.editedItem = Object.assign({}, item);
     this.dialog = true;
   }
 
-  deleteItem () {
+  deleteItem() {
     const item = this.deleteDialogItem;
     if (item != null) {
       this.destroyUser({ id: item.id });
     }
   }
 
-  showDeleteDialog (item: User) {
+  showDeleteDialog(item: User) {
     this.deleteDialog = true;
     this.deleteDialogItem = item;
   }
 
-  close () {
+  close() {
     this.dialog = false;
     setTimeout(() => {
       this.editedItem = Object.assign({}, this.defaultItem);
@@ -226,7 +235,7 @@ export default class extends Vue {
     }, 0);
   }
 
-  async save () {
+  async save() {
     if (await this.$validator.validateAll()) {
       if (this.editedIndex > -1) {
         this.updateUser({ user: this.editedItem });

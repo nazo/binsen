@@ -11,11 +11,13 @@ module.exports = {
     // https://github.com/vuejs/eslint-plugin-vue#priority-a-essential-error-prevention
     // consider switching to `plugin:vue/strongly-recommended` or `plugin:vue/recommended` for stricter rules.
     'typescript',
-    'plugin:vue/recommended'
+    'plugin:vue/recommended',
+    'plugin:prettier/recommended'
   ],
   // required to lint *.vue files
   plugins: [
-    'vue'
+    'vue',
+    'prettier'
   ],
   // add your custom rules here
   rules: {
@@ -27,6 +29,7 @@ module.exports = {
     'no-unexpected-multiline': 'error',
     'no-unreachable': 'error',
     'no-console': 'warn',
-    'typescript/explicit-member-accessibility': 'off'
+    'typescript/explicit-member-accessibility': 'off',
+    'prettier/prettier': 'error'
   }
 }

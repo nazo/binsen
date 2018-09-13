@@ -42,25 +42,24 @@ export const actions: ActionTree<State, any> = {
     if (!workspace) {
       return;
     }
-    const { posts } = await apiPostList(this.$axios, { workspace_id: workspace.id, page });
+    const { posts } = await apiPostList(this.$axios, {
+      workspace_id: workspace.id,
+      page,
+    });
     commit('setPosts', { posts });
   },
   createPost({ commit }, { workspaceId, title, body }) {
-    return apiPostCreate(
-      this.$axios, {
-        workspace_id: workspaceId,
-        title,
-        body,
-      }
-    );
+    return apiPostCreate(this.$axios, {
+      workspace_id: workspaceId,
+      title,
+      body,
+    });
   },
   updatePost({ commit }, { id, title, body }) {
-    return apiPostUpdate(
-      this.$axios, {
-        id,
-        title,
-        body,
-      }
-    );
+    return apiPostUpdate(this.$axios, {
+      id,
+      title,
+      body,
+    });
   },
 };
