@@ -123,82 +123,91 @@ const WorkspacesModule = namespace('workspaces');
 @Component({
   middleware: ['authenticated'],
   $_veeValidate: {
-    validator: 'new'
-  }
+    validator: 'new',
+  },
 })
 export default class extends Vue {
-  @WorkspacesModule.Getter('workspaces') workspaces: any;
-  @WorkspacesModule.Action('listWorkspaces') listWorkspaces: any;
-  @WorkspacesModule.Action('destroyWorkspace') destroyWorkspace: any;
-  @WorkspacesModule.Action('createWorkspace') createWorkspace: any;
-  @WorkspacesModule.Action('updateWorkspace') updateWorkspace: any;
+  @WorkspacesModule.Getter('workspaces')
+  workspaces: any;
 
-  get formTitle () {
+  @WorkspacesModule.Action('listWorkspaces')
+  listWorkspaces: any;
+
+  @WorkspacesModule.Action('destroyWorkspace')
+  destroyWorkspace: any;
+
+  @WorkspacesModule.Action('createWorkspace')
+  createWorkspace: any;
+
+  @WorkspacesModule.Action('updateWorkspace')
+  updateWorkspace: any;
+
+  get formTitle() {
     return this.editedIndex === -1 ? 'New Item' : 'Edit Item';
   }
 
-  dialog: Boolean = false
-  deleteDialog: Boolean = false
-  deleteDialogItem: Workspace | null = null
+  dialog: Boolean = false;
+  deleteDialog: Boolean = false;
+  deleteDialogItem: Workspace | null = null;
   headers = [
     { text: 'ID', value: 'id' },
     { text: 'Name', value: 'name' },
-    { text: 'Actions', value: 'name', sortable: false }
-  ]
-  editedIndex = -1
+    { text: 'Actions', value: 'name', sortable: false },
+  ];
+  editedIndex = -1;
   editedItem = {
     id: 0,
     name: '',
-  }
+  };
   defaultItem = {
     id: 0,
     name: '',
-  }
+  };
   dictionary = {
     custom: {
       name: {
         required: () => 'Name can not be empty',
-        max: 'The name field may not be greater than 10 characters'
+        max: 'The name field may not be greater than 10 characters',
       },
-    }
-  }
+    },
+  };
 
   @Watch('dialog')
-  onDialogChange (newValue: string, oldValue: string): void {
+  onDialogChange(newValue: string, oldValue: string): void {
     newValue || this.close();
   }
 
-  async fetch ({ store }) {
+  async fetch({ store }) {
     await store.dispatch('workspaces/listWorkspaces');
   }
 
-  mounted () {
+  mounted() {
     this.$validator.localize('en', this.dictionary);
   }
 
-  initialize () {
+  initialize() {
     this.listWorkspaces();
   }
 
-  editItem (item: Workspace) {
+  editItem(item: Workspace) {
     this.editedIndex = this.workspaces.indexOf(item);
     this.editedItem = Object.assign({}, item);
     this.dialog = true;
   }
 
-  deleteItem () {
+  deleteItem() {
     const item = this.deleteDialogItem;
     if (item != null) {
       this.destroyWorkspace({ id: item.id });
     }
   }
 
-  showDeleteDialog (item: Workspace) {
+  showDeleteDialog(item: Workspace) {
     this.deleteDialog = true;
     this.deleteDialogItem = item;
   }
 
-  close () {
+  close() {
     this.dialog = false;
     setTimeout(() => {
       this.editedItem = Object.assign({}, this.defaultItem);
@@ -207,7 +216,7 @@ export default class extends Vue {
     }, 0);
   }
 
-  async save () {
+  async save() {
     if (await this.$validator.validateAll()) {
       if (this.editedIndex > -1) {
         this.updateWorkspace({ workspace: this.editedItem });

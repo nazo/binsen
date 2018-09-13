@@ -7,8 +7,12 @@ Vue.use(VueI18n);
  * load Locale Messages
  * @returns {LocaleMessages} locale messages
  */
-function loadLocaleMessages (): LocaleMessages {
-  const locales = require.context('../locales', true, /[A-Za-z0-9-_,\s]+\.json$/i);
+function loadLocaleMessages(): LocaleMessages {
+  const locales = require.context(
+    '../locales',
+    true,
+    /[A-Za-z0-9-_,\s]+\.json$/i
+  );
   const messages: LocaleMessages = {};
   locales.keys().forEach(key => {
     const matched = key.match(/([a-z0-9]+)\./i);
@@ -26,6 +30,6 @@ export default ({ app, store }) => {
   app.i18n = new VueI18n({
     locale: store.state.locale,
     fallbackLocale: 'en',
-    messages: loadLocaleMessages()
+    messages: loadLocaleMessages(),
   });
 };

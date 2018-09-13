@@ -21,11 +21,11 @@ import { Component, Prop, Emit, Watch, Vue } from 'nuxt-property-decorator';
   components: {
     CSidebar,
     CFooter,
-  }
+  },
 })
 export default class extends Vue {
-  clipped = true
-  fixed = false
-  miniVariant = false
+  clipped = true;
+  fixed = false;
+  miniVariant = false;
 }
 </script>

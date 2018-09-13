@@ -40,24 +40,25 @@
 <script lang="ts">
 import { Component, Prop, Emit, Watch, Vue } from 'nuxt-property-decorator';
 import { State, Getter, Action, Mutation, namespace } from 'vuex-class';
+import { Post } from '../api/types/post';
 
 const PostsModule = namespace('posts');
 
 @Component({
-  middleware: ['authenticated', 'workspaces']
+  middleware: ['authenticated', 'workspaces'],
 })
 export default class extends Vue {
-  @PostsModule.Getter('posts') posts: any;
-  @Getter('loggedUser') loggedUser!: object;
+  @PostsModule.Getter('posts')
+  posts!: Array<Post> | null;
 
-  page: number = 1
+  page: number = 1;
 
   async fetch({ store, params }) {
     await store.dispatch('getWorkspaces');
     await store.dispatch('posts/listPosts', { page: 1 });
   }
 
-  showPost(post: any): void {
+  showPost(post: Post): void {
     this.$router.push(`/posts/${post.id}`);
   }
 }

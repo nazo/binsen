@@ -7,7 +7,7 @@ import { signout as apiSignout } from '../api/signout';
 import { Component, Vue } from 'nuxt-property-decorator';
 
 @Component({
-  layout: 'simple'
+  layout: 'simple',
 })
 export default class extends Vue {
   async mounted() {

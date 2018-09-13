@@ -10,6 +10,5 @@
 import { Component, Prop, Emit, Watch, Vue } from 'nuxt-property-decorator';
 
 @Component({})
-export default class extends Vue {
-}
+export default class extends Vue {}
 </script>

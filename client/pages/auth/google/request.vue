@@ -7,7 +7,7 @@ import { auth as apiGoogleAuth } from '../../../api/auth/google';
 import { Component, Prop, Emit, Watch, Vue } from 'nuxt-property-decorator';
 
 @Component({
-  layout: 'simple'
+  layout: 'simple',
 })
 export default class extends Vue {
   async mounted() {
