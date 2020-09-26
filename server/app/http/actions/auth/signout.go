@@ -3,8 +3,8 @@ package auth
 import (
 	"net/http"
 
-	session "github.com/ipfans/echo-session"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo-contrib/session"
+	"github.com/labstack/echo/v4"
 )
 
 type deleteSignoutResponse struct {
@@ -12,9 +12,12 @@ type deleteSignoutResponse struct {
 
 // Signout signout user
 func Signout(c echo.Context) error {
-	session := session.Default(c)
-	session.Delete("user_id")
-	session.Save()
+	userSessionValues, err := session.Get("user", c)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "userinfo failed")
+	}
+	userSessionValues.Values["id"] = nil
+	userSessionValues.Save(c.Request(), c.Response())
 	res := &deleteSignoutResponse{}
 	return c.JSON(http.StatusOK, res)
 }

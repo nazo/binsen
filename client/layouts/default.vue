@@ -1,13 +1,10 @@
 <template>
   <v-app>
     <c-sidebar/>
-    <v-toolbar
-      fixed
-      app
-      clipped-left/>
-    <v-content>
+    <v-app-bar fixed app clipped-left/>
+    <v-main>
       <nuxt />
-    </v-content>
+    </v-main>
     <c-footer/>
   </v-app>
 </template>

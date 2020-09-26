@@ -1,5 +1,5 @@
 import { User } from '../types/user';
-import { NuxtAxiosInstance, AxiosPromise } from '@nuxtjs/axios';
+import { NuxtAxiosInstance } from '@nuxtjs/axios';
 
 interface GetGoogleAuthResponse {
   redirectUri: string;
@@ -11,13 +11,13 @@ interface GetGoogleCallbackResponse {
 
 export const auth = (
   axios: NuxtAxiosInstance
-): AxiosPromise<GetGoogleAuthResponse> =>
+): Promise<GetGoogleAuthResponse> =>
   axios.$get<GetGoogleAuthResponse>('/api/auth/v1/google/auth');
 
 export const callback = (
   axios: NuxtAxiosInstance,
   { code, state }: { code: string; state: string }
-): AxiosPromise<GetGoogleCallbackResponse> =>
+): Promise<GetGoogleCallbackResponse> =>
   axios.$get<GetGoogleCallbackResponse>('/api/auth/v1/google/callback', {
     params: { code, state },
   });

@@ -1,11 +1,11 @@
 <template>
   <v-app>
-    <v-content>
+    <v-main>
       <v-container
         fluid
         fill-height>
         <nuxt/>
       </v-container>
-    </v-content>
+    </v-main>
   </v-app>
 </template>

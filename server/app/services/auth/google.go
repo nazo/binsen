@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"os"
 
-	"github.com/satori/go.uuid"
+	uuid "github.com/satori/go.uuid"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 )
@@ -64,10 +64,7 @@ func NewGoogleService(context context.Context) GoogleService {
 
 // GenerateState generate oauth2 state
 func (s *googleService) GenerateState() (string, error) {
-	str, err := uuid.NewV4()
-	if err != nil {
-		return "", err
-	}
+	str := uuid.NewV4()
 	return str.String(), nil
 }
 

@@ -10,6 +10,8 @@ This project is WIP, DO NOT USE PRODCUTION.
 - cp ./server/.env.example ./server/.env
 - edit `./server/.env`
 - run `docker-compose up`
+- run `cd server && make migrate && cd ..`
+- run `docker-compose exec server go run cmd/main.go u add [your gmail address]`
 
 # production
 

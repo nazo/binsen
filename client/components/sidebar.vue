@@ -1,59 +1,38 @@
 <template>
   <div>
-    <v-navigation-drawer
-      permanent
-      fixed
-      clipped
-      app
-    >
-      <v-toolbar
-        flat
-        class="transparent">
-        <v-list
-          class="pa-0"
-          v-if="loggedUser">
-          <v-list-tile avatar>
-            <v-list-tile-avatar>
+    <v-navigation-drawer permanent fixed clipped app >
+      <v-app-bar flat class="transparent">
+        <v-list class="pa-0" v-if="loggedUser">
+          <v-list-item avatar>
+            <v-list-item-avatar>
               <img :src="loggedUser.image_url">
-            </v-list-tile-avatar>
-            <v-list-tile-content>
-              <v-list-tile-title>{{ loggedUser.email }}</v-list-tile-title>
-            </v-list-tile-content>
-          </v-list-tile>
+            </v-list-item-avatar>
+            <v-list-item-content>
+              <v-list-item-title>{{ loggedUser.email }}</v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
         </v-list>
-      </v-toolbar>
-      <v-toolbar
-        flat
-        class="transparent">
+      </v-app-bar>
+      <v-app-bar flat class="transparent">
         <v-toolbar-title slot="activator">
           <span v-text="currentWorkspaceName"/>
           <v-icon dark>arrow_drop_down</v-icon>
         </v-toolbar-title>
         <v-list>
-          <v-list-tile
-            v-for="workspace in workspaces"
-            :key="workspace.id"
-            @click="changeWorkspace(workspace.id)"
-          >
-            <v-list-tile-title v-text="workspace.name"/>
-          </v-list-tile>
+          <v-list-item v-for="workspace in workspaces" :key="workspace.id" @click="changeWorkspace(workspace.id)" >
+            <v-list-item-title v-text="workspace.name"/>
+          </v-list-item>
         </v-list>
-      </v-toolbar>
+      </v-app-bar>
       <v-list>
-        <v-list-tile
-          router
-          :to="item.to"
-          :key="i"
-          v-for="(item, i) in items"
-          exact
-        >
-          <v-list-tile-action>
+        <v-list-item router :to="item.to" :key="i" v-for="(item, i) in items" exact >
+          <v-list-item-action>
             <v-icon v-html="item.icon"/>
-          </v-list-tile-action>
-          <v-list-tile-content>
-            <v-list-tile-title v-text="item.title"/>
-          </v-list-tile-content>
-        </v-list-tile>
+          </v-list-item-action>
+          <v-list-item-content>
+            <v-list-item-title v-text="item.title"/>
+          </v-list-item-content>
+        </v-list-item>
       </v-list>
     </v-navigation-drawer>
   </div>

@@ -12,20 +12,20 @@
           two-line
           v-if="posts">
           <template v-for="post in posts">
-            <v-list-tile
+            <v-list-item
               :key="post.id"
               avatar
               @click="showPost(post)"
             >
-              <v-list-tile-avatar>
+              <v-list-item-avatar>
                 <img src="">
-              </v-list-tile-avatar>
+              </v-list-item-avatar>
 
-              <v-list-tile-content>
-                <v-list-tile-title v-text="post.title"/>
-                <v-list-tile-sub-title v-text="post.body"/>
-              </v-list-tile-content>
-            </v-list-tile>
+              <v-list-item-content>
+                <v-list-item-title v-text="post.title"/>
+                <v-list-item-sub-title v-text="post.body"/>
+              </v-list-item-content>
+            </v-list-item>
           </template>
         </v-list>
         <v-pagination
@@ -38,6 +38,8 @@
 </template>
 
 <script lang="ts">
+import { Store } from 'vuex';
+import { Route } from 'vue-router';
 import { Component, Prop, Emit, Watch, Vue } from 'nuxt-property-decorator';
 import { State, Getter, Action, Mutation, namespace } from 'vuex-class';
 import { Post } from '../api/types/post';
@@ -53,7 +55,7 @@ export default class extends Vue {
 
   page: number = 1;
 
-  async fetch({ store, params }) {
+  async fetch({ store, params }: { store: Store<any>, params: Route['params'] }) {
     await store.dispatch('getWorkspaces');
     await store.dispatch('posts/listPosts', { page: 1 });
   }

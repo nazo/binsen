@@ -31,6 +31,8 @@
 
 <script lang="ts">
 import marked from 'marked';
+import { Store } from 'vuex';
+import { Route } from 'vue-router';
 import { Component, Prop, Emit, Watch, Vue } from 'nuxt-property-decorator';
 import { State, Getter, Action, Mutation, namespace } from 'vuex-class';
 import { User } from '../../api/types/user';
@@ -56,7 +58,7 @@ export default class extends Vue {
     return marked(this.currentPost.body);
   }
 
-  async fetch({ store, params, redirect }) {
+  async fetch({ store, params, redirect }: { store: Store<any>, params: Route['params'], redirect(path: string, query?: Route['query']): void }) {
     try {
       await store.dispatch('posts/getPost', { id: params.id });
     } catch (e) {
@@ -64,7 +66,7 @@ export default class extends Vue {
     }
   }
 
-  validate({ params }) {
+  validate({ params }: { params: Route['params'] }) {
     return /^\d+$/.test(params.id);
   }
 }

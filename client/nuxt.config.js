@@ -1,79 +1,51 @@
-const nodeExternals = require('webpack-node-externals');
-const resolve = (dir) => require('path').join(__dirname, dir);
-
-module.exports = {
+export default {
   /*
-  ** Headers of the page
-  */
+   ** Nuxt rendering mode
+   ** See https://nuxtjs.org/api/configuration-mode
+   */
+  mode: 'universal',
+  /*
+   ** Nuxt target
+   ** See https://nuxtjs.org/api/configuration-target
+   */
+  target: 'server',
+  /*
+   ** Headers of the page
+   ** See https://nuxtjs.org/api/configuration-head
+   */
   head: {
-    title: 'binsen',
+    titleTemplate: '%s - ' + process.env.npm_package_name,
+    title: process.env.npm_package_name || '',
     meta: [
       { charset: 'utf-8' },
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-      { hid: 'description', name: 'description', content: 'document management system' }
+      {
+        hid: 'description',
+        name: 'description',
+        content: process.env.npm_package_description || '',
+      },
     ],
-    link: [
-      { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
-      { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Material+Icons' }
-    ]
+    link: [{ rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }],
   },
   /*
-  ** Customize the progress bar color
-  */
-  loading: { color: '#3B8070' },
+   ** Global CSS
+   */
+  css: [],
   /*
-  ** Build configuration
-  */
-  build: {
-    babel: {
-      plugins: [
-        'transform-decorators-legacy',
-        'transform-class-properties',
-        ['transform-imports', {
-          'vuetify': {
-            'transform': 'vuetify/es5/components/${member}',
-            'preventFullImport': true
-          }
-        }]
-      ]
-    },
-    vendor: [
-      'vuex-class',
-      'nuxt-class-component',
-    ],
-    extractCSS: true,
-    cssSourceMap: false,
-    extend (config, ctx) {
-      if (ctx.isDev && ctx.isClient) {
-        config.module.rules.push({
-          enforce: 'pre',
-          test: /\.(ts|vue)$/,
-          loader: 'eslint-loader',
-          exclude: /(node_modules)/
-        });
-      }
-      if (ctx.isServer) {
-        config.externals = [
-          nodeExternals({
-            whitelist: [/^vuetify/]
-          })
-        ];
-      }
-    }
-  },
+   ** Plugins to load before mounting the App
+   ** https://nuxtjs.org/guide/plugins
+   */
   router: {
     middleware: 'i18n'
   },
   plugins: [
     '~/plugins/axios',
     '~/plugins/vee-validate',
-    '~/plugins/vuetify',
     '~/plugins/i18n',
   ],
   modules: [
     '@nuxtjs/pwa',
-    '@nuxtjs/axios',
-    '~/modules/typescript.js',
+    '@nuxtjs/axios'
   ],
   manifest: {
     name: 'binsen',
@@ -83,12 +55,26 @@ module.exports = {
     API_CLIENT_BASE_URI: process.env.API_CLIENT_BASE_URI,
     API_SERVER_BASE_URI: process.env.API_SERVER_BASE_URI,
   },
-  css: [
-    '~/assets/style/app.styl'
+  /*
+   ** Auto import components
+   ** See https://nuxtjs.org/api/configuration-components
+   */
+  components: true,
+  /*
+   ** Nuxt.js dev-modules
+   */
+  buildModules: ['@nuxt/typescript-build', '@nuxtjs/vuetify'],
+  /*
+   ** Nuxt.js modules
+   */
+  modules: [
+    // Doc: https://axios.nuxtjs.org/usage
+    '@nuxtjs/axios',
   ],
-  vendor: [
-    '~/plugins/vuetify'
-  ],
+  /*
+   ** Axios module configuration
+   ** See https://axios.nuxtjs.org/options
+   */
   axios: {
     proxyHeaders: true,
     baseURL: process.env.API_SERVER_BASE_URI,
@@ -96,14 +82,19 @@ module.exports = {
     credentials: true,
     proxyHeadersIgnore: ['host', 'accept'],
   },
-  workbox: {
-    dev: true,
-    runtimeCaching: [
-      {
-        urlPattern: '/',
-        handler: 'networkFirst',
-        method: 'GET'
-      }
-    ]
-  }
-};
+  /*
+   ** vuetify module configuration
+   ** https://github.com/nuxt-community/vuetify-module
+   */
+  vuetify: {
+  },
+  /*
+   ** Build configuration
+   ** See https://nuxtjs.org/api/configuration-build/
+   */
+  build: {
+    transpile: [
+      "vee-validate/dist/rules"
+    ],
+  },
+}

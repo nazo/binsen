@@ -5,11 +5,13 @@ import (
 
 	"github.com/facebookgo/grace/gracehttp"
 
-	"github.com/ipfans/echo-session"
-	"github.com/labstack/echo"
-	"github.com/labstack/echo/middleware"
+	"github.com/go-redis/redis"
+	"github.com/labstack/echo-contrib/session"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	"github.com/nazo/binsen/server/app/http/routes"
 	"github.com/nazo/binsen/server/lib/db"
+	"github.com/rbcervilla/redisstore"
 	"gopkg.in/go-playground/validator.v9"
 )
 
@@ -27,11 +29,15 @@ func Server() {
 		AllowHeaders:     []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept},
 		AllowCredentials: true,
 	}))
-	store, err := session.NewRedisStore(32, "tcp", "redis:6379", "", []byte("secret"))
+
+	client := redis.NewClient(&redis.Options{
+		Addr: "redis:6379",
+	})
+	store, err := redisstore.NewRedisStore(client)
 	if err != nil {
 		panic(err)
 	}
-	e.Use(session.Sessions("binsen_session", store))
+	e.Use(session.Middleware(store))
 	conn, err := db.NewDB(&db.NewDBConfig{
 		Host:     "postgres",
 		Port:     "5432",

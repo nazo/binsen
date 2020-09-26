@@ -1,7 +1,7 @@
 package routes
 
 import (
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 	"github.com/nazo/binsen/server/app/http/actions"
 	"github.com/nazo/binsen/server/app/http/actions/auth"
 	"github.com/nazo/binsen/server/app/http/middlewares"

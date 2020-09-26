@@ -2,11 +2,12 @@ import { GetterTree, MutationTree, ActionTree, ActionContext } from 'vuex';
 import { callback as apiGoogleCallback } from '../api/auth/google';
 import { list as apiWorkspaceList } from '../api/workspace';
 import { User } from '../api/types/user';
+import { Workspace } from '../api/types/workspace';
 
 export class State {
   user: User | null = null;
   currentWorkspaceId: number | null = null;
-  workspaces: object | null = null;
+  workspaces: { [key: number]: Workspace } | null = null;
   locales: Array<string> = ['en', 'ja'];
   locale: string = 'en';
 }
@@ -22,7 +23,7 @@ export const mutations: MutationTree<State> = {
   setUser(state: State, { user }: { user: User }) {
     state.user = user || null;
   },
-  setCurrentWorkspace(state: State, { workspaceId }) {
+  setCurrentWorkspace(state: State, { workspaceId }: { workspaceId: number }) {
     if (state.workspaces === null) {
       state.currentWorkspaceId = null;
       return;
@@ -33,12 +34,12 @@ export const mutations: MutationTree<State> = {
     }
     state.currentWorkspaceId = workspaceId;
   },
-  setWorkspaces(state: State, { workspaces }) {
+  setWorkspaces(state: State, { workspaces }: { workspaces: Workspace[] }) {
     if (workspaces === null) {
       return;
     }
-    const workspacesById = {};
-    workspaces.forEach(workspace => {
+    const workspacesById: { [key: number]: Workspace } = {};
+    workspaces.forEach((workspace: Workspace) => {
       workspacesById[workspace.id] = workspace;
     });
     state.workspaces = workspacesById;
@@ -77,7 +78,7 @@ export const actions: ActionTree<State, any> = {
     const { workspaces } = await apiWorkspaceList(this.$axios);
     commit('setWorkspaces', { workspaces });
   },
-  setWorkspace({ commit }, { workspaceId }) {
+  setWorkspace({ commit }, { workspaceId }: { workspaceId: number }) {
     commit('setCurrentWorkspace', { workspaceId });
   },
   async loginFromGoogleCallback(

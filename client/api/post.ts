@@ -1,5 +1,5 @@
 import { Post } from './types/post';
-import { NuxtAxiosInstance, AxiosPromise } from '@nuxtjs/axios';
+import { NuxtAxiosInstance } from '@nuxtjs/axios';
 
 interface GetPostsResponse {
   posts: Array<Post>;
@@ -20,7 +20,7 @@ interface UpdatePostsResponse {
 export const list = (
   axios: NuxtAxiosInstance,
   { workspace_id, page }: { workspace_id: number; page: number }
-): AxiosPromise<GetPostsResponse> =>
+): Promise<GetPostsResponse> =>
   axios.$get<GetPostsResponse>('/api/post/v1/list', {
     params: { workspace_id, page },
   });
@@ -28,7 +28,7 @@ export const list = (
 export const get = (
   axios: NuxtAxiosInstance,
   { id }: { id: number }
-): AxiosPromise<GetPostResponse> =>
+): Promise<GetPostResponse> =>
   axios.$get<GetPostResponse>('/api/post/v1/get', { params: { id } });
 
 export const create = (
@@ -38,7 +38,7 @@ export const create = (
     title,
     body,
   }: { workspace_id: number; title: string; body: string }
-): AxiosPromise<CreatePostsResponse> =>
+): Promise<CreatePostsResponse> =>
   axios.$put<CreatePostsResponse>('/api/post/v1/create', {
     workspace_id,
     title,
@@ -48,5 +48,5 @@ export const create = (
 export const update = (
   axios: NuxtAxiosInstance,
   { id, title, body }: { id: number; title: string; body: string }
-): AxiosPromise<UpdatePostsResponse> =>
+): Promise<UpdatePostsResponse> =>
   axios.$patch<UpdatePostsResponse>('/api/post/v1/update', { id, title, body });

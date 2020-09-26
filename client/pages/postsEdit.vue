@@ -1,78 +1,8 @@
-<template>
-  <v-app>
-    <v-toolbar
-      fixed
-      app
-      :clipped-left="clipped">
-      <v-btn
-        icon
-        class="hidden-xs-only"
-        @click="goBack">
-        <v-icon>arrow_back</v-icon>
-      </v-btn>
-      <v-toolbar-title v-text="pageTitle"/>
-    </v-toolbar>
-    <v-content>
-      <v-container
-        fluid
-        fill-height>
-        <v-container
-          fluid
-          fill-height>
-          <v-layout column>
-            <v-flex xs12>
-              <v-layout
-                fill-height
-                justify-space-between
-                column>
-                <div>
-                  <v-text-field
-                    label="Title"
-                    placeholder="Title"
-                    v-model="title"
-                  />
-                </div>
-                <div class="editor-area">
-                  <v-layout
-                    align-space-between
-                    justify-space-between
-                    row
-                    fill-height>
-                    <div>
-                      <textarea
-                        class="editor-margined"
-                        v-model="body" />
-                    </div>
-                    <div>
-                      <v-card
-                        dark
-                        class="editor-margined editor-preview"
-                        color="secondary">
-                        <v-card-text
-                          class="px-0"
-                          v-html="markedBody"/>
-                      </v-card>
-                    </div>
-                  </v-layout>
-                </div>
-                <div>
-                  <v-btn @click="saveDraft">Draft</v-btn>
-                  <v-btn
-                    color="success"
-                    @click="submitPost">Post</v-btn>
-                </div>
-              </v-layout>
-            </v-flex>
-          </v-layout>
-        </v-container>
-      </v-container>
-    </v-content>
-    <c-footer/>
-  </v-app>
-</template>
 
 <script lang="ts">
 import marked from 'marked';
+import { Store } from 'vuex';
+import { Route } from 'vue-router';
 import { Component, Prop, Emit, Watch, Vue } from 'nuxt-property-decorator';
 import { State, Getter, Action, Mutation, namespace } from 'vuex-class';
 import CFooter from '../components/footer.vue';
@@ -156,7 +86,7 @@ export default class extends Vue {
     }
   }
 
-  async fetch({ store, query, redirect }) {
+  async fetch({ store, query, redirect }: { store: Store<any>, query: Route['query'], redirect(path: string, query?: Route['query']): void }) {
     if (!('id' in query)) {
       return;
     }

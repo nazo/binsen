@@ -1,13 +1,12 @@
-FROM alpine:3.8
+FROM golang:1.15.1-buster
 ENV GOPATH /app
 ENV PATH /app/bin:$PATH
-RUN apk --no-cache --update add musl-dev go go-tools libtool postgresql-dev git bash make openssl readline autoconf automake curl bzip2 gzip tar zip gcc g++ && \
-    rm -rf /var/cache/apk/*
+ENV GO111MODULE on
 WORKDIR /app/src/github.com/nazo/binsen/server
-RUN mkdir -p $GOPATH/bin && curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
-ADD ./Gopkg.toml /app/src/github.com/nazo/binsen/server
-ADD ./Gopkg.lock /app/src/github.com/nazo/binsen/server
+RUN go get -u gopkg.in/godo.v2/cmd/godo
+ADD ./go.mod /app/src/github.com/nazo/binsen/server
+ADD ./go.sum /app/src/github.com/nazo/binsen/server
 ADD ./Makefile /app/src/github.com/nazo/binsen/server
 ADD ./bin /app/src/github.com/nazo/binsen/server/bin
-RUN dep ensure -vendor-only && make deps-install
+RUN go mod download
 ADD . /app/src/github.com/nazo/binsen/server

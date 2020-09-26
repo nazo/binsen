@@ -3,7 +3,7 @@ services:
   server:
     build:
       context: ./server
-    command: /bin/sh -c "dep ensure && godo server --watch"
+    command: /bin/sh -c "go run cmd/main.go server"
     volumes:
       - ./server:/app/src/github.com/nazo/binsen/server
       - /app/vendor
@@ -15,6 +15,8 @@ services:
       - 50001:5000
     env_file:
       - ./server/.env
+    environment:
+      GO111MODULE: "on"
   client:
     build:
       context: ./client

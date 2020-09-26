@@ -1,8 +1,8 @@
-import { NuxtAxiosInstance, AxiosPromise } from '@nuxtjs/axios';
+import { NuxtAxiosInstance } from '@nuxtjs/axios';
 
 interface DeleteSignoutResponse {}
 
 export const signout = (
   axios: NuxtAxiosInstance
-): AxiosPromise<DeleteSignoutResponse> =>
+): Promise<DeleteSignoutResponse> =>
   axios.$delete<DeleteSignoutResponse>('/api/auth/v1/signout');

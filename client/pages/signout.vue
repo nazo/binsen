@@ -5,13 +5,14 @@
 <script lang="ts">
 import { signout as apiSignout } from '../api/signout';
 import { Component, Vue } from 'nuxt-property-decorator';
+import { NuxtAxiosInstance } from '@nuxtjs/axios';
 
 @Component({
   layout: 'simple',
 })
 export default class extends Vue {
-  async mounted() {
-    await apiSignout(this.$axios);
+  async mounted({ $axios }: { $axios: NuxtAxiosInstance }) {
+    await apiSignout($axios);
     this.$router.replace('/signin');
   }
 }

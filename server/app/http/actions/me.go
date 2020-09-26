@@ -3,7 +3,7 @@ package actions
 import (
 	"net/http"
 
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 	"github.com/nazo/binsen/server/app/http/context"
 	"github.com/nazo/binsen/server/app/orm"
 )

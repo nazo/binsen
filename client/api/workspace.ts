@@ -1,4 +1,4 @@
-import { NuxtAxiosInstance, AxiosPromise } from '@nuxtjs/axios';
+import { NuxtAxiosInstance } from '@nuxtjs/axios';
 import { Workspace } from './types/workspace';
 
 interface GetWorkspacesResponse {
@@ -11,11 +11,11 @@ interface CreateWorkspacesResponse {
 
 export const list = (
   axios: NuxtAxiosInstance
-): AxiosPromise<GetWorkspacesResponse> =>
+): Promise<GetWorkspacesResponse> =>
   axios.$get<GetWorkspacesResponse>('/api/workspace/v1/list', {});
 
 export const create = (
   axios: NuxtAxiosInstance,
   { name }: { name: string }
-): AxiosPromise<CreateWorkspacesResponse> =>
+): Promise<CreateWorkspacesResponse> =>
   axios.$put<CreateWorkspacesResponse>('/api/workspace/v1/create', { name });

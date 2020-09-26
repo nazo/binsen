@@ -4,8 +4,8 @@ import (
 	"context"
 	"net/http"
 
-	session "github.com/ipfans/echo-session"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo-contrib/session"
+	"github.com/labstack/echo/v4"
 	"github.com/nazo/binsen/server/app/orm"
 	"github.com/nazo/binsen/server/app/services"
 	authServices "github.com/nazo/binsen/server/app/services/auth"
@@ -19,9 +19,12 @@ type getGoogleAuthResponse struct {
 func GetGoogleAuth(c echo.Context) error {
 	googleService := authServices.NewGoogleService(context.Background())
 	url, state := googleService.GetDefaultAuthCodeURL()
-	session := session.Default(c)
-	session.Set("google-oauth2-state", state)
-	session.Save()
+	sessionValues, err := session.Get("google-oauth2", c)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "invalid state")
+	}
+	sessionValues.Values["state"] = state
+	sessionValues.Save(c.Request(), c.Response())
 	res := &getGoogleAuthResponse{
 		RedirectURI: url,
 	}
@@ -46,11 +49,12 @@ func GetGoogleCallback(c echo.Context) error {
 		c.Logger().Error(err)
 		return echo.NewHTTPError(http.StatusInternalServerError, "missing required parameters")
 	}
-	session := session.Default(c)
-	if session.Get("google-oauth2-state") != req.State {
+	stateSessionValues, err := session.Get("google-oauth2", c)
+	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "invalid state")
 	}
-	session.Set("google-oauth2-state", nil)
+	stateSessionValues.Values["state"] = nil
+	stateSessionValues.Save(c.Request(), c.Response())
 	token, err := googleService.Exchange(req.Code)
 	if err != nil {
 		c.Logger().Error(err)
@@ -59,11 +63,18 @@ func GetGoogleCallback(c echo.Context) error {
 	userResponse, err := googleService.GetUser(token)
 	if err != nil {
 		c.Logger().Error(err)
-		return echo.NewHTTPError(http.StatusInternalServerError, "userinfo failed")
+		return echo.NewHTTPError(http.StatusInternalServerError, "userinfo failed 1")
 	}
 	user, err := userService.FindUserByGoogleUser(token, userResponse)
-	session.Set("user_id", user.ID)
-	session.Save()
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "userinfo failed 2")
+	}
+	userSessionValues, err := session.Get("user", c)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "userinfo failed 3")
+	}
+	userSessionValues.Values["id"] = user.ID
+	userSessionValues.Save(c.Request(), c.Response())
 	res := &getGoogleCallbackResponse{User: user}
 	return c.JSON(http.StatusOK, res)
 }
