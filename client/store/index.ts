@@ -4,7 +4,7 @@ import { list as apiWorkspaceList } from '../api/workspace';
 import { User } from '../api/types/user';
 import { Workspace } from '../api/types/workspace';
 
-export class State {
+export class RootState {
   user: User | null = null;
   currentWorkspaceId: number | null = null;
   workspaces: { [key: number]: Workspace } | null = null;
@@ -12,18 +12,54 @@ export class State {
   locale: string = 'en';
 }
 
-export const state = (): State => new State();
+export const state = (): RootState => new RootState();
 
-export const mutations: MutationTree<State> = {
-  setLang(state: State, locale: string) {
+export const getters: GetterTree<RootState, RootState> = {
+  isAuthenticated(state: RootState) {
+    return !!state.user;
+  },
+
+  loggedUser(state: RootState): User | null {
+    return state.user;
+  },
+
+  currentWorkspace(state: RootState) {
+    if (state.currentWorkspaceId === null) {
+      return null;
+    }
+    if (state.workspaces === null) {
+      return null;
+    }
+    if (!(state.currentWorkspaceId in state.workspaces)) {
+      return null;
+    }
+    return state.workspaces[state.currentWorkspaceId];
+  },
+
+  workspaces(state: RootState) {
+    return state.workspaces;
+  },
+};
+
+export const MutationType = {
+  SET_LANG: 'setLang',
+  SET_USER: 'setUser',
+  SET_CURRENT_WORKSPACE: 'setCurrentWorkspace',
+  SET_WORKSPACES: 'setWorkspaces',
+}
+
+export const mutations: MutationTree<RootState> = {
+  [MutationType.SET_LANG]: (state: RootState, locale: string) => {
     if (state.locales.indexOf(locale) !== -1) {
       state.locale = locale;
     }
   },
-  setUser(state: State, { user }: { user: User }) {
+
+  [MutationType.SET_USER]: (state: RootState, { user }: { user: User }) => {
     state.user = user || null;
   },
-  setCurrentWorkspace(state: State, { workspaceId }: { workspaceId: number }) {
+
+  [MutationType.SET_CURRENT_WORKSPACE]: (state: RootState, { workspaceId }: { workspaceId: number }) => {
     if (state.workspaces === null) {
       state.currentWorkspaceId = null;
       return;
@@ -34,7 +70,8 @@ export const mutations: MutationTree<State> = {
     }
     state.currentWorkspaceId = workspaceId;
   },
-  setWorkspaces(state: State, { workspaces }: { workspaces: Workspace[] }) {
+
+  [MutationType.SET_WORKSPACES]: (state: RootState, { workspaces }: { workspaces: Workspace[] }) => {
     if (workspaces === null) {
       return;
     }
@@ -49,43 +86,27 @@ export const mutations: MutationTree<State> = {
   },
 };
 
-export const getters: GetterTree<State, any> = {
-  isAuthenticated(state: State) {
-    return !!state.user;
-  },
-  loggedUser(state: State): User | null {
-    return state.user;
-  },
-  currentWorkspace(state: State) {
-    if (state.currentWorkspaceId === null) {
-      return null;
-    }
-    if (state.workspaces === null) {
-      return null;
-    }
-    if (!(state.currentWorkspaceId in state.workspaces)) {
-      return null;
-    }
-    return state.workspaces[state.currentWorkspaceId];
-  },
-  workspaces(state: State) {
-    return state.workspaces;
-  },
-};
+export const actionType = {
+  GET_WORKSPACES: 'getWorkspaces',
+  SET_WORKSPACE: 'setWorkspace',
+  LOGIN_FROM_GOOGLE_CALLBACK: 'loginFromGoogleCallback',
+}
 
-export const actions: ActionTree<State, any> = {
-  async getWorkspaces({ commit }) {
-    const { workspaces } = await apiWorkspaceList(this.$axios);
+export const actions: ActionTree<RootState, RootState> = {
+  [actionType.GET_WORKSPACES]: async ({ commit }) => {
+    const { workspaces } = await apiWorkspaceList(this.$http);
     commit('setWorkspaces', { workspaces });
   },
-  setWorkspace({ commit }, { workspaceId }: { workspaceId: number }) {
+
+  [actionType.SET_WORKSPACE]: ({ commit }, { workspaceId }: { workspaceId: number }) => {
     commit('setCurrentWorkspace', { workspaceId });
   },
-  async loginFromGoogleCallback(
+
+  [actionType.LOGIN_FROM_GOOGLE_CALLBACK]: async (
     { commit },
     { code, state }: { code: string; state: string }
-  ) {
-    const { user } = await apiGoogleCallback(this.$axios, { code, state });
+  ) => {
+    const { user } = await apiGoogleCallback(this.$http, { code, state });
     commit('setUser', { user });
   },
 };

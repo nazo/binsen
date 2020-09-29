@@ -6,44 +6,61 @@ import {
   destroy as apiUserDestroy,
 } from '../api/user';
 import { User } from '../api/types/user';
+import type { RootState } from './index';
 
-export class State {
+export const namespace = 'users';
+
+export class UsersState {
   users: Array<User> = [];
 }
 
-export const state = (): State => new State();
+export const state = (): UsersState => new UsersState();
 
-export const mutations: MutationTree<State> = {
-  setUsers(state: State, { users }: { users: Array<User> }) {
-    state.users = users;
-  },
-};
-
-export const getters: GetterTree<State, any> = {
-  users(state: State): Array<User> {
+export const getters: GetterTree<UsersState, RootState> = {
+  users(state: UsersState): Array<User> {
     return state.users;
   },
 };
 
-export const actions: ActionTree<State, any> = {
-  async listUsers({ commit, state, rootGetters, dispatch }) {
-    const { users } = await apiUserList(this.$axios);
+export const MutationType = {
+  SET_USERS: 'setUsers',
+}
+
+export const mutations: MutationTree<UsersState> = {
+  [MutationType.SET_USERS]: (state: UsersState, { users }: { users: Array<User> }) => {
+    state.users = users;
+  },
+};
+
+export const actionType = {
+  LIST_USERS: 'listUsers',
+  CREATE_USER: 'createUser',
+  UPDATE_USER: 'updateUser',
+  DESTROY_USER: 'destroyUser',
+}
+
+export const actions: ActionTree<UsersState, RootState> = {
+  [actionType.LIST_USERS]: async ({ commit, state, rootGetters, dispatch }) => {
+    const { users } = await apiUserList(this.$http);
     commit('setUsers', { users });
   },
-  async createUser({ commit, state, rootGetters, dispatch }, { user }) {
-    await apiUserCreate(this.$axios, { name: user.name, email: user.email });
+
+  [actionType.CREATE_USER]: async ({ commit, state, rootGetters, dispatch }, { user }) => {
+    await apiUserCreate(this.$http, { name: user.name, email: user.email });
     dispatch('listUsers');
   },
-  async updateUser({ commit, state, rootGetters, dispatch }, { user }) {
-    await apiUserUpdate(this.$axios, {
+
+  [actionType.UPDATE_USER]: async ({ commit, state, rootGetters, dispatch }, { user }) => {
+    await apiUserUpdate(this.$http, {
       id: user.id,
       name: user.name,
       email: user.email,
     });
     dispatch('listUsers');
   },
-  async destroyUser({ commit, state, rootGetters, dispatch }, { id }) {
-    await apiUserDestroy(this.$axios, { id });
+
+  [actionType.DESTROY_USER]: async ({ commit, state, rootGetters, dispatch }, { id }) {
+    await apiUserDestroy(this.$http, { id });
     dispatch('listUsers');
   },
 };

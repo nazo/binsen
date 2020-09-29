@@ -1,44 +1,62 @@
 import { GetterTree, MutationTree, ActionTree, ActionContext } from 'vuex';
+import { Module, VuexModule, Mutation, Action } from 'vuex-module-decorators';
 import {
   list as apiGroupList,
   create as apiGroupCreate,
   update as apiGroupUpdate,
   destroy as apiGroupDestroy,
 } from '../api/group';
+import type { RootState } from './index';
 
-export class State {
+export const namespace = 'groups';
+
+export class GroupsState {
   groups: Array<object> = [];
 }
 
-export const state = (): State => new State();
+export const state = (): GroupsState => new GroupsState();
 
-export const mutations: MutationTree<State> = {
-  setGroups(state: State, { groups }) {
-    state.groups = groups || null;
-  },
-};
-
-export const getters: GetterTree<State, any> = {
-  groups(state: State) {
+export const getters: GetterTree<GroupsState, RootState> = {
+  groups(state: GroupsState) {
     return state.groups;
   },
 };
 
-export const actions: ActionTree<State, any> = {
-  async listGroups({ commit, state, rootGetters, dispatch }) {
-    const { groups } = await apiGroupList(this.$axios);
+export const MutationType = {
+  SET_GROUPS: 'setGroups',
+}
+
+export const mutations: MutationTree<GroupsState> = {
+  [MutationType.SET_GROUPS]: (state: GroupsState, { groups }) => {
+    state.groups = groups || null;
+  },
+};
+
+export const actionType = {
+  LIST_GROUPS: 'listGroups',
+  CREATE_GROUP: 'createGroup',
+  UPDATE_GROUP: 'updateGroup',
+  DESTROY_GROUP: 'destroyGroup',
+}
+
+export const actions: ActionTree<GroupsState, RootState> = {
+  [actionType.LIST_GROUPS]: async ({ commit, state, rootGetters, dispatch }) => {
+    const { groups } = await apiGroupList(this.$http);
     commit('setGroups', { groups });
   },
-  async createGroup({ commit, state, rootGetters, dispatch }, { group }) {
-    await apiGroupCreate(this.$axios, { name: group.name });
+
+  [actionType.CREATE_GROUP]: async ({ commit, state, rootGetters, dispatch }, { group }) => {
+    await apiGroupCreate(this.$http, { name: group.name });
     dispatch('listGroups');
   },
-  async updateGroup({ commit, state, rootGetters, dispatch }, { group }) {
-    await apiGroupUpdate(this.$axios, { id: group.id, name: group.name });
+
+  [actionType.UPDATE_GROUP]: async ({ commit, state, rootGetters, dispatch }, { group }) => {
+    await apiGroupUpdate(this.$http, { id: group.id, name: group.name });
     dispatch('listGroups');
   },
-  async destroyGroup({ commit, state, rootGetters, dispatch }, { id }) {
-    await apiGroupDestroy(this.$axios, { id });
+
+  [actionType.DESTROY_GROUP]: async ({ commit, state, rootGetters, dispatch }, { id }) => {
+    await apiGroupDestroy(this.$http, { id });
     dispatch('listGroups');
   },
 };

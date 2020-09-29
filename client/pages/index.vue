@@ -40,8 +40,7 @@
 <script lang="ts">
 import { Store } from 'vuex';
 import { Route } from 'vue-router';
-import { Component, Prop, Emit, Watch, Vue } from 'nuxt-property-decorator';
-import { State, Getter, Action, Mutation, namespace } from 'vuex-class';
+import { computed, defineComponent, ref, useAsync, useContext, useFetch, useMeta } from '@nuxtjs/composition-api';
 import { Post } from '../api/types/post';
 
 const PostsModule = namespace('posts');
@@ -49,6 +48,17 @@ const PostsModule = namespace('posts');
 @Component({
   middleware: ['authenticated', 'workspaces'],
 })
+export default defineComponent({
+  fetchOnServer: false,
+  middleware: 'user-agent',
+  head: {},
+  setup (_props, context) {
+    const { fetchState } = useFetch(() => {
+      await store.dispatch('getWorkspaces');
+      await store.dispatch('posts/listPosts', { page: 1 });
+    })
+  }
+
 export default class extends Vue {
   @PostsModule.Getter('posts')
   posts!: Array<Post> | null;
@@ -64,4 +74,5 @@ export default class extends Vue {
     this.$router.push(`/posts/${post.id}`);
   }
 }
+})
 </script>

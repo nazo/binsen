@@ -12,6 +12,7 @@ This project is WIP, DO NOT USE PRODCUTION.
 - run `docker-compose up`
 - run `cd server && make migrate && cd ..`
 - run `docker-compose exec server go run cmd/main.go u add [your gmail address]`
+- open `http://localhost:50002/signin`
 
 # production
 

@@ -39,13 +39,8 @@ export default {
     middleware: 'i18n'
   },
   plugins: [
-    '~/plugins/axios',
     '~/plugins/vee-validate',
     '~/plugins/i18n',
-  ],
-  modules: [
-    '@nuxtjs/pwa',
-    '@nuxtjs/axios'
   ],
   manifest: {
     name: 'binsen',
@@ -68,14 +63,14 @@ export default {
    ** Nuxt.js modules
    */
   modules: [
-    // Doc: https://axios.nuxtjs.org/usage
-    '@nuxtjs/axios',
+    '@nuxtjs/pwa',
+    '@nuxt/http'
   ],
   /*
-   ** Axios module configuration
-   ** See https://axios.nuxtjs.org/options
+   ** HTTP module configuration
+   ** Seehttps://http.nuxtjs.org/api/
    */
-  axios: {
+  http: {
     proxyHeaders: true,
     baseURL: process.env.API_SERVER_BASE_URI,
     browserBaseURL: process.env.API_CLIENT_BASE_URI,

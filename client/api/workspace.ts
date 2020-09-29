@@ -1,8 +1,8 @@
-import { NuxtAxiosInstance } from '@nuxtjs/axios';
+import { NuxtHTTPInstance } from '@nuxt/http';
 import { Workspace } from './types/workspace';
 
 interface GetWorkspacesResponse {
-  workspaces: Array<Workspace>;
+  workspaces: Workspace[];
 }
 
 interface CreateWorkspacesResponse {
@@ -10,12 +10,12 @@ interface CreateWorkspacesResponse {
 }
 
 export const list = (
-  axios: NuxtAxiosInstance
+  http: NuxtHTTPInstance
 ): Promise<GetWorkspacesResponse> =>
-  axios.$get<GetWorkspacesResponse>('/api/workspace/v1/list', {});
+  http.$get<GetWorkspacesResponse>('/api/workspace/v1/list', {});
 
 export const create = (
-  axios: NuxtAxiosInstance,
+  http: NuxtHTTPInstance,
   { name }: { name: string }
 ): Promise<CreateWorkspacesResponse> =>
-  axios.$put<CreateWorkspacesResponse>('/api/workspace/v1/create', { name });
+  http.$put<CreateWorkspacesResponse>('/api/workspace/v1/create', { name });

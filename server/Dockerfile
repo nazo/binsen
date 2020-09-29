@@ -8,5 +8,5 @@ ADD ./go.mod /app/src/github.com/nazo/binsen/server
 ADD ./go.sum /app/src/github.com/nazo/binsen/server
 ADD ./Makefile /app/src/github.com/nazo/binsen/server
 ADD ./bin /app/src/github.com/nazo/binsen/server/bin
-RUN go mod download
+RUN go mod download && make tools-install
 ADD . /app/src/github.com/nazo/binsen/server

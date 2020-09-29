@@ -12,7 +12,7 @@ import { auth as apiGoogleAuth } from '../../../api/auth/google';
 export default class extends Vue {
   async mounted() {
     try {
-      const { redirectUri } = await apiGoogleAuth(this.$axios);
+      const { redirectUri } = await apiGoogleAuth(this.$http);
       window.location.href = redirectUri;
     } catch (e) {
       this.$router.replace('/signin');
