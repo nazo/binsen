@@ -1,14 +1,14 @@
 import { GetterTree, MutationTree, ActionTree, ActionContext } from 'vuex';
-import { callback as apiGoogleCallback } from '../api/auth/google';
-import { list as apiWorkspaceList } from '../api/workspace';
-import { User } from '../api/types/user';
-import { Workspace } from '../api/types/workspace';
+import { callback as apiGoogleCallback } from '~/api/auth/google';
+import { list as apiWorkspaceList } from '~/api/workspace';
+import { User } from '~/api/types/user';
+import { Workspace } from '~/api/types/workspace';
 
 export class RootState {
   user: User | null = null;
   currentWorkspaceId: number | null = null;
   workspaces: { [key: number]: Workspace } | null = null;
-  locales: Array<string> = ['en', 'ja'];
+  locales: string[] = ['en', 'ja'];
   locale: string = 'en';
 }
 
@@ -93,17 +93,17 @@ export const actionType = {
 }
 
 export const actions: ActionTree<RootState, RootState> = {
-  [actionType.GET_WORKSPACES]: async ({ commit }) => {
+  [actionType.GET_WORKSPACES]: async ({ commit }: ActionContext<RootState, RootState>) => {
     const { workspaces } = await apiWorkspaceList(this.$http);
     commit('setWorkspaces', { workspaces });
   },
 
-  [actionType.SET_WORKSPACE]: ({ commit }, { workspaceId }: { workspaceId: number }) => {
+  [actionType.SET_WORKSPACE]: ({ commit }: ActionContext<RootState, RootState>, { workspaceId }: { workspaceId: number }) => {
     commit('setCurrentWorkspace', { workspaceId });
   },
 
   [actionType.LOGIN_FROM_GOOGLE_CALLBACK]: async (
-    { commit },
+    { commit }: ActionContext<RootState, RootState>,
     { code, state }: { code: string; state: string }
   ) => {
     const { user } = await apiGoogleCallback(this.$http, { code, state });

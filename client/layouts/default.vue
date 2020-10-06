@@ -10,8 +10,8 @@
 </template>
 
 <script lang="ts">
-import CFooter from '../components/footer.vue';
-import CSidebar from '../components/sidebar.vue';
+import CFooter from '~/components/footer.vue';
+import CSidebar from '~/components/sidebar.vue';
 import { Component, Prop, Emit, Watch, Vue } from 'nuxt-property-decorator';
 
 @Component({

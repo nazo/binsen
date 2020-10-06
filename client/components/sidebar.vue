@@ -39,15 +39,13 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Emit, Watch, Vue } from 'nuxt-property-decorator';
-import { State, Getter, Action, Mutation, namespace } from 'vuex-class';
-import { User } from '../api/types/user';
-import { Workspace } from '../api/types/workspace';
+import { computed, defineComponent, ref, useAsync, useContext, useFetch, useMeta } from '@nuxtjs/composition-api';
+import { User } from '~/api/types/user';
+import { Workspace } from '~/api/types/workspace';
 
-@Component({})
-export default class extends Vue {
+export default defineComponent({
   @Getter('loggedUser')
-  loggedUser!: User | null;
+  let loggedUser!: User | null;
 
   @Getter('workspaces')
   workspaces!: Array<Workspace>;

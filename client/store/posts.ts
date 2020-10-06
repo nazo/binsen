@@ -5,15 +5,15 @@ import {
   get as apiPostGet,
   create as apiPostCreate,
   update as apiPostUpdate,
-} from '../api/post';
-import { Post } from '../api/types/post';
+} from '~/api/post';
+import { Post } from '~/api/types/post';
 import type { RootState } from './index';
 
 export const namespace = 'posts';
 
 export interface PostsState {
   currentPost: Post | null,
-  posts: Array<Post>,
+  posts: Post[],
 }
 
 export const state = (): PostsState => ({
@@ -22,7 +22,7 @@ export const state = (): PostsState => ({
 });
 
 export const getters: GetterTree<PostsState, RootState> = {
-  posts(state: PostsState): Array<Post> {
+  posts(state: PostsState): Post[] {
     return state.posts;
   },
   currentPost(state: PostsState): Post | null {
@@ -40,7 +40,7 @@ export const mutations: MutationTree<PostsState> = {
     state.currentPost = post || null;
   },
 
-  [MutationType.SET_POSTS]: (state: PostsState, { posts }: { posts: Array<Post> }) => {
+  [MutationType.SET_POSTS]: (state: PostsState, { posts }: { posts: Post[] }) => {
     state.posts = posts || null;
   },
 };
@@ -53,12 +53,12 @@ export const actionType = {
 }
 
 export const actions: ActionTree<PostsState, RootState> = {
-  [actionType.GET_POST]: async ({ commit }, { id }) => {
+  [actionType.GET_POST]: async ({ commit }: ActionContext<PostsState, RootState>, { id }: { id: number }) => {
     const { post } = await apiPostGet(this.$http, id);
     commit('setCurrentPost', { post });
   },
 
-  [actionType.LIST_POSTS]: async ({ commit, state, rootGetters, dispatch }, { page }) => {
+  [actionType.LIST_POSTS]: async ({ commit, rootGetters }: ActionContext<PostsState, RootState>, { page }: { page: number }) => {
     const workspace = rootGetters.currentWorkspace;
     if (!workspace) {
       return;
@@ -70,7 +70,7 @@ export const actions: ActionTree<PostsState, RootState> = {
     commit('setPosts', { posts });
   },
 
-  [actionType.CREATE_POST]: ({ commit }, { workspaceId, title, body }) => {
+  [actionType.CREATE_POST]: ({}: ActionContext<PostsState, RootState>, { workspaceId, title, body }: { workspaceId: number, title: string, body: string }) => {
     return apiPostCreate(this.$http, {
       workspace_id: workspaceId,
       title,
@@ -78,7 +78,7 @@ export const actions: ActionTree<PostsState, RootState> = {
     });
   },
 
-  [actionType.UPDATE_POST]: ({ commit }, { id, title, body }) => {
+  [actionType.UPDATE_POST]: ({}: ActionContext<PostsState, RootState>, { id, title, body }: { id: number, title: string, body: string }) => {
     return apiPostUpdate(this.$http, {
       id,
       title,

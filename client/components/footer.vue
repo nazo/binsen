@@ -2,13 +2,12 @@
   <v-footer 
     fixed 
     app>
-    <span>&copy; 2017</span>
+    <span>&copy; 2017-2020</span>
   </v-footer>
 </template>
 
 <script lang="ts">
-import { Component, Prop, Emit, Watch, Vue } from 'nuxt-property-decorator';
+import { defineComponent } from '@nuxtjs/composition-api';
 
-@Component({})
-export default class extends Vue {}
+export default defineComponent({});
 </script>

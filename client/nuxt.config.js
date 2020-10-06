@@ -41,6 +41,7 @@ export default {
   plugins: [
     '~/plugins/vee-validate',
     '~/plugins/i18n',
+    '~/plugins/http',
   ],
   manifest: {
     name: 'binsen',
@@ -58,7 +59,7 @@ export default {
   /*
    ** Nuxt.js dev-modules
    */
-  buildModules: ['@nuxt/typescript-build', '@nuxtjs/vuetify'],
+  buildModules: ['@nuxt/typescript-build', '@nuxtjs/vuetify', '@nuxtjs/composition-api'],
   /*
    ** Nuxt.js modules
    */

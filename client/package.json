@@ -12,7 +12,7 @@
     "test": "jest"
   },
   "dependencies": {
-    "@nuxt/http": "^0.5.13",
+    "@nuxt/http": "^0.6.0",
     "@nuxt/typescript-runtime": "^1.0.0",
     "marked": "^1.1.1",
     "nuxt": "^2.14.0",
@@ -20,7 +20,7 @@
     "vue-i18n": "^8.21.0"
   },
   "devDependencies": {
-    "@kazupon/vue-i18n-loader": "^0.5.0",
+    "@intlify/vue-i18n-loader": "^2.0.0-beta.1",
     "@nuxt/types": "^2.14.0",
     "@nuxt/typescript-build": "^2.0.2",
     "@nuxtjs/composition-api": "^0.12.5",
@@ -31,7 +31,6 @@
     "@types/jest": "^26.0.14",
     "@types/marked": "^1.1.0",
     "@types/power-assert": "^1.5.3",
-    "@types/vue-i18n": "^7.0.0",
     "@types/webpack-env": "^1.15.2",
     "@vue/test-utils": "^1.0.3",
     "babel-core": "7.0.0-bridge.0",
