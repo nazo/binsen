@@ -3,7 +3,7 @@
 import marked from 'marked';
 import { Store } from 'vuex';
 import { Route } from 'vue-router';
-import { reactive, computed, Ref, UnwrapRef, defineComponent } from '@nuxtjs/composition-api';
+import { reactive, computed, Ref, UnwrapRef, defineComponent, useFetch, useContext, onMounted } from '@nuxtjs/composition-api';
 import CFooter from '~/components/footer.vue';
 import { User } from '~/api/types/user';
 import { Post } from '~/api/types/post';
@@ -17,6 +17,8 @@ export default defineComponent({
     CFooter: CFooter,
   },
   setup(props, { root }) {
+    const { store, redirect, query } = useContext();
+
     type State = {
       loggedUser: User | null,
       currentWorkspace: Workspace | null,
@@ -30,8 +32,8 @@ export default defineComponent({
       pageTitle: UnwrapRef<String>,
     };
     const state: State = reactive({
-      loggedUser = null,
-      currentWorkspace = null,
+      loggedUser: null,
+      currentWorkspace: null,
       title: '',
       body: '',
       clipped: true,
@@ -39,17 +41,17 @@ export default defineComponent({
       fixed: false,
       miniVariant: false,
       markedBody: computed(() => marked(state.body)),
-      pageTitle: computed(() => root.$store.getters[`${PostsNamespace}/currentPost`] ? 'edit post' : 'new post'),
+      pageTitle: computed(() => store.getters[`${PostsNamespace}/currentPost`] ? 'edit post' : 'new post'),
     });
 
     function saveDraft() {}
 
     async function submitPost() {
-      const currentPost = root.$store.getters[`${PostsNamespace}/currentPost`];
-      const currentWorkspace = root.$store.getters[`${PostsNamespace}/currentWorkspace`];
+      const currentPost = store.getters[`${PostsNamespace}/currentPost`];
+      const currentWorkspace = store.getters[`${PostsNamespace}/currentWorkspace`];
       if (currentPost === null) {
         if (currentWorkspace !== null) {
-          const response = await this.createPost({
+          const response = await store.dispatch(`${PostsNamespace}/${PostsAction.CREATE_POST}`, {
             workspaceId: currentWorkspace.id,
             title: state.title,
             body: state.body,
@@ -57,7 +59,7 @@ export default defineComponent({
           root.$router.push('/posts/' + response.post.id);
         }
       } else {
-        const response = await this.updatePost({
+        const response = await store.dispatch(`${PostsNamespace}/${PostsAction.UPDATE_POST}`, {
           id: currentPost.id,
           title: state.title,
           body: state.body,
@@ -66,26 +68,28 @@ export default defineComponent({
       }
     }
 
-    const currentPost = root.$store.getters[`${PostsNamespace}/currentPost`];
-    if (currentPost !== null) {
-      state.title = currentPost.title;
-      state.body = currentPost.body;
-    }
-
-    async function fetch({ store, query, redirect }: { store: Store<any>, query: Route['query'], redirect(path: string, query?: Route['query']): void }) {
-      if (!('id' in query)) {
-        return;
+    onMounted(() => {
+      const currentPost = store.getters[`${PostsNamespace}/currentPost`];
+      if (currentPost !== null) {
+        state.title = currentPost.title;
+        state.body = currentPost.body;
       }
-      try {
-        await store.dispatch('posts/getPost', { id: query.id });
-      } catch (e) {
-        redirect('/');
-      }
-    }
+    });
 
     function goBack() {
       root.$router.replace('/');
     }
+
+    useFetch(async () => {
+      if (!('id' in query.value)) {
+        return;
+      }
+      try {
+        await store.dispatch(`${PostsNamespace}/${PostsAction.GET_POST}`, { id: query.value.id });
+      } catch (e) {
+        redirect('/');
+      }
+    });
 
     return {
       state,
@@ -94,7 +98,7 @@ export default defineComponent({
       goBack,
     }
   }
-}
+});
 </script>
 
 <style scoped>

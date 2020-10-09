@@ -12,17 +12,22 @@
 <script lang="ts">
 import CFooter from '~/components/footer.vue';
 import CSidebar from '~/components/sidebar.vue';
-import { Component, Prop, Emit, Watch, Vue } from 'nuxt-property-decorator';
+import { reactive, computed, Ref, UnwrapRef, defineComponent, useFetch, useContext, watch } from '@nuxtjs/composition-api';
 
-@Component({
+export default defineComponent({
   components: {
     CSidebar,
     CFooter,
   },
-})
-export default class extends Vue {
-  clipped = true;
-  fixed = false;
-  miniVariant = false;
-}
+
+  setup(props, { root }) {
+    const state = reactive({
+      clipped: true,
+      fixed: false,
+      miniVariant: false,
+    });
+
+    return { state };
+  }
+});
 </script>

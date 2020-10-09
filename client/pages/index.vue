@@ -45,6 +45,8 @@ import { actionType as PostsAction, namespace as PostsNamespace } from '~/store/
 
 export default defineComponent({
   setup(props, { root }) {
+    const { store } = useContext();
+
     type State = {
       page: Number;
     };
@@ -53,8 +55,8 @@ export default defineComponent({
     });
 
     useFetch(async () => {
-      await root.$store.dispatch(RootAction.GET_WORKSPACES);
-      await root.$store.dispatch(`${PostsNamespace}/${PostsAction.LIST_POSTS}`, { page: 1 });
+      await store.dispatch(RootAction.GET_WORKSPACES);
+      await store.dispatch(`${PostsNamespace}/${PostsAction.LIST_POSTS}`, { page: 1 });
     });
 
     function showPost(post: Post): void {
@@ -62,7 +64,7 @@ export default defineComponent({
     }
 
     function posts(): Post[] {
-      return root.$store.getters[`${PostsNamespace}/posts`];
+      return store.getters[`${PostsNamespace}/posts`];
     }
 
     return {

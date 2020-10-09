@@ -68,107 +68,113 @@
 
 <script lang="ts">
 import { Store } from 'vuex';
-import { Component, Prop, Emit, Watch, Vue } from 'nuxt-property-decorator';
-import { State, Getter, Action, Mutation, namespace } from 'vuex-class';
-import { Workspace } from '../../api/types/workspace';
+import { reactive, computed, Ref, UnwrapRef, defineComponent, useFetch, useContext, watch } from '@nuxtjs/composition-api';
+import { Workspace } from '~/api/types/workspace';
+import { actionType as WorkspacesAction, namespace as WorkspacesNamespace } from '~/store/workspaces';
 
-const WorkspacesModule = namespace('workspaces');
-
-@Component({
+export default defineComponent({
   middleware: ['authenticated'],
-})
-export default class extends Vue {
-  @WorkspacesModule.Getter('workspaces')
-  workspaces: any;
 
-  @WorkspacesModule.Action('listWorkspaces')
-  listWorkspaces: any;
+  setup(props, { root }) {
+    const { store, redirect, route, params } = useContext();
 
-  @WorkspacesModule.Action('destroyWorkspace')
-  destroyWorkspace: any;
-
-  @WorkspacesModule.Action('createWorkspace')
-  createWorkspace: any;
-
-  @WorkspacesModule.Action('updateWorkspace')
-  updateWorkspace: any;
-
-  get formTitle() {
-    return this.editedIndex === -1 ? 'New Item' : 'Edit Item';
-  }
-
-  dialog: Boolean = false;
-  deleteDialog: Boolean = false;
-  deleteDialogItem: Workspace | null = null;
-  headers = [
-    { text: 'ID', value: 'id' },
-    { text: 'Name', value: 'name' },
-    { text: 'Actions', value: 'name', sortable: false },
-  ];
-  editedIndex = -1;
-  editedItem = {
-    id: 0,
-    name: '',
-  };
-  defaultItem = {
-    id: 0,
-    name: '',
-  };
-  dictionary = {
-    custom: {
-      name: {
-        required: () => 'Name can not be empty',
-        max: 'The name field may not be greater than 10 characters',
+    type State = {
+      workspaces: Workspace[],
+      formTitle: UnwrapRef<string>,
+      dialog: boolean,
+      deleteDialog: boolean,
+      deleteDialogItem: Workspace | null,
+      headers: { text: string, value: string, sortable?: boolean }[],
+      editedIndex: number,
+      editedItem: { id: number, name: string },
+      defaultItem: { id: number, name: string },
+      dictionary: { custom: { name: { required: () => string, max: string } } },
+    };
+    const state: State = reactive({
+      workspaces: [],
+      formTitle: computed(() => state.editedIndex === -1 ? 'New Item' : 'Edit Item'),
+      dialog: false,
+      deleteDialog: false,
+      deleteDialogItem: null,
+      headers: [
+        { text: 'ID', value: 'id' },
+        { text: 'Name', value: 'name' },
+        { text: 'Actions', value: 'name', sortable: false },
+      ],
+      editedIndex: -1,
+      editedItem: {
+        id: 0,
+        name: '',
       },
-    },
-  };
+      defaultItem: {
+        id: 0,
+        name: '',
+      },
+      dictionary: {
+        custom: {
+          name: {
+            required: () => 'Name can not be empty',
+            max: 'The name field may not be greater than 10 characters',
+          },
+        },
+      },
+    });
 
-  @Watch('dialog')
-  onDialogChange(newValue: string, oldValue: string): void {
-    newValue || this.close();
-  }
+    useFetch(async () => {
+      await store.dispatch(`${WorkspacesNamespace}/${WorkspacesAction.LIST_WORKSPACES}`);
+    });
 
-  async fetch({ store }: { store: Store<any> }) {
-    await store.dispatch('workspaces/listWorkspaces');
-  }
+    watch(
+      () => state.dialog,
+      (newValue, oldValue) => {
+        newValue || close();
+      }
+    );
 
-  initialize() {
-    this.listWorkspaces();
-  }
+    function editItem(item: Workspace) {
+      state.editedIndex = state.workspaces.indexOf(item);
+      state.editedItem = Object.assign({}, item);
+      state.dialog = true;
+    };
 
-  editItem(item: Workspace) {
-    this.editedIndex = this.workspaces.indexOf(item);
-    this.editedItem = Object.assign({}, item);
-    this.dialog = true;
-  }
-
-  deleteItem() {
-    const item = this.deleteDialogItem;
-    if (item != null) {
-      this.destroyWorkspace({ id: item.id });
+    function deleteItem() {
+      const item = state.deleteDialogItem;
+      if (item != null) {
+        store.dispatch(`${WorkspacesNamespace}/${WorkspacesAction.DESTROY_WORKSPACE}`, { id: item.id });
+        store.dispatch(`${WorkspacesNamespace}/${WorkspacesAction.LIST_WORKSPACES}`);
+      }
     }
-  }
 
-  showDeleteDialog(item: Workspace) {
-    this.deleteDialog = true;
-    this.deleteDialogItem = item;
-  }
-
-  close() {
-    this.dialog = false;
-    setTimeout(() => {
-      this.editedItem = Object.assign({}, this.defaultItem);
-      this.editedIndex = -1;
-    }, 0);
-  }
-
-  async save() {
-    if (this.editedIndex > -1) {
-      this.updateWorkspace({ workspace: this.editedItem });
-    } else {
-      this.createWorkspace({ workspace: this.editedItem });
+    function showDeleteDialog(item: Workspace) {
+      state.deleteDialog = true;
+      state.deleteDialogItem = item;
     }
-    this.close();
+
+    function close() {
+      state.dialog = false;
+      setTimeout(() => {
+        state.editedItem = Object.assign({}, state.defaultItem);
+        state.editedIndex = -1;
+      }, 0);
+    }
+
+    async function save() {
+      if (state.editedIndex > -1) {
+        store.dispatch(`${WorkspacesNamespace}/${WorkspacesAction.UPDATE_WORKSPACE}`, { workspace: state.editedItem });
+      } else {
+        store.dispatch(`${WorkspacesNamespace}/${WorkspacesAction.CREATE_WORKSPACE}`, { workspace: state.editedItem });
+      }
+      close();
+    }
+
+    return {
+      state,
+      editItem,
+      deleteItem,
+      showDeleteDialog,
+      close,
+      save,
+    };
   }
-}
+});
 </script>

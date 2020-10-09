@@ -3,22 +3,26 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, useFetch } from '@nuxtjs/composition-api';
+import { defineComponent, onMounted, useContext } from '@nuxtjs/composition-api';
 
 export default defineComponent({
   layout: 'simple',
   async setup(_props, { root }) {
-    try {
-      await root.$store.dispatch('loginFromGoogleCallback', {
-        code: root.$route.query.code,
-        state: root.$route.query.state,
-      });
-      if (root.$store.getters.isAuthenticated) {
-        root.$router.replace('/');
+    const { store, query } = useContext();
+
+    onMounted(async () => {
+      try {
+        await store.dispatch('loginFromGoogleCallback', {
+          code: query.value.code,
+          state: query.value.state,
+        });
+        if (store.getters.isAuthenticated) {
+          root.$router.replace('/');
+        }
+      } catch (e) {
+        root.$router.replace('/signin');
       }
-    } catch (e) {
-      root.$router.replace('/signin');
-    }
+    });
 
     return {};
   }

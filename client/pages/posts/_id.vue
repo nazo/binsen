@@ -33,7 +33,7 @@
 import marked from 'marked';
 import { Store } from 'vuex';
 import { Route } from 'vue-router';
-import { reactive, computed, Ref, UnwrapRef, defineComponent, useFetch } from '@nuxtjs/composition-api';
+import { reactive, computed, Ref, UnwrapRef, defineComponent, useFetch, useContext } from '@nuxtjs/composition-api';
 import { User } from '~/api/types/user';
 import { Post } from '~/api/types/post';
 import { actionType as PostsAction, namespace as PostsNamespace } from '~/store/posts';
@@ -41,25 +41,31 @@ import { actionType as PostsAction, namespace as PostsNamespace } from '~/store/
 export default defineComponent({
   middleware: ['authenticated', 'workspaces'],
   setup(props, { root }) {
+    const { store, redirect, route, params } = useContext();
+
     type State = {
       loggedUser: User | null,
+      markedBody: UnwrapRef<String>,
+      editUrl: UnwrapRef<String>,
+      currentPost: UnwrapRef<Post>,
     };
     const state: State = reactive({
-      loggedUser = null,
-      markedBody: computed(() => marked(root.$store.getters[`${PostsNamespace}/currentPost`].body)),
-      editUrl: computed(() => `/postsEdit?id=${root.$store.getters[`${PostsNamespace}/currentPost`].id}`),
+      loggedUser: null,
+      markedBody: computed(() => marked(state.currentPost.body)),
+      editUrl: computed(() => `/postsEdit?id=${state.currentPost.id}`),
+      currentPost: computed(() => store.getters[`${PostsNamespace}/currentPost`]),
     });
 
-    useFetch(() => {
+    useFetch(async () => {
       try {
-        await root.$store.dispatch('posts/getPost', { id: root.$router.currentRoute.params.id });
+        await store.dispatch(`${PostsNamespace}/${PostsAction.GET_POST}`, { id: params.value.id });
       } catch (e) {
         redirect('/');
       }
     });
 
-    validate({ params }: { params: Route['params'] }) {
-      return /^\d+$/.test(params.id);
+    function validate() {
+      return /^\d+$/.test(params.value.id);
     }
 
     return {

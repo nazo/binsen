@@ -54,7 +54,7 @@ export const actionType = {
 
 export const actions: ActionTree<PostsState, RootState> = {
   [actionType.GET_POST]: async function ({ commit }: ActionContext<PostsState, RootState>, { id }: { id: number }) {
-    const { post } = await apiPostGet(this.$http, id);
+    const { post } = await apiPostGet(this.$http, { id });
     commit('setCurrentPost', { post });
   },
 

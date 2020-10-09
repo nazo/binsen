@@ -39,7 +39,7 @@
             <td class="text-xs-right">{{ props.item.id }}</td>
             <td>{{ props.item.name }}</td>
             <td>{{ props.item.email }}</td>
-            <td>{{ props.item.groups }}</td>
+            <td>{{ props.item.users }}</td>
             <td class="justify-center layout px-0">
               <v-icon small class="mr-2" @click="editItem(props.item)">edit</v-icon>
               <v-icon small class="mr-2" @click.stop="showDeleteDialog(props.item)">delete</v-icon>
@@ -67,112 +67,113 @@
 
 <script lang="ts">
 import { Store } from 'vuex';
-import { Component, Prop, Emit, Watch, Vue } from 'nuxt-property-decorator';
-import { State, Getter, Action, Mutation, namespace } from 'vuex-class';
+import { reactive, computed, Ref, UnwrapRef, defineComponent, useFetch, useContext, watch } from '@nuxtjs/composition-api';
 import { User } from '~/api/types/user';
+import { actionType as UsersAction, namespace as UsersNamespace } from '~/store/users';
 
-const UsersModule = namespace('users');
-
-@Component({
+export default defineComponent({
   middleware: ['authenticated'],
-})
-export default class extends Vue {
-  @UsersModule.Getter('users')
-  users: any;
 
-  @UsersModule.Action('listUsers')
-  listUsers: any;
+  setup(props, { root }) {
+    const { store, redirect, route, params } = useContext();
 
-  @UsersModule.Action('destroyUser')
-  destroyUser: any;
-
-  @UsersModule.Action('createUser')
-  createUser: any;
-
-  @UsersModule.Action('updateUser')
-  updateUser: any;
-
-  get formTitle() {
-    return this.editedIndex === -1 ? 'New Item' : 'Edit Item';
-  }
-
-  dialog: Boolean = false;
-  deleteDialog: Boolean = false;
-  deleteDialogItem: User | null = null;
-  headers = [
-    { text: 'ID', value: 'id' },
-    { text: 'Name', value: 'name' },
-    { text: 'Email', value: 'email' },
-    { text: 'Groups', value: 'groups' },
-    { text: 'Actions', value: 'name', sortable: false },
-  ];
-  editedIndex = -1;
-  editedItem = {
-    id: 0,
-    name: '',
-  };
-  defaultItem = {
-    id: 0,
-    name: '',
-  };
-  dictionary = {
-    attributes: {
-      email: 'E-mail Address',
-    },
-    custom: {
-      name: {
-        required: () => 'Name can not be empty',
-        max: 'The name field may not be greater than 10 characters',
+    type State = {
+      users: User[],
+      formTitle: UnwrapRef<string>,
+      dialog: boolean,
+      deleteDialog: boolean,
+      deleteDialogItem: User | null,
+      headers: { text: string, value: string, sortable?: boolean }[],
+      editedIndex: number,
+      editedItem: { id: number, name: string },
+      defaultItem: { id: number, name: string },
+      dictionary: { custom: { name: { required: () => string, max: string } } },
+    };
+    const state: State = reactive({
+      users: [],
+      formTitle: computed(() => state.editedIndex === -1 ? 'New Item' : 'Edit Item'),
+      dialog: false,
+      deleteDialog: false,
+      deleteDialogItem: null,
+      headers: [
+        { text: 'ID', value: 'id' },
+        { text: 'Name', value: 'name' },
+        { text: 'Actions', value: 'name', sortable: false },
+      ],
+      editedIndex: -1,
+      editedItem: {
+        id: 0,
+        name: '',
       },
-    },
-  };
+      defaultItem: {
+        id: 0,
+        name: '',
+      },
+      dictionary: {
+        custom: {
+          name: {
+            required: () => 'Name can not be empty',
+            max: 'The name field may not be greater than 10 characters',
+          },
+        },
+      },
+    });
 
-  @Watch('dialog')
-  onDialogChange(newValue: string, oldValue: string): void {
-    newValue || this.close();
-  }
+    useFetch(async () => {
+      await store.dispatch(`${UsersNamespace}/${UsersAction.LIST_USERS}`);
+    });
 
-  async fetch({ store }: { store: Store<any> }) {
-    await store.dispatch('users/listUsers');
-  }
+    watch(
+      () => state.dialog,
+      (newValue, oldValue) => {
+        newValue || close();
+      }
+    );
 
-  initialize() {
-    this.listUsers();
-  }
+    function editItem(item: User) {
+      state.editedIndex = state.users.indexOf(item);
+      state.editedItem = Object.assign({}, item);
+      state.dialog = true;
+    };
 
-  editItem(item: User) {
-    this.editedIndex = this.users.indexOf(item);
-    this.editedItem = Object.assign({}, item);
-    this.dialog = true;
-  }
-
-  deleteItem() {
-    const item = this.deleteDialogItem;
-    if (item != null) {
-      this.destroyUser({ id: item.id });
+    function deleteItem() {
+      const item = state.deleteDialogItem;
+      if (item != null) {
+        store.dispatch(`${UsersNamespace}/${UsersAction.DESTROY_USER}`, { id: item.id });
+        store.dispatch(`${UsersNamespace}/${UsersAction.LIST_USERS}`);
+      }
     }
-  }
 
-  showDeleteDialog(item: User) {
-    this.deleteDialog = true;
-    this.deleteDialogItem = item;
-  }
-
-  close() {
-    this.dialog = false;
-    setTimeout(() => {
-      this.editedItem = Object.assign({}, this.defaultItem);
-      this.editedIndex = -1;
-    }, 0);
-  }
-
-  async save() {
-    if (this.editedIndex > -1) {
-      this.updateUser({ user: this.editedItem });
-    } else {
-      this.createUser({ user: this.editedItem });
+    function showDeleteDialog(item: User) {
+      state.deleteDialog = true;
+      state.deleteDialogItem = item;
     }
-    this.close();
+
+    function close() {
+      state.dialog = false;
+      setTimeout(() => {
+        state.editedItem = Object.assign({}, state.defaultItem);
+        state.editedIndex = -1;
+      }, 0);
+    }
+
+    async function save() {
+      if (state.editedIndex > -1) {
+        store.dispatch(`${UsersNamespace}/${UsersAction.UPDATE_USER}`, { user: state.editedItem });
+      } else {
+        store.dispatch(`${UsersNamespace}/${UsersAction.CREATE_USER}`, { user: state.editedItem });
+      }
+      close();
+    }
+
+    return {
+      state,
+      editItem,
+      deleteItem,
+      showDeleteDialog,
+      close,
+      save,
+    };
   }
-}
+});
 </script>

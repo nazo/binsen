@@ -3,20 +3,21 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, useFetch } from '@nuxtjs/composition-api';
+import { defineComponent, onMounted } from '@nuxtjs/composition-api';
 import { auth as apiGoogleAuth } from '../../../api/auth/google';
 
 export default defineComponent({
   layout: 'simple',
   async setup(_props, { root }) {
-    useFetch(async ({ $http }) => {
+    onMounted(async () => {
       try {
-        const { redirectUri } = await apiGoogleAuth($http);
+        const { redirectUri } = await apiGoogleAuth(root.$http);
         window.location.href = redirectUri;
       } catch (e) {
         root.$router.replace('/signin');
       }
     });
+
     return {};
   }
 });

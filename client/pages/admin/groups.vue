@@ -62,107 +62,113 @@
 
 <script lang="ts">
 import { Store } from 'vuex';
-import { Component, Prop, Emit, Watch, Vue } from 'nuxt-property-decorator';
-import { State, Getter, Action, Mutation, namespace } from 'vuex-class';
-import { Group } from '../../api/types/group';
+import { reactive, computed, Ref, UnwrapRef, defineComponent, useFetch, useContext, watch } from '@nuxtjs/composition-api';
+import { Group } from '~/api/types/group';
+import { actionType as GroupsAction, namespace as GroupsNamespace } from '~/store/groups';
 
-const GroupsModule = namespace('groups');
-
-@Component({
+export default defineComponent({
   middleware: ['authenticated'],
-})
-export default class extends Vue {
-  @GroupsModule.Getter('groups')
-  groups: any;
 
-  @GroupsModule.Action('listGroups')
-  listGroups: any;
+  setup(props, { root }) {
+    const { store, redirect, route, params } = useContext();
 
-  @GroupsModule.Action('destroyGroup')
-  destroyGroup: any;
-
-  @GroupsModule.Action('createGroup')
-  createGroup: any;
-
-  @GroupsModule.Action('updateGroup')
-  updateGroup: any;
-
-  get formTitle() {
-    return this.editedIndex === -1 ? 'New Item' : 'Edit Item';
-  }
-
-  dialog: Boolean = false;
-  deleteDialog: Boolean = false;
-  deleteDialogItem: Group | null = null;
-  headers = [
-    { text: 'ID', value: 'id' },
-    { text: 'Name', value: 'name' },
-    { text: 'Actions', value: 'name', sortable: false },
-  ];
-  editedIndex = -1;
-  editedItem = {
-    id: 0,
-    name: '',
-  };
-  defaultItem = {
-    id: 0,
-    name: '',
-  };
-  dictionary = {
-    custom: {
-      name: {
-        required: () => 'Name can not be empty',
-        max: 'The name field may not be greater than 10 characters',
+    type State = {
+      groups: Group[],
+      formTitle: UnwrapRef<string>,
+      dialog: boolean,
+      deleteDialog: boolean,
+      deleteDialogItem: Group | null,
+      headers: { text: string, value: string, sortable?: boolean }[],
+      editedIndex: number,
+      editedItem: { id: number, name: string },
+      defaultItem: { id: number, name: string },
+      dictionary: { custom: { name: { required: () => string, max: string } } },
+    };
+    const state: State = reactive({
+      groups: [],
+      formTitle: computed(() => state.editedIndex === -1 ? 'New Item' : 'Edit Item'),
+      dialog: false,
+      deleteDialog: false,
+      deleteDialogItem: null,
+      headers: [
+        { text: 'ID', value: 'id' },
+        { text: 'Name', value: 'name' },
+        { text: 'Actions', value: 'name', sortable: false },
+      ],
+      editedIndex: -1,
+      editedItem: {
+        id: 0,
+        name: '',
       },
-    },
-  };
+      defaultItem: {
+        id: 0,
+        name: '',
+      },
+      dictionary: {
+        custom: {
+          name: {
+            required: () => 'Name can not be empty',
+            max: 'The name field may not be greater than 10 characters',
+          },
+        },
+      },
+    });
 
-  @Watch('dialog')
-  onDialogChange(newValue: string, oldValue: string): void {
-    newValue || this.close();
-  }
+    useFetch(async () => {
+      await store.dispatch(`${GroupsNamespace}/${GroupsAction.LIST_GROUPS}`);
+    });
 
-  async fetch({ store }: { store: Store<any> }) {
-    await store.dispatch('groups/listGroups');
-  }
+    watch(
+      () => state.dialog,
+      (newValue, oldValue) => {
+        newValue || close();
+      }
+    );
 
-  initialize() {
-    this.listGroups();
-  }
+    function editItem(item: Group) {
+      state.editedIndex = state.groups.indexOf(item);
+      state.editedItem = Object.assign({}, item);
+      state.dialog = true;
+    };
 
-  editItem(item: Group) {
-    this.editedIndex = this.groups.indexOf(item);
-    this.editedItem = Object.assign({}, item);
-    this.dialog = true;
-  }
-
-  deleteItem() {
-    const item = this.deleteDialogItem;
-    if (item != null) {
-      this.destroyGroup({ id: item.id });
+    function deleteItem() {
+      const item = state.deleteDialogItem;
+      if (item != null) {
+        store.dispatch(`${GroupsNamespace}/${GroupsAction.DESTROY_GROUP}`, { id: item.id });
+        store.dispatch(`${GroupsNamespace}/${GroupsAction.LIST_GROUPS}`);
+      }
     }
-  }
 
-  showDeleteDialog(item: Group) {
-    this.deleteDialog = true;
-    this.deleteDialogItem = item;
-  }
-
-  close() {
-    this.dialog = false;
-    setTimeout(() => {
-      this.editedItem = Object.assign({}, this.defaultItem);
-      this.editedIndex = -1;
-    }, 0);
-  }
-
-  async save() {
-    if (this.editedIndex > -1) {
-      this.updateGroup({ group: this.editedItem });
-    } else {
-      this.createGroup({ group: this.editedItem });
+    function showDeleteDialog(item: Group) {
+      state.deleteDialog = true;
+      state.deleteDialogItem = item;
     }
-    this.close();
+
+    function close() {
+      state.dialog = false;
+      setTimeout(() => {
+        state.editedItem = Object.assign({}, state.defaultItem);
+        state.editedIndex = -1;
+      }, 0);
+    }
+
+    async function save() {
+      if (state.editedIndex > -1) {
+        store.dispatch(`${GroupsNamespace}/${GroupsAction.UPDATE_GROUP}`, { group: state.editedItem });
+      } else {
+        store.dispatch(`${GroupsNamespace}/${GroupsAction.CREATE_GROUP}`, { group: state.editedItem });
+      }
+      close();
+    }
+
+    return {
+      state,
+      editItem,
+      deleteItem,
+      showDeleteDialog,
+      close,
+      save,
+    };
   }
-}
+});
 </script>
