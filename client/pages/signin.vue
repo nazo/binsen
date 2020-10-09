@@ -14,14 +14,17 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'nuxt-property-decorator';
+import { defineComponent } from '@nuxtjs/composition-api';
 
-@Component({
+export default defineComponent({
   layout: 'simple',
-})
-export default class extends Vue {
-  async signinByGoogle() {
-    this.$router.push('/auth/google/request');
+  setup(_props, { root }) {
+    async function signinByGoogle() {
+      root.$router.push('/auth/google/request');
+    }
+    return {
+      signinByGoogle,
+    }
   }
-}
+});
 </script>

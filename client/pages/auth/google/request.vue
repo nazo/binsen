@@ -3,20 +3,21 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'nuxt-property-decorator';
+import { defineComponent, useFetch } from '@nuxtjs/composition-api';
 import { auth as apiGoogleAuth } from '../../../api/auth/google';
 
-@Component({
+export default defineComponent({
   layout: 'simple',
-})
-export default class extends Vue {
-  async mounted() {
-    try {
-      const { redirectUri } = await apiGoogleAuth(this.$http);
-      window.location.href = redirectUri;
-    } catch (e) {
-      this.$router.replace('/signin');
-    }
+  async setup(_props, { root }) {
+    useFetch(async ({ $http }) => {
+      try {
+        const { redirectUri } = await apiGoogleAuth($http);
+        window.location.href = redirectUri;
+      } catch (e) {
+        root.$router.replace('/signin');
+      }
+    });
+    return {};
   }
-}
+});
 </script>

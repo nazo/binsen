@@ -3,28 +3,24 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Emit, Watch, Vue } from 'nuxt-property-decorator';
-import { State, Getter, Action, Mutation, namespace } from 'vuex-class';
+import { defineComponent, useFetch } from '@nuxtjs/composition-api';
 
-@Component({
+export default defineComponent({
   layout: 'simple',
-})
-export default class extends Vue {
-  @Action('loginFromGoogleCallback')
-  loginFromGoogleCallback: any;
-
-  async mounted() {
+  async setup(_props, { root }) {
     try {
-      await this.loginFromGoogleCallback({
-        code: this.$route.query.code,
-        state: this.$route.query.state,
+      await root.$store.dispatch('loginFromGoogleCallback', {
+        code: root.$route.query.code,
+        state: root.$route.query.state,
       });
-      if (this.$store.getters.isAuthenticated) {
-        this.$router.replace('/');
+      if (root.$store.getters.isAuthenticated) {
+        root.$router.replace('/');
       }
     } catch (e) {
-      this.$router.replace('/signin');
+      root.$router.replace('/signin');
     }
+
+    return {};
   }
-}
+});
 </script>

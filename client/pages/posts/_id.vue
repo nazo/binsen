@@ -33,41 +33,38 @@
 import marked from 'marked';
 import { Store } from 'vuex';
 import { Route } from 'vue-router';
-import { Component, Prop, Emit, Watch, Vue } from 'nuxt-property-decorator';
-import { State, Getter, Action, Mutation, namespace } from 'vuex-class';
-import { User } from '../../api/types/user';
-import { Post } from '../../api/types/post';
+import { reactive, computed, Ref, UnwrapRef, defineComponent, useFetch } from '@nuxtjs/composition-api';
+import { User } from '~/api/types/user';
+import { Post } from '~/api/types/post';
+import { actionType as PostsAction, namespace as PostsNamespace } from '~/store/posts';
 
-const PostsModule = namespace('posts');
-
-@Component({
+export default defineComponent({
   middleware: ['authenticated', 'workspaces'],
-})
-export default class extends Vue {
-  @PostsModule.Getter('currentPost')
-  currentPost!: Post;
+  setup(props, { root }) {
+    type State = {
+      loggedUser: User | null,
+    };
+    const state: State = reactive({
+      loggedUser = null,
+      markedBody: computed(() => marked(root.$store.getters[`${PostsNamespace}/currentPost`].body)),
+      editUrl: computed(() => `/postsEdit?id=${root.$store.getters[`${PostsNamespace}/currentPost`].id}`),
+    });
 
-  @Getter('loggedUser')
-  loggedUser!: User | null;
+    useFetch(() => {
+      try {
+        await root.$store.dispatch('posts/getPost', { id: root.$router.currentRoute.params.id });
+      } catch (e) {
+        redirect('/');
+      }
+    });
 
-  get editUrl() {
-    return `/postsEdit?id=${this.currentPost.id}`;
-  }
+    validate({ params }: { params: Route['params'] }) {
+      return /^\d+$/.test(params.id);
+    }
 
-  get markedBody() {
-    return marked(this.currentPost.body);
-  }
-
-  async fetch({ store, params, redirect }: { store: Store<any>, params: Route['params'], redirect(path: string, query?: Route['query']): void }) {
-    try {
-      await store.dispatch('posts/getPost', { id: params.id });
-    } catch (e) {
-      redirect('/');
+    return {
+      state,
     }
   }
-
-  validate({ params }: { params: Route['params'] }) {
-    return /^\d+$/.test(params.id);
-  }
-}
+});
 </script>

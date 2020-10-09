@@ -4,16 +4,17 @@
 
 <script lang="ts">
 import { signout as apiSignout } from '../api/signout';
-import { Component, Vue } from 'nuxt-property-decorator';
+import { defineComponent, useFetch } from '@nuxtjs/composition-api';
 import { NuxtHTTPInstance } from '@nuxt/http';
 
-@Component({
+export default defineComponent({
   layout: 'simple',
-})
-export default class extends Vue {
-  async mounted({ $http }: { $http: NuxtHTTPInstance }) {
-    await apiSignout($http);
-    this.$router.replace('/signin');
+  async setup(_props, { root }) {
+    useFetch(async ({ $http }) => {
+      await apiSignout($http);
+      root.$router.replace('/signin');
+    });
+    return {};
   }
-}
+});
 </script>
