@@ -28,7 +28,7 @@ export const MutationType = {
 }
 
 export const mutations: MutationTree<GroupsState> = {
-  [MutationType.SET_GROUPS]: (state: GroupsState, { groups }: { groups: Group[] }) => {
+  [MutationType.SET_GROUPS]: function (state: GroupsState, { groups }: { groups: Group[] }) {
     state.groups = groups || null;
   },
 };
@@ -41,22 +41,22 @@ export const actionType = {
 }
 
 export const actions: ActionTree<GroupsState, RootState> = {
-  [actionType.LIST_GROUPS]: async ({ commit }: ActionContext<GroupsState, RootState>) => {
+  [actionType.LIST_GROUPS]: async function ({ commit }: ActionContext<GroupsState, RootState>) {
     const { groups } = await apiGroupList(this.$http);
     commit('setGroups', { groups });
   },
 
-  [actionType.CREATE_GROUP]: async ({ dispatch }: ActionContext<GroupsState, RootState>, { group }: { group: Group }) => {
+  [actionType.CREATE_GROUP]: async function ({ dispatch }: ActionContext<GroupsState, RootState>, { group }: { group: Group }) {
     await apiGroupCreate(this.$http, { name: group.name });
     dispatch('listGroups');
   },
 
-  [actionType.UPDATE_GROUP]: async ({ dispatch }: ActionContext<GroupsState, RootState>, { group }: { group: Group }) => {
+  [actionType.UPDATE_GROUP]: async function ({ dispatch }: ActionContext<GroupsState, RootState>, { group }: { group: Group }) {
     await apiGroupUpdate(this.$http, { id: group.id, name: group.name });
     dispatch('listGroups');
   },
 
-  [actionType.DESTROY_GROUP]: async ({ dispatch }: ActionContext<GroupsState, RootState>, { id }: { id: number }) => {
+  [actionType.DESTROY_GROUP]: async function ({ dispatch }: ActionContext<GroupsState, RootState>, { id }: { id: number }) {
     await apiGroupDestroy(this.$http, { id });
     dispatch('listGroups');
   },

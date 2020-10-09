@@ -25,7 +25,7 @@ export const MutationType = {
 }
 
 export const mutations: MutationTree<WorkspacesState> = {
-  [MutationType.SET_WORKSPACES]: (state: WorkspacesState, { workspaces }: { workspaces: Workspace[] }) => {
+  [MutationType.SET_WORKSPACES]: function (state: WorkspacesState, { workspaces }: { workspaces: Workspace[] }) {
     state.workspaces = workspaces || null;
   },
 };
@@ -38,27 +38,27 @@ export const actionType = {
 }
 
 export const actions: ActionTree<WorkspacesState, RootState> = {
-  [actionType.LIST_WORKSPACES]: async ({ commit }: { commit: Commit }) => {
+  [actionType.LIST_WORKSPACES]: async function ({ commit }: { commit: Commit }) {
     const { workspaces } = await apiWorkspaceList(this.$http);
     commit('setWorkspaces', { workspaces });
   },
 
-  [actionType.CREATE_WORKSPACE]: async (
+  [actionType.CREATE_WORKSPACE]: async function (
     { dispatch }: { dispatch: Dispatch },
     { workspace }: { workspace: Workspace }
-  ) => {
+  ) {
     await apiWorkspaceCreate(this.$http, { name: workspace.name });
     dispatch('listWorkspaces');
   },
 
-  [actionType.UPDATE_WORKSPACE]: async (
+  [actionType.UPDATE_WORKSPACE]: async function (
     { dispatch }: { dispatch: Dispatch },
     { workspace }: { workspace: Workspace }
-  ) => {
+  ) {
     dispatch('listWorkspaces');
   },
 
-  [actionType.DESTROY_WORKSPACE]: async ({ dispatch }: { dispatch: Dispatch }, { id }: { id: number }) => {
+  [actionType.DESTROY_WORKSPACE]: async function ({ dispatch }: { dispatch: Dispatch }, { id }: { id: number }) {
     dispatch('listWorkspaces');
   },
 };

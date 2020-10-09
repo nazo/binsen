@@ -69,7 +69,7 @@
 import { Store } from 'vuex';
 import { Component, Prop, Emit, Watch, Vue } from 'nuxt-property-decorator';
 import { State, Getter, Action, Mutation, namespace } from 'vuex-class';
-import { User } from '../../api/types/user';
+import { User } from '~/api/types/user';
 
 const UsersModule = namespace('users');
 

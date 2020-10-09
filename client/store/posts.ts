@@ -36,11 +36,11 @@ export const MutationType = {
 }
 
 export const mutations: MutationTree<PostsState> = {
-  [MutationType.SET_CURRENT_POST]: (state: PostsState, { post }: { post: Post }) => {
+  [MutationType.SET_CURRENT_POST]: function (state: PostsState, { post }: { post: Post }) {
     state.currentPost = post || null;
   },
 
-  [MutationType.SET_POSTS]: (state: PostsState, { posts }: { posts: Post[] }) => {
+  [MutationType.SET_POSTS]: function (state: PostsState, { posts }: { posts: Post[] }) {
     state.posts = posts || null;
   },
 };
@@ -53,12 +53,12 @@ export const actionType = {
 }
 
 export const actions: ActionTree<PostsState, RootState> = {
-  [actionType.GET_POST]: async ({ commit }: ActionContext<PostsState, RootState>, { id }: { id: number }) => {
+  [actionType.GET_POST]: async function ({ commit }: ActionContext<PostsState, RootState>, { id }: { id: number }) {
     const { post } = await apiPostGet(this.$http, id);
     commit('setCurrentPost', { post });
   },
 
-  [actionType.LIST_POSTS]: async ({ commit, rootGetters }: ActionContext<PostsState, RootState>, { page }: { page: number }) => {
+  [actionType.LIST_POSTS]: async function ({ commit, rootGetters }: ActionContext<PostsState, RootState>, { page }: { page: number }) {
     const workspace = rootGetters.currentWorkspace;
     if (!workspace) {
       return;
@@ -70,7 +70,7 @@ export const actions: ActionTree<PostsState, RootState> = {
     commit('setPosts', { posts });
   },
 
-  [actionType.CREATE_POST]: ({}: ActionContext<PostsState, RootState>, { workspaceId, title, body }: { workspaceId: number, title: string, body: string }) => {
+  [actionType.CREATE_POST]: function ({}: ActionContext<PostsState, RootState>, { workspaceId, title, body }: { workspaceId: number, title: string, body: string }) {
     return apiPostCreate(this.$http, {
       workspace_id: workspaceId,
       title,
@@ -78,7 +78,7 @@ export const actions: ActionTree<PostsState, RootState> = {
     });
   },
 
-  [actionType.UPDATE_POST]: ({}: ActionContext<PostsState, RootState>, { id, title, body }: { id: number, title: string, body: string }) => {
+  [actionType.UPDATE_POST]: function ({}: ActionContext<PostsState, RootState>, { id, title, body }: { id: number, title: string, body: string }) {
     return apiPostUpdate(this.$http, {
       id,
       title,

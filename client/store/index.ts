@@ -49,17 +49,17 @@ export const MutationType = {
 }
 
 export const mutations: MutationTree<RootState> = {
-  [MutationType.SET_LANG]: (state: RootState, locale: string) => {
+  [MutationType.SET_LANG]: function (state: RootState, locale: string) {
     if (state.locales.indexOf(locale) !== -1) {
       state.locale = locale;
     }
   },
 
-  [MutationType.SET_USER]: (state: RootState, { user }: { user: User }) => {
+  [MutationType.SET_USER]: function (state: RootState, { user }: { user: User }) {
     state.user = user || null;
   },
 
-  [MutationType.SET_CURRENT_WORKSPACE]: (state: RootState, { workspaceId }: { workspaceId: number }) => {
+  [MutationType.SET_CURRENT_WORKSPACE]: function (state: RootState, { workspaceId }: { workspaceId: number }) {
     if (state.workspaces === null) {
       state.currentWorkspaceId = null;
       return;
@@ -71,7 +71,7 @@ export const mutations: MutationTree<RootState> = {
     state.currentWorkspaceId = workspaceId;
   },
 
-  [MutationType.SET_WORKSPACES]: (state: RootState, { workspaces }: { workspaces: Workspace[] }) => {
+  [MutationType.SET_WORKSPACES]: function (state: RootState, { workspaces }: { workspaces: Workspace[] }) {
     if (workspaces === null) {
       return;
     }
@@ -93,19 +93,19 @@ export const actionType = {
 }
 
 export const actions: ActionTree<RootState, RootState> = {
-  [actionType.GET_WORKSPACES]: async ({ commit }: ActionContext<RootState, RootState>) => {
+  [actionType.GET_WORKSPACES]: async function ({ commit }: ActionContext<RootState, RootState>) {
     const { workspaces } = await apiWorkspaceList(this.$http);
     commit('setWorkspaces', { workspaces });
   },
 
-  [actionType.SET_WORKSPACE]: ({ commit }: ActionContext<RootState, RootState>, { workspaceId }: { workspaceId: number }) => {
+  [actionType.SET_WORKSPACE]: function ({ commit }: ActionContext<RootState, RootState>, { workspaceId }: { workspaceId: number }) {
     commit('setCurrentWorkspace', { workspaceId });
   },
 
-  [actionType.LOGIN_FROM_GOOGLE_CALLBACK]: async (
+  [actionType.LOGIN_FROM_GOOGLE_CALLBACK]: async function (
     { commit }: ActionContext<RootState, RootState>,
     { code, state }: { code: string; state: string }
-  ) => {
+  ) {
     const { user } = await apiGoogleCallback(this.$http, { code, state });
     commit('setUser', { user });
   },

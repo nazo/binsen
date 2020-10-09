@@ -38,41 +38,37 @@
 </template>
 
 <script lang="ts">
-import { Store } from 'vuex';
-import { Route } from 'vue-router';
-import { computed, defineComponent, ref, useAsync, useContext, useFetch, useMeta } from '@nuxtjs/composition-api';
-import { Post } from '../api/types/post';
+import { reactive, computed, defineComponent, ref, useAsync, useContext, useFetch, useMeta } from '@nuxtjs/composition-api';
+import { Post } from '~/api/types/post';
+import { actionType as RootAction } from '~/store';
+import { actionType as PostsAction, namespace as PostsNamespace } from '~/store/posts';
 
-const PostsModule = namespace('posts');
-
-@Component({
-  middleware: ['authenticated', 'workspaces'],
-})
 export default defineComponent({
-  fetchOnServer: false,
-  middleware: 'user-agent',
-  head: {},
-  setup (_props, context) {
-    const { fetchState } = useFetch(() => {
-      await store.dispatch('getWorkspaces');
-      await store.dispatch('posts/listPosts', { page: 1 });
-    })
+  setup(props, { root }) {
+    type State = {
+      page: Number;
+    };
+    const state: State = reactive({
+      page: 1,
+    });
+
+    useFetch(async () => {
+      await root.$store.dispatch(RootAction.GET_WORKSPACES);
+      await root.$store.dispatch(`${PostsNamespace}/${PostsAction.LIST_POSTS}`, { page: 1 });
+    });
+
+    function showPost(post: Post): void {
+      root.$router.push(`/posts/${post.id}`);
+    }
+
+    function posts(): Post[] {
+      return root.$store.getters[`${PostsNamespace}/posts`];
+    }
+
+    return {
+      state,
+      showPost,
+    };
   }
-
-export default class extends Vue {
-  @PostsModule.Getter('posts')
-  posts!: Array<Post> | null;
-
-  page: number = 1;
-
-  async fetch({ store, params }: { store: Store<any>, params: Route['params'] }) {
-    await store.dispatch('getWorkspaces');
-    await store.dispatch('posts/listPosts', { page: 1 });
-  }
-
-  showPost(post: Post): void {
-    this.$router.push(`/posts/${post.id}`);
-  }
-}
-})
+});
 </script>
