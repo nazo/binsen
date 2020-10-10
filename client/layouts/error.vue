@@ -11,7 +11,9 @@
 </template>
 
 <script>
-export default {
+import { defineComponent, shallowReadonly } from '@nuxtjs/composition-api';
+
+export default defineComponent({
   layout: 'empty',
   props: {
     error: {
@@ -32,7 +34,15 @@ export default {
       title,
     }
   },
-}
+  setup(_props) {
+    const pageNotFound = shallowReadonly('404 Not Found');
+    const otherError = shallowReadonly('An error occurred');
+    return {
+      pageNotFound,
+      otherError,
+    }
+  }
+});
 </script>
 
 <style scoped>

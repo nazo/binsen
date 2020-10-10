@@ -1,11 +1,11 @@
-import { NuxtHTTPInstance } from '@nuxt/http';
-import { Route } from 'vue-router';
+import { defineNuxtPlugin } from '@nuxtjs/composition-api';
+import { Context } from '@nuxt/types/app';
 
-export default ({ $http, redirect }: { $http: NuxtHTTPInstance, redirect(path: string, query?: Route['query']): void }) => {
+export default defineNuxtPlugin(({ $http, redirect }: Context) => {
   $http.onError(error => {
     const code = error.response && error.response!.status;
     if(code === 401) {
       redirect('/signin');
     }
   })
-}
+});

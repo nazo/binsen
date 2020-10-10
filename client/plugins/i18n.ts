@@ -26,7 +26,10 @@ function loadLocaleMessages(): LocaleMessages {
   return messages;
 }
 
-export default ({ app, store }: { app: NuxtAppOptions, store: Store<any> }) => {
+import { defineNuxtPlugin } from '@nuxtjs/composition-api';
+import { Context } from '@nuxt/types/app';
+
+export default defineNuxtPlugin(({ app, store }: Context) => {
   // Set i18n instance on app
   // This way we can use it in middleware and pages asyncData/fetch
   app.i18n = new VueI18n({
@@ -34,4 +37,4 @@ export default ({ app, store }: { app: NuxtAppOptions, store: Store<any> }) => {
     fallbackLocale: 'en',
     messages: loadLocaleMessages(),
   });
-};
+});

@@ -16,7 +16,7 @@
       <v-app-bar flat class="transparent">
         <v-toolbar-title slot="activator">
           <span v-text="currentWorkspaceName"/>
-          <v-icon dark>arrow_drop_down</v-icon>
+          <v-icon dark>icons.mdiMenuDown</v-icon>
         </v-toolbar-title>
         <v-list>
           <v-list-item v-for="workspace in workspaces" :key="workspace.id" @click="changeWorkspace(workspace.id)" >
@@ -44,6 +44,15 @@ import { TranslateResult } from 'vue-i18n';
 import { User } from '~/api/types/user';
 import { Workspace } from '~/api/types/workspace';
 import { actionType as RootAction } from '~/store';
+import {
+  mdiHome,
+  mdiPencil,
+  mdiOfficeBuilding,
+  mdiAccountMultiple,
+  mdiAccountCircleOutline,
+  mdiExitToApp,
+  mdiMenuDown,
+} from '@mdi/js';
 
 export default defineComponent({
   setup(props, { root }) {
@@ -51,29 +60,32 @@ export default defineComponent({
     const workspaces = reactive<Workspace[]>([]);
     const currentWorkspace = ref<Workspace | null>(null);
     const items = shallowReadonly([
-      { icon: 'apps', title: root.$t('menu.home'), to: '/' },
-      { icon: 'edit', title: root.$t('menu.newpost'), to: '/postsEdit' },
+      { icon: mdiHome, title: root.$t('menu.home'), to: '/' },
+      { icon: mdiPencil, title: root.$t('menu.newpost'), to: '/postsEdit' },
       {
-        icon: 'edit',
+        icon: mdiOfficeBuilding,
         title: root.$t('menu.workspacesadmin'),
         to: '/admin/workspaces',
       },
       {
-        icon: 'people',
+        icon: mdiAccountMultiple,
         title: root.$t('menu.usersadmin'),
         to: '/admin/users',
       },
       {
-        icon: 'group',
+        icon: mdiAccountCircleOutline,
         title: root.$t('menu.groupsadmin'),
         to: '/admin/groups',
       },
       {
-        icon: 'exit_to_app',
+        icon: mdiExitToApp,
         title: root.$t('menu.signout'),
         to: '/signout',
       },
     ]);
+    const icons = shallowReadonly({
+      mdiMenuDown
+    });
     const currentWorkspaceName = computed(() => currentWorkspace.value?.name ?? '');
 
     function changeWorkspace(workspaceId: number) {
@@ -87,6 +99,7 @@ export default defineComponent({
       items,
       currentWorkspaceName,
       changeWorkspace,
+      icons,
     }
   }
 })

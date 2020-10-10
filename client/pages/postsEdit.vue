@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <v-toolbar
+    <v-app-bar
       fixed
       app
       :clipped-left="clipped">
@@ -8,11 +8,11 @@
         icon
         class="hidden-xs-only"
         @click="goBack">
-        <v-icon>arrow_back</v-icon>
+        <v-icon>{{ icons.mdiArrowLeftCircle }}</v-icon>
       </v-btn>
       <v-toolbar-title v-text="pageTitle"/>
-    </v-toolbar>
-    <v-content>
+    </v-app-bar>
+    <v-main>
       <v-container
         fluid
         fill-height>
@@ -66,7 +66,7 @@
           </v-layout>
         </v-container>
       </v-container>
-    </v-content>
+    </v-main>
     <c-footer/>
   </v-app>
 </template>
@@ -75,11 +75,12 @@
 import marked from 'marked';
 import { Store } from 'vuex';
 import { Route } from 'vue-router';
-import { reactive, computed, ref, defineComponent, useFetch, useContext, onMounted } from '@nuxtjs/composition-api';
+import { shallowReadonly, reactive, computed, ref, defineComponent, useFetch, useContext, onMounted } from '@nuxtjs/composition-api';
 import CFooter from '~/components/footer.vue';
 import { User } from '~/api/types/user';
 import { Post } from '~/api/types/post';
 import { Workspace } from '~/api/types/workspace';
+import { mdiArrowLeftCircle } from '@mdi/js';
 import { actionType as PostsAction, namespace as PostsNamespace } from '~/store/posts';
 
 export default defineComponent({
@@ -93,8 +94,12 @@ export default defineComponent({
 
     const title = ref('');
     const body = ref('');
+    const clipped = ref(true);
     const markedBody = computed(() => marked(body.value));
     const pageTitle = computed(() => store.getters[`${PostsNamespace}/currentPost`] ? 'edit post' : 'new post');
+    const icons = shallowReadonly({
+      mdiArrowLeftCircle
+    });
 
     function saveDraft() {}
 
@@ -146,11 +151,13 @@ export default defineComponent({
     return {
       title,
       body,
+      clipped,
       markedBody,
       pageTitle,
       saveDraft,
       submitPost,
       goBack,
+      icons,
     }
   }
 });

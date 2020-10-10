@@ -3,8 +3,10 @@ import { Store } from 'vuex';
 import { IVueI18n } from 'vue-i18n';
 import { Route, Location } from 'vue-router';
 import { NuxtAppOptions, NuxtError } from '@nuxt/types';
+import { defineNuxtMiddleware } from '@nuxtjs/composition-api';
+import { Context } from '@nuxt/types/app';
 
-export default ({ isHMR, app, store, route, params, error, redirect }: { isHMR: boolean, app: NuxtAppOptions, store: Store<any>, route: Route, params: Route['params'], error(params: NuxtError): void, redirect(path: string, query?: Route['query']): void }) => {
+export default defineNuxtMiddleware(({ isHMR, app, store, route, params, error, redirect }: Context) => {
   const i18n = app.i18n! as IVueI18n;
   const defaultLocale = i18n.fallbackLocale;
   // If middleware is called from hot module replacement, ignore it
@@ -36,4 +38,4 @@ export default ({ isHMR, app, store, route, params, error, redirect }: { isHMR: 
     const re = new RegExp(toReplace);
     return redirect(route.fullPath.replace(re, '/'));
   }
-};
+});
