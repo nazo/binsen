@@ -66,8 +66,7 @@
 </template>
 
 <script lang="ts">
-import { Store } from 'vuex';
-import { reactive, computed, Ref, UnwrapRef, defineComponent, useFetch, useContext, watch } from '@nuxtjs/composition-api';
+import { reactive, computed, ref, defineComponent, useFetch, useContext, watch, shallowReadonly } from '@nuxtjs/composition-api';
 import { User } from '~/api/types/user';
 import { actionType as UsersAction, namespace as UsersNamespace } from '~/store/users';
 
@@ -77,67 +76,53 @@ export default defineComponent({
   setup(props, { root }) {
     const { store, redirect, route, params } = useContext();
 
-    type State = {
-      users: User[],
-      formTitle: UnwrapRef<string>,
-      dialog: boolean,
-      deleteDialog: boolean,
-      deleteDialogItem: User | null,
-      headers: { text: string, value: string, sortable?: boolean }[],
-      editedIndex: number,
-      editedItem: { id: number, name: string },
-      defaultItem: { id: number, name: string },
-      dictionary: { custom: { name: { required: () => string, max: string } } },
-    };
-    const state: State = reactive({
-      users: [],
-      formTitle: computed(() => state.editedIndex === -1 ? 'New Item' : 'Edit Item'),
-      dialog: false,
-      deleteDialog: false,
-      deleteDialogItem: null,
-      headers: [
-        { text: 'ID', value: 'id' },
-        { text: 'Name', value: 'name' },
-        { text: 'Actions', value: 'name', sortable: false },
-      ],
-      editedIndex: -1,
-      editedItem: {
-        id: 0,
-        name: '',
-      },
-      defaultItem: {
-        id: 0,
-        name: '',
-      },
-      dictionary: {
-        custom: {
-          name: {
-            required: () => 'Name can not be empty',
-            max: 'The name field may not be greater than 10 characters',
-          },
+    const users = reactive<User[]>([]);
+    const dialog = ref(false);
+    const deleteDialog = ref(false);
+    const deleteDialogItem = ref<User | null>(null);
+    const headers = shallowReadonly([
+      { text: 'ID', value: 'id' },
+      { text: 'Name', value: 'name' },
+      { text: 'Actions', value: 'name', sortable: false },
+    ]);
+    const editedIndex = ref(-1);
+    const editedItem = ref({
+      id: 0,
+      name: '',
+    });
+    const defaultItem = ref({
+      id: 0,
+      name: '',
+    });
+    const dictionary = shallowReadonly({
+      custom: {
+        name: {
+          required: () => 'Name can not be empty',
+          max: 'The name field may not be greater than 10 characters',
         },
       },
     });
+    const formTitle = computed(() => editedIndex.value === -1 ? 'New Item' : 'Edit Item');
 
     useFetch(async () => {
       await store.dispatch(`${UsersNamespace}/${UsersAction.LIST_USERS}`);
     });
 
     watch(
-      () => state.dialog,
+      () => dialog,
       (newValue, oldValue) => {
         newValue || close();
       }
     );
 
     function editItem(item: User) {
-      state.editedIndex = state.users.indexOf(item);
-      state.editedItem = Object.assign({}, item);
-      state.dialog = true;
+      editedIndex.value = users.indexOf(item);
+      editedItem.value = Object.assign({}, item);
+      dialog.value = true;
     };
 
     function deleteItem() {
-      const item = state.deleteDialogItem;
+      const item = deleteDialogItem.value;
       if (item != null) {
         store.dispatch(`${UsersNamespace}/${UsersAction.DESTROY_USER}`, { id: item.id });
         store.dispatch(`${UsersNamespace}/${UsersAction.LIST_USERS}`);
@@ -145,29 +130,37 @@ export default defineComponent({
     }
 
     function showDeleteDialog(item: User) {
-      state.deleteDialog = true;
-      state.deleteDialogItem = item;
+      deleteDialog.value = true;
+      deleteDialogItem.value = item;
     }
 
-    function close() {
-      state.dialog = false;
-      setTimeout(() => {
-        state.editedItem = Object.assign({}, state.defaultItem);
-        state.editedIndex = -1;
-      }, 0);
+    async function close() {
+      dialog.value = false;
+      await root.$nextTick();
+      editedItem.value = Object.assign({}, defaultItem.value);
+      editedIndex.value = -1;
     }
 
     async function save() {
-      if (state.editedIndex > -1) {
-        store.dispatch(`${UsersNamespace}/${UsersAction.UPDATE_USER}`, { user: state.editedItem });
+      if (editedIndex.value > -1) {
+        store.dispatch(`${UsersNamespace}/${UsersAction.UPDATE_USER}`, { user: editedItem.value });
       } else {
-        store.dispatch(`${UsersNamespace}/${UsersAction.CREATE_USER}`, { user: state.editedItem });
+        store.dispatch(`${UsersNamespace}/${UsersAction.CREATE_USER}`, { user: editedItem.value });
       }
       close();
     }
 
     return {
-      state,
+      users,
+      dialog,
+      deleteDialog,
+      deleteDialogItem,
+      headers,
+      editedIndex,
+      editedItem,
+      defaultItem,
+      dictionary,
+      formTitle,
       editItem,
       deleteItem,
       showDeleteDialog,

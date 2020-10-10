@@ -12,22 +12,12 @@
 <script lang="ts">
 import CFooter from '~/components/footer.vue';
 import CSidebar from '~/components/sidebar.vue';
-import { reactive, computed, Ref, UnwrapRef, defineComponent, useFetch, useContext, watch } from '@nuxtjs/composition-api';
+import { defineComponent } from '@nuxtjs/composition-api';
 
 export default defineComponent({
   components: {
     CSidebar,
     CFooter,
-  },
-
-  setup(props, { root }) {
-    const state = reactive({
-      clipped: true,
-      fixed: false,
-      miniVariant: false,
-    });
-
-    return { state };
   }
 });
 </script>

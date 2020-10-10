@@ -9,7 +9,7 @@ import { NuxtHTTPInstance } from '@nuxt/http';
 
 export default defineComponent({
   layout: 'simple',
-  async setup(_props, { root }) {
+  setup(_props, { root }) {
     onMounted(async () => {
       await apiSignout(root.$http);
       root.$router.replace('/signin');

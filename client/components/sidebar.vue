@@ -39,7 +39,7 @@
 </template>
 
 <script lang="ts">
-import { reactive, computed, Ref, UnwrapRef, defineComponent } from '@nuxtjs/composition-api';
+import { reactive, computed, ref, shallowReadonly, defineComponent } from '@nuxtjs/composition-api';
 import { TranslateResult } from 'vue-i18n';
 import { User } from '~/api/types/user';
 import { Workspace } from '~/api/types/workspace';
@@ -47,50 +47,45 @@ import { actionType as RootAction } from '~/store';
 
 export default defineComponent({
   setup(props, { root }) {
-    type State = {
-      loggedUser: User | null,
-      workspaces: Workspace[],
-      currentWorkspace: Workspace | null,
-      currentWorkspaceName: UnwrapRef<String>,
-      items: { icon: String, title: TranslateResult, to: String }[],
-    };
-    const state: State = reactive({
-      loggedUser: null,
-      workspaces: [],
-      currentWorkspace: null,
-      currentWorkspaceName: computed(() => state.currentWorkspace?.name ?? ''),
-      items: [
-        { icon: 'apps', title: root.$t('menu.home'), to: '/' },
-        { icon: 'edit', title: root.$t('menu.newpost'), to: '/postsEdit' },
-        {
-          icon: 'edit',
-          title: root.$t('menu.workspacesadmin'),
-          to: '/admin/workspaces',
-        },
-        {
-          icon: 'people',
-          title: root.$t('menu.usersadmin'),
-          to: '/admin/users',
-        },
-        {
-          icon: 'group',
-          title: root.$t('menu.groupsadmin'),
-          to: '/admin/groups',
-        },
-        {
-          icon: 'exit_to_app',
-          title: root.$t('menu.signout'),
-          to: '/signout',
-        },
-      ],
-    });
+    const loggedUser = ref<User | null>(null);
+    const workspaces = reactive<Workspace[]>([]);
+    const currentWorkspace = ref<Workspace | null>(null);
+    const items = shallowReadonly([
+      { icon: 'apps', title: root.$t('menu.home'), to: '/' },
+      { icon: 'edit', title: root.$t('menu.newpost'), to: '/postsEdit' },
+      {
+        icon: 'edit',
+        title: root.$t('menu.workspacesadmin'),
+        to: '/admin/workspaces',
+      },
+      {
+        icon: 'people',
+        title: root.$t('menu.usersadmin'),
+        to: '/admin/users',
+      },
+      {
+        icon: 'group',
+        title: root.$t('menu.groupsadmin'),
+        to: '/admin/groups',
+      },
+      {
+        icon: 'exit_to_app',
+        title: root.$t('menu.signout'),
+        to: '/signout',
+      },
+    ]);
+    const currentWorkspaceName = computed(() => currentWorkspace.value?.name ?? '');
 
     function changeWorkspace(workspaceId: number) {
       root.$store.dispatch(RootAction.SET_WORKSPACE, { workspaceId });
     }
 
     return {
-      state,
+      loggedUser,
+      workspaces,
+      currentWorkspace,
+      items,
+      currentWorkspaceName,
       changeWorkspace,
     }
   }

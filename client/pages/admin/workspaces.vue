@@ -67,8 +67,7 @@
 </template>
 
 <script lang="ts">
-import { Store } from 'vuex';
-import { reactive, computed, Ref, UnwrapRef, defineComponent, useFetch, useContext, watch } from '@nuxtjs/composition-api';
+import { reactive, computed, ref, defineComponent, useFetch, useContext, watch, shallowReadonly } from '@nuxtjs/composition-api';
 import { Workspace } from '~/api/types/workspace';
 import { actionType as WorkspacesAction, namespace as WorkspacesNamespace } from '~/store/workspaces';
 
@@ -78,67 +77,53 @@ export default defineComponent({
   setup(props, { root }) {
     const { store, redirect, route, params } = useContext();
 
-    type State = {
-      workspaces: Workspace[],
-      formTitle: UnwrapRef<string>,
-      dialog: boolean,
-      deleteDialog: boolean,
-      deleteDialogItem: Workspace | null,
-      headers: { text: string, value: string, sortable?: boolean }[],
-      editedIndex: number,
-      editedItem: { id: number, name: string },
-      defaultItem: { id: number, name: string },
-      dictionary: { custom: { name: { required: () => string, max: string } } },
-    };
-    const state: State = reactive({
-      workspaces: [],
-      formTitle: computed(() => state.editedIndex === -1 ? 'New Item' : 'Edit Item'),
-      dialog: false,
-      deleteDialog: false,
-      deleteDialogItem: null,
-      headers: [
-        { text: 'ID', value: 'id' },
-        { text: 'Name', value: 'name' },
-        { text: 'Actions', value: 'name', sortable: false },
-      ],
-      editedIndex: -1,
-      editedItem: {
-        id: 0,
-        name: '',
-      },
-      defaultItem: {
-        id: 0,
-        name: '',
-      },
-      dictionary: {
-        custom: {
-          name: {
-            required: () => 'Name can not be empty',
-            max: 'The name field may not be greater than 10 characters',
-          },
+    const workspaces = reactive<Workspace[]>([]);
+    const dialog = ref(false);
+    const deleteDialog = ref(false);
+    const deleteDialogItem = ref<Workspace | null>(null);
+    const headers = shallowReadonly([
+      { text: 'ID', value: 'id' },
+      { text: 'Name', value: 'name' },
+      { text: 'Actions', value: 'name', sortable: false },
+    ]);
+    const editedIndex = ref(-1);
+    const editedItem = ref({
+      id: 0,
+      name: '',
+    });
+    const defaultItem = ref({
+      id: 0,
+      name: '',
+    });
+    const dictionary = shallowReadonly({
+      custom: {
+        name: {
+          required: () => 'Name can not be empty',
+          max: 'The name field may not be greater than 10 characters',
         },
       },
     });
+    const formTitle = computed(() => editedIndex.value === -1 ? 'New Item' : 'Edit Item');
 
     useFetch(async () => {
       await store.dispatch(`${WorkspacesNamespace}/${WorkspacesAction.LIST_WORKSPACES}`);
     });
 
     watch(
-      () => state.dialog,
+      () => dialog,
       (newValue, oldValue) => {
         newValue || close();
       }
     );
 
     function editItem(item: Workspace) {
-      state.editedIndex = state.workspaces.indexOf(item);
-      state.editedItem = Object.assign({}, item);
-      state.dialog = true;
+      editedIndex.value = workspaces.indexOf(item);
+      editedItem.value = Object.assign({}, item);
+      dialog.value = true;
     };
 
     function deleteItem() {
-      const item = state.deleteDialogItem;
+      const item = deleteDialogItem.value;
       if (item != null) {
         store.dispatch(`${WorkspacesNamespace}/${WorkspacesAction.DESTROY_WORKSPACE}`, { id: item.id });
         store.dispatch(`${WorkspacesNamespace}/${WorkspacesAction.LIST_WORKSPACES}`);
@@ -146,29 +131,37 @@ export default defineComponent({
     }
 
     function showDeleteDialog(item: Workspace) {
-      state.deleteDialog = true;
-      state.deleteDialogItem = item;
+      deleteDialog.value = true;
+      deleteDialogItem.value = item;
     }
 
-    function close() {
-      state.dialog = false;
-      setTimeout(() => {
-        state.editedItem = Object.assign({}, state.defaultItem);
-        state.editedIndex = -1;
-      }, 0);
+    async function close() {
+      dialog.value = false;
+      await root.$nextTick();
+      editedItem.value = Object.assign({}, defaultItem.value);
+      editedIndex.value = -1;
     }
 
     async function save() {
-      if (state.editedIndex > -1) {
-        store.dispatch(`${WorkspacesNamespace}/${WorkspacesAction.UPDATE_WORKSPACE}`, { workspace: state.editedItem });
+      if (editedIndex.value > -1) {
+        store.dispatch(`${WorkspacesNamespace}/${WorkspacesAction.UPDATE_WORKSPACE}`, { workspace: editedItem.value });
       } else {
-        store.dispatch(`${WorkspacesNamespace}/${WorkspacesAction.CREATE_WORKSPACE}`, { workspace: state.editedItem });
+        store.dispatch(`${WorkspacesNamespace}/${WorkspacesAction.CREATE_WORKSPACE}`, { workspace: editedItem.value });
       }
       close();
     }
 
     return {
-      state,
+      workspaces,
+      dialog,
+      deleteDialog,
+      deleteDialogItem,
+      headers,
+      editedIndex,
+      editedItem,
+      defaultItem,
+      dictionary,
+      formTitle,
       editItem,
       deleteItem,
       showDeleteDialog,

@@ -38,7 +38,7 @@
 </template>
 
 <script lang="ts">
-import { reactive, computed, defineComponent, ref, useAsync, useContext, useFetch, useMeta } from '@nuxtjs/composition-api';
+import { ref, computed, defineComponent, useAsync, useContext, useFetch, useMeta } from '@nuxtjs/composition-api';
 import { Post } from '~/api/types/post';
 import { actionType as RootAction } from '~/store';
 import { actionType as PostsAction, namespace as PostsNamespace } from '~/store/posts';
@@ -47,12 +47,7 @@ export default defineComponent({
   setup(props, { root }) {
     const { store } = useContext();
 
-    type State = {
-      page: Number;
-    };
-    const state: State = reactive({
-      page: 1,
-    });
+    const page = ref(1);
 
     useFetch(async () => {
       await store.dispatch(RootAction.GET_WORKSPACES);
@@ -68,7 +63,7 @@ export default defineComponent({
     }
 
     return {
-      state,
+      page,
       showPost,
     };
   }

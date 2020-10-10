@@ -7,7 +7,8 @@ import { defineComponent, onMounted, useContext } from '@nuxtjs/composition-api'
 
 export default defineComponent({
   layout: 'simple',
-  async setup(_props, { root }) {
+  
+  setup(_props, { root }) {
     const { store, query } = useContext();
 
     onMounted(async () => {

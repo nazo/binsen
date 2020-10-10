@@ -43,18 +43,9 @@ export default defineComponent({
   setup(props, { root }) {
     const { store, redirect, route, params } = useContext();
 
-    type State = {
-      loggedUser: User | null,
-      markedBody: UnwrapRef<String>,
-      editUrl: UnwrapRef<String>,
-      currentPost: UnwrapRef<Post>,
-    };
-    const state: State = reactive({
-      loggedUser: null,
-      markedBody: computed(() => marked(state.currentPost.body)),
-      editUrl: computed(() => `/postsEdit?id=${state.currentPost.id}`),
-      currentPost: computed(() => store.getters[`${PostsNamespace}/currentPost`]),
-    });
+    const currentPost = computed<Post>(() => store.getters[`${PostsNamespace}/currentPost`]);
+    const markedBody = computed(() => marked(currentPost.value.body));
+    const editUrl = computed(() => `/postsEdit?id=${currentPost.value.id}`);
 
     useFetch(async () => {
       try {
@@ -69,7 +60,9 @@ export default defineComponent({
     }
 
     return {
-      state,
+      currentPost,
+      markedBody,
+      editUrl,
     }
   }
 });

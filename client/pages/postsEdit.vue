@@ -1,9 +1,81 @@
+<template>
+  <v-app>
+    <v-toolbar
+      fixed
+      app
+      :clipped-left="clipped">
+      <v-btn
+        icon
+        class="hidden-xs-only"
+        @click="goBack">
+        <v-icon>arrow_back</v-icon>
+      </v-btn>
+      <v-toolbar-title v-text="pageTitle"/>
+    </v-toolbar>
+    <v-content>
+      <v-container
+        fluid
+        fill-height>
+        <v-container
+          fluid
+          fill-height>
+          <v-layout column>
+            <v-flex xs12>
+              <v-layout
+                fill-height
+                justify-space-between
+                column>
+                <div>
+                  <v-text-field
+                    label="Title"
+                    placeholder="Title"
+                    v-model="title"
+                  />
+                </div>
+                <div class="editor-area">
+                  <v-layout
+                    align-space-between
+                    justify-space-between
+                    row
+                    fill-height>
+                    <div>
+                      <textarea
+                        class="editor-margined"
+                        v-model="body" />
+                    </div>
+                    <div>
+                      <v-card
+                        dark
+                        class="editor-margined editor-preview"
+                        color="secondary">
+                        <v-card-text
+                          class="px-0"
+                          v-html="markedBody"/>
+                      </v-card>
+                    </div>
+                  </v-layout>
+                </div>
+                <div>
+                  <v-btn @click="saveDraft">Draft</v-btn>
+                  <v-btn
+                    color="success"
+                    @click="submitPost">Post</v-btn>
+                </div>
+              </v-layout>
+            </v-flex>
+          </v-layout>
+        </v-container>
+      </v-container>
+    </v-content>
+    <c-footer/>
+  </v-app>
+</template>
 
 <script lang="ts">
 import marked from 'marked';
 import { Store } from 'vuex';
 import { Route } from 'vue-router';
-import { reactive, computed, Ref, UnwrapRef, defineComponent, useFetch, useContext, onMounted } from '@nuxtjs/composition-api';
+import { reactive, computed, ref, defineComponent, useFetch, useContext, onMounted } from '@nuxtjs/composition-api';
 import CFooter from '~/components/footer.vue';
 import { User } from '~/api/types/user';
 import { Post } from '~/api/types/post';
@@ -19,30 +91,10 @@ export default defineComponent({
   setup(props, { root }) {
     const { store, redirect, query } = useContext();
 
-    type State = {
-      loggedUser: User | null,
-      currentWorkspace: Workspace | null,
-      title: string,
-      body: string,
-      clipped: boolean,
-      drawer: boolean,
-      fixed: boolean,
-      miniVariant: boolean,
-      markedBody: UnwrapRef<String>,
-      pageTitle: UnwrapRef<String>,
-    };
-    const state: State = reactive({
-      loggedUser: null,
-      currentWorkspace: null,
-      title: '',
-      body: '',
-      clipped: true,
-      drawer: true,
-      fixed: false,
-      miniVariant: false,
-      markedBody: computed(() => marked(state.body)),
-      pageTitle: computed(() => store.getters[`${PostsNamespace}/currentPost`] ? 'edit post' : 'new post'),
-    });
+    const title = ref('');
+    const body = ref('');
+    const markedBody = computed(() => marked(body.value));
+    const pageTitle = computed(() => store.getters[`${PostsNamespace}/currentPost`] ? 'edit post' : 'new post');
 
     function saveDraft() {}
 
@@ -53,16 +105,16 @@ export default defineComponent({
         if (currentWorkspace !== null) {
           const response = await store.dispatch(`${PostsNamespace}/${PostsAction.CREATE_POST}`, {
             workspaceId: currentWorkspace.id,
-            title: state.title,
-            body: state.body,
+            title: title.value,
+            body: body.value,
           });
           root.$router.push('/posts/' + response.post.id);
         }
       } else {
         const response = await store.dispatch(`${PostsNamespace}/${PostsAction.UPDATE_POST}`, {
           id: currentPost.id,
-          title: state.title,
-          body: state.body,
+          title: title.value,
+          body: body.value,
         });
         root.$router.push('/posts/' + response.post.id);
       }
@@ -71,8 +123,8 @@ export default defineComponent({
     onMounted(() => {
       const currentPost = store.getters[`${PostsNamespace}/currentPost`];
       if (currentPost !== null) {
-        state.title = currentPost.title;
-        state.body = currentPost.body;
+        title.value = currentPost.title;
+        body.value = currentPost.body;
       }
     });
 
@@ -92,7 +144,10 @@ export default defineComponent({
     });
 
     return {
-      state,
+      title,
+      body,
+      markedBody,
+      pageTitle,
       saveDraft,
       submitPost,
       goBack,
