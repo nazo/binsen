@@ -3,14 +3,16 @@
     <v-layout>
       <v-flex xs12>
         <v-app-bar flat color="white">
-          <ValidationObserver v-slot="{ handleSubmit }">
-            <form @submit.prevent="handleSubmit(save)">
-              <v-toolbar-title>Workspaces</v-toolbar-title>
-              <v-divider class="mx-2" inset vertical />
-              <v-spacer/>
-              <v-dialog v-model="dialog" max-width="500px">
-                <v-btn slot="activator" color="primary" dark class="mb-2">New Workspace</v-btn>
-                <v-card>
+          <v-toolbar-title>Workspaces</v-toolbar-title>
+          <v-divider class="mx-2" inset vertical />
+          <v-spacer/>
+          <v-dialog v-model="dialog" max-width="500px">
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn v-bind="attrs" v-on="on" color="primary" dark class="mb-2">New Workspace</v-btn>
+            </template>
+            <v-card>
+              <ValidationObserver v-slot="{ invalid }">
+                <form @submit.prevent="save">
                   <v-card-title>
                     <span class="headline">{{ formTitle }}</span>
                   </v-card-title>
@@ -18,8 +20,8 @@
                     <v-container grid-list-md>
                       <v-layout wrap>
                         <v-flex xs12 sm6 md4>
-                          <ValidationProvider v-slot="{ errors }">
-                            <v-text-field v-model="editedItem.name" :error-messages="errors.collect('name')" :counter="10" required v-validate="'required|max:10'" data-vv-name="name" label="Name"/>
+                          <ValidationProvider name="name" rules="required|max:10" v-slot="{ errors }">
+                            <v-text-field v-model="editedItem.name" :counter="10" required data-vv-name="name" label="Name"/>
                             <div>{{ errors[0] }}</div>
                           </ValidationProvider>
                         </v-flex>
@@ -29,15 +31,15 @@
 
                   <v-card-actions>
                     <v-spacer/>
-                    <v-btn color="blue darken-1" flat @click.native="close">Cancel</v-btn>
-                    <v-btn color="blue darken-1" flat>Save</v-btn>
+                    <v-btn color="blue darken-1" text @click.native="close">Cancel</v-btn>
+                    <v-btn type="submit" color="blue darken-1" text :disabled="invalid">Save</v-btn>
                   </v-card-actions>
-                </v-card>
-              </v-dialog>
-            </form>
-          </ValidationObserver>
+                </form>
+              </ValidationObserver>
+            </v-card>
+          </v-dialog>
         </v-app-bar>
-        <v-data-table :headers="headers" :items="workspaces" hide-actions class="elevation-1" >
+        <v-data-table :headers="headers.value" :items="items.workspaces" hide-default-footer class="elevation-1" >
           <template slot="items" slot-scope="props">
             <td class="text-xs-right">{{ props.item.id }}</td>
             <td>{{ props.item.name }}</td>
@@ -70,6 +72,7 @@
 import { reactive, computed, ref, defineComponent, useFetch, useContext, watch, shallowReadonly } from '@nuxtjs/composition-api';
 import { Workspace } from '~/api/types/workspace';
 import { actionType as WorkspacesAction, namespace as WorkspacesNamespace } from '~/store/workspaces';
+import { DataTableHeader } from 'vuetify';
 
 export default defineComponent({
   middleware: ['authenticated'],
@@ -77,11 +80,11 @@ export default defineComponent({
   setup(props, { root }) {
     const { store, redirect, route, params } = useContext();
 
-    const workspaces = reactive<Workspace[]>([]);
+    const items = reactive<{ workspaces: Workspace[] }>({ workspaces: [] });
     const dialog = ref(false);
     const deleteDialog = ref(false);
     const deleteDialogItem = ref<Workspace | null>(null);
-    const headers = shallowReadonly([
+    const headers = shallowReadonly<DataTableHeader[]>([
       { text: 'ID', value: 'id' },
       { text: 'Name', value: 'name' },
       { text: 'Actions', value: 'name', sortable: false },
@@ -105,8 +108,13 @@ export default defineComponent({
     });
     const formTitle = computed(() => editedIndex.value === -1 ? 'New Item' : 'Edit Item');
 
-    useFetch(async () => {
+    async function reloadItems() {
       await store.dispatch(`${WorkspacesNamespace}/${WorkspacesAction.LIST_WORKSPACES}`);
+      items.workspaces = store.getters[`${WorkspacesNamespace}/workspaces`] as Workspace[];
+    }
+
+    useFetch(async () => {
+      await reloadItems();
     });
 
     watch(
@@ -117,16 +125,16 @@ export default defineComponent({
     );
 
     function editItem(item: Workspace) {
-      editedIndex.value = workspaces.indexOf(item);
+      editedIndex.value = items.workspaces.indexOf(item);
       editedItem.value = Object.assign({}, item);
       dialog.value = true;
     };
 
-    function deleteItem() {
+    async function deleteItem() {
       const item = deleteDialogItem.value;
       if (item != null) {
-        store.dispatch(`${WorkspacesNamespace}/${WorkspacesAction.DESTROY_WORKSPACE}`, { id: item.id });
-        store.dispatch(`${WorkspacesNamespace}/${WorkspacesAction.LIST_WORKSPACES}`);
+        await store.dispatch(`${WorkspacesNamespace}/${WorkspacesAction.DESTROY_WORKSPACE}`, { id: item.id });
+        await reloadItems();
       }
     }
 
@@ -144,15 +152,20 @@ export default defineComponent({
 
     async function save() {
       if (editedIndex.value > -1) {
-        store.dispatch(`${WorkspacesNamespace}/${WorkspacesAction.UPDATE_WORKSPACE}`, { workspace: editedItem.value });
+        await store.dispatch(`${WorkspacesNamespace}/${WorkspacesAction.UPDATE_WORKSPACE}`, { workspace: editedItem.value });
       } else {
-        store.dispatch(`${WorkspacesNamespace}/${WorkspacesAction.CREATE_WORKSPACE}`, { workspace: editedItem.value });
+        await store.dispatch(`${WorkspacesNamespace}/${WorkspacesAction.CREATE_WORKSPACE}`, { workspace: editedItem.value });
       }
+      await reloadItems();
       close();
+    }
+    
+    async function initialize() {
+      await store.dispatch(`${WorkspacesNamespace}/${WorkspacesAction.LIST_WORKSPACES}`);
     }
 
     return {
-      workspaces,
+      items,
       dialog,
       deleteDialog,
       deleteDialogItem,
@@ -167,6 +180,7 @@ export default defineComponent({
       showDeleteDialog,
       close,
       save,
+      initialize,
     };
   }
 });

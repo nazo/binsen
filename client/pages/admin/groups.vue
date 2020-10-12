@@ -144,6 +144,10 @@ export default defineComponent({
       }
       close();
     }
+    
+    async function initialize() {
+      await store.dispatch(`${GroupsNamespace}/${GroupsAction.LIST_GROUPS}`);
+    }
 
     return {
       groups,
@@ -161,6 +165,7 @@ export default defineComponent({
       showDeleteDialog,
       close,
       save,
+      initialize,
     };
   }
 });

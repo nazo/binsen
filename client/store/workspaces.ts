@@ -21,7 +21,7 @@ export const getters: GetterTree<WorkspacesState, RootState> = {
 };
 
 export const MutationType = {
-  SET_WORKSPACES: 'setUsers',
+  SET_WORKSPACES: 'setWorkspaces',
 }
 
 export const mutations: MutationTree<WorkspacesState> = {
@@ -39,16 +39,24 @@ export const actionType = {
 
 export const actions: ActionTree<WorkspacesState, RootState> = {
   [actionType.LIST_WORKSPACES]: async function ({ commit }: { commit: Commit }) {
-    const { workspaces } = await apiWorkspaceList(this.$http);
-    commit('setWorkspaces', { workspaces });
+    try {
+      const { workspaces } = await apiWorkspaceList(this.$http);
+      commit('setWorkspaces', { workspaces });
+    } catch(e) {
+      // TODO
+    }
   },
 
   [actionType.CREATE_WORKSPACE]: async function (
     { dispatch }: { dispatch: Dispatch },
     { workspace }: { workspace: Workspace }
   ) {
-    await apiWorkspaceCreate(this.$http, { name: workspace.name });
-    dispatch('listWorkspaces');
+    try {
+      await apiWorkspaceCreate(this.$http, { name: workspace.name });
+      dispatch('listWorkspaces');
+    } catch(e) {
+      // TODO
+    }
   },
 
   [actionType.UPDATE_WORKSPACE]: async function (

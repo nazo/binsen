@@ -12,12 +12,12 @@ type deleteSignoutResponse struct {
 
 // Signout signout user
 func Signout(c echo.Context) error {
-	userSessionValues, err := session.Get("user", c)
+	sessionValues, err := session.Get("binsen-session", c)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "userinfo failed")
 	}
-	userSessionValues.Values["id"] = nil
-	userSessionValues.Save(c.Request(), c.Response())
+	sessionValues.Values["id"] = nil
+	sessionValues.Save(c.Request(), c.Response())
 	res := &deleteSignoutResponse{}
 	return c.JSON(http.StatusOK, res)
 }

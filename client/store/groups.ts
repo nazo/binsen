@@ -42,22 +42,38 @@ export const actionType = {
 
 export const actions: ActionTree<GroupsState, RootState> = {
   [actionType.LIST_GROUPS]: async function ({ commit }: ActionContext<GroupsState, RootState>) {
-    const { groups } = await apiGroupList(this.$http);
-    commit('setGroups', { groups });
+    try {
+      const { groups } = await apiGroupList(this.$http);
+      commit('setGroups', { groups });
+    } catch(e) {
+      // TODO
+    }
   },
 
   [actionType.CREATE_GROUP]: async function ({ dispatch }: ActionContext<GroupsState, RootState>, { group }: { group: Group }) {
-    await apiGroupCreate(this.$http, { name: group.name });
-    dispatch('listGroups');
+    try {
+      await apiGroupCreate(this.$http, { name: group.name });
+      dispatch('listGroups');
+    } catch(e) {
+      // TODO
+    }
   },
 
   [actionType.UPDATE_GROUP]: async function ({ dispatch }: ActionContext<GroupsState, RootState>, { group }: { group: Group }) {
-    await apiGroupUpdate(this.$http, { id: group.id, name: group.name });
-    dispatch('listGroups');
+    try {
+      await apiGroupUpdate(this.$http, { id: group.id, name: group.name });
+      dispatch('listGroups');
+    } catch(e) {
+      // TODO
+    }
   },
 
   [actionType.DESTROY_GROUP]: async function ({ dispatch }: ActionContext<GroupsState, RootState>, { id }: { id: number }) {
-    await apiGroupDestroy(this.$http, { id });
-    dispatch('listGroups');
+    try {
+      await apiGroupDestroy(this.$http, { id });
+      dispatch('listGroups');
+    } catch(e) {
+      // TODO
+    }
   },
 };

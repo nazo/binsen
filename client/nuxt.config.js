@@ -74,8 +74,6 @@ export default {
     proxyHeaders: true,
     baseURL: process.env.API_SERVER_BASE_URI,
     browserBaseURL: process.env.API_CLIENT_BASE_URI,
-    credentials: true,
-    proxyHeadersIgnore: ['host', 'accept'],
   },
   /*
    ** vuetify module configuration

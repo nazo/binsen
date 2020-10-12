@@ -41,26 +41,42 @@ export const actionType = {
 
 export const actions: ActionTree<UsersState, RootState> = {
   [actionType.LIST_USERS]: async function ({ commit }: { commit: Commit }) {
-    const { users } = await apiUserList(this.$http);
-    commit('setUsers', { users });
+    try {
+      const { users } = await apiUserList(this.$http);
+      commit('setUsers', { users });
+    } catch(e) {
+      // TODO
+    }
   },
 
   [actionType.CREATE_USER]: async function ({ dispatch }: { dispatch: Dispatch }, { user }: { user: User }) {
-    await apiUserCreate(this.$http, { name: user.name, email: user.email });
-    dispatch('listUsers');
+    try {
+      await apiUserCreate(this.$http, { name: user.name, email: user.email });
+      dispatch('listUsers');
+    } catch(e) {
+      // TODO
+    }
   },
 
   [actionType.UPDATE_USER]: async function ({ dispatch }: { dispatch: Dispatch }, { user }: { user: User }) {
-    await apiUserUpdate(this.$http, {
-      id: user.id,
-      name: user.name,
-      email: user.email,
-    });
-    dispatch('listUsers');
+    try {
+      await apiUserUpdate(this.$http, {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+      });
+      dispatch('listUsers');
+    } catch(e) {
+      // TODO
+    }
   },
 
   [actionType.DESTROY_USER]: async function ({ dispatch }: { dispatch: Dispatch }, { id }: { id: number }) {
-    await apiUserDestroy(this.$http, { id });
-    dispatch('listUsers');
+    try {
+      await apiUserDestroy(this.$http, { id });
+      dispatch('listUsers');
+    } catch(e) {
+      // TODO
+    }
   },
 };

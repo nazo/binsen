@@ -5,13 +5,12 @@ import (
 
 	"github.com/facebookgo/grace/gracehttp"
 
-	"github.com/go-redis/redis"
 	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/nazo/binsen/server/app/http/routes"
 	"github.com/nazo/binsen/server/lib/db"
-	"github.com/rbcervilla/redisstore"
+	"gopkg.in/boj/redistore.v1"
 	"gopkg.in/go-playground/validator.v9"
 )
 
@@ -30,13 +29,14 @@ func Server() {
 		AllowCredentials: true,
 	}))
 
-	client := redis.NewClient(&redis.Options{
-		Addr: "redis:6379",
-	})
-	store, err := redisstore.NewRedisStore(client)
+	store, err := redistore.NewRediStore(10, "tcp", "redis:6379", "", []byte("secret-key"))
 	if err != nil {
 		panic(err)
 	}
+	defer store.Close()
+	store.Options.HttpOnly = true
+	// store.Options.Secure = true;
+	// store.Options.SameSite = http.SameSiteNoneMode;
 	e.Use(session.Middleware(store))
 	conn, err := db.NewDB(&db.NewDBConfig{
 		Host:     "postgres",

@@ -149,6 +149,10 @@ export default defineComponent({
       }
       close();
     }
+    
+    async function initialize() {
+      await store.dispatch(`${UsersNamespace}/${UsersAction.LIST_USERS}`);
+    }
 
     return {
       users,
@@ -166,6 +170,7 @@ export default defineComponent({
       showDeleteDialog,
       close,
       save,
+      initialize,
     };
   }
 });

@@ -11,11 +11,11 @@ import (
 
 // GetLoginUser get login user
 func GetLoginUser(c echo.Context) (*orm.User, error) {
-	userSessionValues, err := session.Get("user", c)
+	sessionValues, err := session.Get("binsen-session", c)
 	if err != nil {
 		return nil, err
 	}
-	userID := userSessionValues.Values["id"]
+	userID := sessionValues.Values["id"]
 	if userID == nil {
 		return nil, errors.New("not authorized")
 	}

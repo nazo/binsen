@@ -47,6 +47,7 @@ export const mutations: MutationTree<PostsState> = {
 
 export const actionType = {
   GET_POST: 'getPost',
+  CLEAR_POST: 'clearPost',
   LIST_POSTS: 'listPosts',
   CREATE_POST: 'createPost',
   UPDATE_POST: 'updatePost',
@@ -54,35 +55,55 @@ export const actionType = {
 
 export const actions: ActionTree<PostsState, RootState> = {
   [actionType.GET_POST]: async function ({ commit }: ActionContext<PostsState, RootState>, { id }: { id: number }) {
-    const { post } = await apiPostGet(this.$http, { id });
-    commit('setCurrentPost', { post });
+    try {
+      const { post } = await apiPostGet(this.$http, { id });
+      commit(MutationType.SET_CURRENT_POST, { post });
+    } catch(e) {
+      // TODO
+    }
+  },
+
+  [actionType.CLEAR_POST]: async function ({ commit }: ActionContext<PostsState, RootState>) {
+    commit(MutationType.SET_CURRENT_POST, { post: null });
   },
 
   [actionType.LIST_POSTS]: async function ({ commit, rootGetters }: ActionContext<PostsState, RootState>, { page }: { page: number }) {
-    const workspace = rootGetters.currentWorkspace;
-    if (!workspace) {
-      return;
+    try {
+      const workspace = rootGetters.currentWorkspace;
+      if (!workspace) {
+        return;
+      }
+      const { posts } = await apiPostList(this.$http, {
+        workspace_id: workspace.id,
+        page,
+      });
+      commit(MutationType.SET_POSTS, { posts });
+    } catch(e) {
+      // TODO
     }
-    const { posts } = await apiPostList(this.$http, {
-      workspace_id: workspace.id,
-      page,
-    });
-    commit('setPosts', { posts });
   },
 
   [actionType.CREATE_POST]: function ({}: ActionContext<PostsState, RootState>, { workspaceId, title, body }: { workspaceId: number, title: string, body: string }) {
-    return apiPostCreate(this.$http, {
-      workspace_id: workspaceId,
-      title,
-      body,
-    });
+    try {
+      return apiPostCreate(this.$http, {
+        workspace_id: workspaceId,
+        title,
+        body,
+      });
+    } catch(e) {
+      // TODO
+    }
   },
 
   [actionType.UPDATE_POST]: function ({}: ActionContext<PostsState, RootState>, { id, title, body }: { id: number, title: string, body: string }) {
-    return apiPostUpdate(this.$http, {
-      id,
-      title,
-      body,
-    });
+    try {
+      return apiPostUpdate(this.$http, {
+        id,
+        title,
+        body,
+      });
+    } catch(e) {
+      // TODO
+    }
   },
 };

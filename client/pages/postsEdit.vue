@@ -38,12 +38,12 @@
                     justify-space-between
                     row
                     fill-height>
-                    <div>
+                    <div class="editor-side">
                       <textarea
                         class="editor-margined"
                         v-model="body" />
                     </div>
-                    <div>
+                    <div class="editor-side">
                       <v-card
                         dark
                         class="editor-margined editor-preview"
@@ -94,51 +94,29 @@ export default defineComponent({
 
     const title = ref('');
     const body = ref('');
+    const isNew = ref(true);
     const clipped = ref(true);
     const markedBody = computed(() => marked(body.value));
-    const pageTitle = computed(() => store.getters[`${PostsNamespace}/currentPost`] ? 'edit post' : 'new post');
+    const pageTitle = computed(() => isNew.value ? 'new post' : 'edit post');
     const icons = shallowReadonly({
       mdiArrowLeftCircle
     });
 
-    function saveDraft() {}
-
-    async function submitPost() {
-      const currentPost = store.getters[`${PostsNamespace}/currentPost`];
-      const currentWorkspace = store.getters[`${PostsNamespace}/currentWorkspace`];
-      if (currentPost === null) {
-        if (currentWorkspace !== null) {
-          const response = await store.dispatch(`${PostsNamespace}/${PostsAction.CREATE_POST}`, {
-            workspaceId: currentWorkspace.id,
-            title: title.value,
-            body: body.value,
-          });
-          root.$router.push('/posts/' + response.post.id);
-        }
-      } else {
-        const response = await store.dispatch(`${PostsNamespace}/${PostsAction.UPDATE_POST}`, {
-          id: currentPost.id,
-          title: title.value,
-          body: body.value,
-        });
-        root.$router.push('/posts/' + response.post.id);
-      }
-    }
-
     onMounted(() => {
-      const currentPost = store.getters[`${PostsNamespace}/currentPost`];
-      if (currentPost !== null) {
-        title.value = currentPost.title;
-        body.value = currentPost.body;
+      const post = store.getters[`${PostsNamespace}/currentPost`] as Post | null;
+      if (post === null) {
+        isNew.value = true;
+        clearFields();
+      } else {
+        isNew.value = false;
+        title.value = post.title;
+        body.value = post.body;
       }
     });
 
-    function goBack() {
-      root.$router.replace('/');
-    }
-
     useFetch(async () => {
       if (!('id' in query.value)) {
+        await store.dispatch(`${PostsNamespace}/${PostsAction.CLEAR_POST}`);
         return;
       }
       try {
@@ -148,7 +126,44 @@ export default defineComponent({
       }
     });
 
+    function saveDraft() {}
+
+    function clearFields() {
+      title.value = '';
+      body.value = '';
+    }
+
+    async function submitPost() {
+      console.log("submitPost start");
+      const currentPost = store.getters[`${PostsNamespace}/currentPost`] as Post | null;
+      const currentWorkspace = store.getters['currentWorkspace'] as Workspace | null;
+      if (currentPost === null) {
+        if (currentWorkspace !== null) {
+          const { post } = await store.dispatch(`${PostsNamespace}/${PostsAction.CREATE_POST}`, {
+            workspaceId: currentWorkspace.id,
+            title: title.value,
+            body: body.value,
+          });
+          clearFields();
+          root.$router.push('/posts/' + post.id);
+        }
+      } else {
+        const { post } = await store.dispatch(`${PostsNamespace}/${PostsAction.UPDATE_POST}`, {
+          id: currentPost.id,
+          title: title.value,
+          body: body.value,
+        });
+        clearFields();
+        root.$router.push('/posts/' + post.id);
+      }
+    }
+
+    function goBack() {
+      root.$router.replace('/');
+    }
+
     return {
+      isNew,
       title,
       body,
       clipped,
@@ -177,11 +192,15 @@ export default defineComponent({
   width: 100%;
   border: 1px solid #000;
 }
+.editor-side {
+  width: 50%;
+}
 .editor-margined {
   margin: 5px;
   word-break: break-all;
 }
 .editor-preview {
+  width: 100%;
   overflow: scroll;
 }
 </style>

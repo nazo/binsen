@@ -15,7 +15,7 @@ export class RootState {
 export const state = (): RootState => new RootState();
 
 export const getters: GetterTree<RootState, RootState> = {
-  isAuthenticated(state: RootState) {
+  isAuthenticated(state: RootState): boolean {
     return !!state.user;
   },
 
@@ -23,7 +23,7 @@ export const getters: GetterTree<RootState, RootState> = {
     return state.user;
   },
 
-  currentWorkspace(state: RootState) {
+  currentWorkspace(state: RootState): Workspace | null {
     if (state.currentWorkspaceId === null) {
       return null;
     }
@@ -36,7 +36,7 @@ export const getters: GetterTree<RootState, RootState> = {
     return state.workspaces[state.currentWorkspaceId];
   },
 
-  workspaces(state: RootState) {
+  workspaces(state: RootState): { [key: number]: Workspace } | null {
     return state.workspaces;
   },
 };
@@ -94,8 +94,12 @@ export const actionType = {
 
 export const actions: ActionTree<RootState, RootState> = {
   [actionType.GET_WORKSPACES]: async function ({ commit }: ActionContext<RootState, RootState>) {
-    const { workspaces } = await apiWorkspaceList(this.$http);
-    commit('setWorkspaces', { workspaces });
+    try {
+      const { workspaces } = await apiWorkspaceList(this.$http);
+      commit('setWorkspaces', { workspaces });
+    } catch(e) {
+      // TODO
+    }
   },
 
   [actionType.SET_WORKSPACE]: function ({ commit }: ActionContext<RootState, RootState>, { workspaceId }: { workspaceId: number }) {
@@ -106,7 +110,11 @@ export const actions: ActionTree<RootState, RootState> = {
     { commit }: ActionContext<RootState, RootState>,
     { code, state }: { code: string; state: string }
   ) {
-    const { user } = await apiGoogleCallback(this.$http, { code, state });
-    commit('setUser', { user });
+    try {
+      const { user } = await apiGoogleCallback(this.$http, { code, state });
+      commit('setUser', { user });
+    } catch(e) {
+      // TODO
+    }
   },
 };

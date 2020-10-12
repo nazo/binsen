@@ -1,7 +1,7 @@
 <template>
   <v-container fluid>
     <v-layout column>
-      <v-flex xs12>
+      <v-flex xs12 v-if="currentPost">
         <v-layout
           align-space-between
           justify-space-between
@@ -15,11 +15,11 @@
             <nuxt-link :to="editUrl">
               <v-btn
                 color="teal"
-                flat
+                text
                 value="recent"
               >
                 <span>Edit</span>
-                <v-icon>edit</v-icon>
+                <v-icon>{{ editIcon }}</v-icon>
               </v-btn>
             </nuxt-link>
           </v-flex>
@@ -33,23 +33,26 @@
 import marked from 'marked';
 import { Store } from 'vuex';
 import { Route } from 'vue-router';
-import { reactive, computed, Ref, UnwrapRef, defineComponent, useFetch, useContext } from '@nuxtjs/composition-api';
+import { reactive, computed, ref, defineComponent, useFetch, useContext } from '@nuxtjs/composition-api';
 import { User } from '~/api/types/user';
 import { Post } from '~/api/types/post';
 import { actionType as PostsAction, namespace as PostsNamespace } from '~/store/posts';
+import { mdiPencil } from '@mdi/js';
 
 export default defineComponent({
   middleware: ['authenticated', 'workspaces'],
   setup(props, { root }) {
     const { store, redirect, route, params } = useContext();
 
-    const currentPost = computed<Post>(() => store.getters[`${PostsNamespace}/currentPost`]);
-    const markedBody = computed(() => marked(currentPost.value.body));
-    const editUrl = computed(() => `/postsEdit?id=${currentPost.value.id}`);
+    const currentPost = ref<Post | null>(null);
+    const markedBody = computed(() => marked((currentPost.value !== null) ? currentPost.value.body : ''));
+    const editUrl = computed(() => `/postsEdit?id=${currentPost.value?.id}`);
+    const editIcon = ref(mdiPencil);
 
     useFetch(async () => {
       try {
         await store.dispatch(`${PostsNamespace}/${PostsAction.GET_POST}`, { id: params.value.id });
+        currentPost.value = store.getters[`${PostsNamespace}/currentPost`]
       } catch (e) {
         redirect('/');
       }
@@ -63,6 +66,7 @@ export default defineComponent({
       currentPost,
       markedBody,
       editUrl,
+      editIcon,
     }
   }
 });

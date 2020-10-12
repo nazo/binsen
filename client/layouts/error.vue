@@ -29,7 +29,7 @@ export default defineComponent({
   },
   head() {
     const title =
-      this.error.statusCode === 404 ? this.pageNotFound : this.otherError
+      (this.error && this.error.statusCode === 404) ? this.pageNotFound : this.otherError
     return {
       title,
     }

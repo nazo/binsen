@@ -34,6 +34,9 @@ services:
       - /app/node_modules
   redis:
     image: redis
+    command: redis-server --appendonly yes
+    volumes:
+      - ./tmp/docker/redis/data:/data
   postgres:
     image: postgres:10.4
     environment:
