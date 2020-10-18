@@ -2,6 +2,7 @@ import { GetterTree, MutationTree, ActionTree, ActionContext, Commit, Dispatch }
 import {
   list as apiWorkspaceList,
   create as apiWorkspaceCreate,
+  update as apiWorkspaceUpdate,
 } from '~/api/workspace';
 import { Workspace } from '~/api/types/workspace';
 import type { RootState } from './index';
@@ -53,7 +54,6 @@ export const actions: ActionTree<WorkspacesState, RootState> = {
   ) {
     try {
       await apiWorkspaceCreate(this.$http, { name: workspace.name });
-      dispatch('listWorkspaces');
     } catch(e) {
       // TODO
     }
@@ -63,10 +63,9 @@ export const actions: ActionTree<WorkspacesState, RootState> = {
     { dispatch }: { dispatch: Dispatch },
     { workspace }: { workspace: Workspace }
   ) {
-    dispatch('listWorkspaces');
+      await apiWorkspaceUpdate(this.$http, { id: workspace.id, name: workspace.name });
   },
 
   [actionType.DESTROY_WORKSPACE]: async function ({ dispatch }: { dispatch: Dispatch }, { id }: { id: number }) {
-    dispatch('listWorkspaces');
   },
 };

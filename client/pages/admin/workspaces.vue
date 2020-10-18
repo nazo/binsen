@@ -6,10 +6,8 @@
           <v-toolbar-title>Workspaces</v-toolbar-title>
           <v-divider class="mx-2" inset vertical />
           <v-spacer/>
+          <v-btn @click.stop="newItem" color="primary" dark class="mb-2">New Workspace</v-btn>
           <v-dialog v-model="dialog" max-width="500px">
-            <template v-slot:activator="{ on, attrs }">
-              <v-btn v-bind="attrs" v-on="on" color="primary" dark class="mb-2">New Workspace</v-btn>
-            </template>
             <v-card>
               <ValidationObserver v-slot="{ invalid }">
                 <form @submit.prevent="save">
@@ -28,7 +26,6 @@
                       </v-layout>
                     </v-container>
                   </v-card-text>
-
                   <v-card-actions>
                     <v-spacer/>
                     <v-btn color="blue darken-1" text @click.native="close">Cancel</v-btn>
@@ -39,14 +36,16 @@
             </v-card>
           </v-dialog>
         </v-app-bar>
-        <v-data-table :headers="headers.value" :items="items.workspaces" hide-default-footer class="elevation-1" >
-          <template slot="items" slot-scope="props">
-            <td class="text-xs-right">{{ props.item.id }}</td>
-            <td>{{ props.item.name }}</td>
-            <td class="justify-center layout px-0">
-              <v-icon small class="mr-2" @click="editItem(props.item)">edit</v-icon>
-              <v-icon small class="mr-2" @click.stop="showDeleteDialog(props.item)">delete</v-icon>
-            </td>
+        <v-data-table :headers="headers" :items="workspaces" hide-default-footer class="elevation-1" >
+          <template slot="item" slot-scope="props">
+            <tr>
+              <td class="text-xs-right">{{ props.item.id }}</td>
+              <td>{{ props.item.name }}</td>
+              <td class="justify-center layout px-0">
+                <v-icon small class="mr-2" @click="editItem(props.item)">edit</v-icon>
+                <v-icon small class="mr-2" @click.stop="showDeleteDialog(props.item)">delete</v-icon>
+              </td>
+            </tr>
           </template>
           <template slot="no-data">
             <v-btn color="primary" @click="initialize">Reset</v-btn>
@@ -80,11 +79,11 @@ export default defineComponent({
   setup(props, { root }) {
     const { store, redirect, route, params } = useContext();
 
-    const items = reactive<{ workspaces: Workspace[] }>({ workspaces: [] });
+    const workspaces = ref<Workspace[]>([]);
     const dialog = ref(false);
     const deleteDialog = ref(false);
     const deleteDialogItem = ref<Workspace | null>(null);
-    const headers = shallowReadonly<DataTableHeader[]>([
+    const headers = reactive<DataTableHeader[]>([
       { text: 'ID', value: 'id' },
       { text: 'Name', value: 'name' },
       { text: 'Actions', value: 'name', sortable: false },
@@ -108,13 +107,9 @@ export default defineComponent({
     });
     const formTitle = computed(() => editedIndex.value === -1 ? 'New Item' : 'Edit Item');
 
-    async function reloadItems() {
+    const { fetch } = useFetch(async () => {
       await store.dispatch(`${WorkspacesNamespace}/${WorkspacesAction.LIST_WORKSPACES}`);
-      items.workspaces = store.getters[`${WorkspacesNamespace}/workspaces`] as Workspace[];
-    }
-
-    useFetch(async () => {
-      await reloadItems();
+      workspaces.value = store.getters[`${WorkspacesNamespace}/workspaces`] as Workspace[];
     });
 
     watch(
@@ -125,7 +120,8 @@ export default defineComponent({
     );
 
     function editItem(item: Workspace) {
-      editedIndex.value = items.workspaces.indexOf(item);
+      console.log(item);
+      editedIndex.value = workspaces.value.indexOf(item);
       editedItem.value = Object.assign({}, item);
       dialog.value = true;
     };
@@ -134,7 +130,7 @@ export default defineComponent({
       const item = deleteDialogItem.value;
       if (item != null) {
         await store.dispatch(`${WorkspacesNamespace}/${WorkspacesAction.DESTROY_WORKSPACE}`, { id: item.id });
-        await reloadItems();
+        fetch();
       }
     }
 
@@ -156,7 +152,7 @@ export default defineComponent({
       } else {
         await store.dispatch(`${WorkspacesNamespace}/${WorkspacesAction.CREATE_WORKSPACE}`, { workspace: editedItem.value });
       }
-      await reloadItems();
+      fetch();
       close();
     }
     
@@ -164,8 +160,13 @@ export default defineComponent({
       await store.dispatch(`${WorkspacesNamespace}/${WorkspacesAction.LIST_WORKSPACES}`);
     }
 
+    function newItem() {
+      editedIndex.value = -1;
+      dialog.value = true;
+    }
+
     return {
-      items,
+      workspaces,
       dialog,
       deleteDialog,
       deleteDialogItem,
@@ -175,6 +176,7 @@ export default defineComponent({
       defaultItem,
       dictionary,
       formTitle,
+      newItem,
       editItem,
       deleteItem,
       showDeleteDialog,

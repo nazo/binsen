@@ -9,6 +9,10 @@ interface CreateWorkspacesResponse {
   workspaces: Workspace;
 }
 
+interface UpdateWorkspacesResponse {
+  workspaces: Workspace;
+}
+
 export const list = (
   http: NuxtHTTPInstance
 ): Promise<GetWorkspacesResponse> =>
@@ -19,3 +23,9 @@ export const create = (
   { name }: { name: string }
 ): Promise<CreateWorkspacesResponse> =>
   http.$put<CreateWorkspacesResponse>('/api/workspace/v1/create', { name });
+
+export const update = (
+  http: NuxtHTTPInstance,
+  { id, name }: { id: number, name: string }
+): Promise<UpdateWorkspacesResponse> =>
+  http.$patch<UpdateWorkspacesResponse>('/api/workspace/v1/update', { id, name });

@@ -18,6 +18,7 @@ func Main(e *echo.Echo) {
 	routeWorkspace.Use(middlewares.Security())
 	routeWorkspace.GET("/list", actions.GetWorkspaces)
 	routeWorkspace.PUT("/create", actions.CreateWorkspace)
+	routeWorkspace.PATCH("/update", actions.UpdateWorkspace)
 
 	routePost := e.Group("/api/post/v1")
 	routePost.Use(middlewares.Security())

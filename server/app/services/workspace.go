@@ -8,6 +8,7 @@ import (
 // WorkspaceService todo
 type WorkspaceService interface {
 	CreateWorkspace(name string) (*orm.Workspace, error)
+	UpdateWorkspace(workspace *orm.Workspace, name string) (*orm.Workspace, error)
 	GetWorkspaces() ([]*orm.Workspace, error)
 	GetWorkspace(id int64) (*orm.Workspace, error)
 }
@@ -28,6 +29,11 @@ func NewWorkspaceService() WorkspaceService {
 // CreateWorkspace create workspace
 func (s *workspaceService) CreateWorkspace(name string) (*orm.Workspace, error) {
 	return s.workspacesRepository.CreateWorkspace(name)
+}
+
+// UpdateWorkspace create workspace
+func (s *workspaceService) UpdateWorkspace(workspace *orm.Workspace, name string) (*orm.Workspace, error) {
+	return s.workspacesRepository.UpdateWorkspace(workspace, name)
 }
 
 // GetWorkspaces get workspaces

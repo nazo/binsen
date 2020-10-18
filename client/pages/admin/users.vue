@@ -1,49 +1,51 @@
 <template>
-  <v-container
-    page>
+  <v-container page>
     <v-layout>
       <v-flex xs12>
         <v-app-bar flat color="white">
           <v-toolbar-title>Users</v-toolbar-title>
           <v-divider class="mx-2" inset vertical />
           <v-spacer/>
+          <v-btn @click.stop="newItem" color="primary" dark class="mb-2">New User</v-btn>
           <v-dialog v-model="dialog" max-width="500px">
-            <v-btn slot="activator" color="primary" dark class="mb-2">New User</v-btn>
             <v-card>
-              <v-card-title>
-                <span class="headline">{{ formTitle }}</span>
-              </v-card-title>
-              <v-card-text>
-                <v-container grid-list-md>
-                  <v-layout wrap>
-                    <v-flex xs12 sm6 md4>
-                      <v-text-field v-model="editedItem.name" :error-messages="errors.collect('name')" :counter="10" required v-validate="'required|max:10'" data-vv-name="name" label="Name"/>
-                    </v-flex>
-                    <v-flex xs12 sm6 md4>
-                      <v-text-field v-model="editedItem.email" :error-messages="errors.collect('email')" required v-validate="'required|email'" data-vv-name="email" label="email"/>
-                    </v-flex>
-                  </v-layout>
-                </v-container>
-              </v-card-text>
-
-              <v-card-actions>
-                <v-spacer/>
-                <v-btn color="blue darken-1" flat @click.native="close">Cancel</v-btn>
-                <v-btn color="blue darken-1" flat @click.native="save">Save</v-btn>
-              </v-card-actions>
+              <ValidationObserver v-slot="{ invalid }">
+                <form @submit.prevent="save">
+                  <v-card-title>
+                    <span class="headline">{{ formTitle }}</span>
+                  </v-card-title>
+                  <v-card-text>
+                    <v-container grid-list-md>
+                      <v-layout wrap>
+                        <v-flex xs12 sm6 md4>
+                          <ValidationProvider name="name" rules="required|max:10" v-slot="{ errors }">
+                            <v-text-field v-model="editedItem.name" :counter="10" required data-vv-name="name" label="Name"/>
+                            <div>{{ errors[0] }}</div>
+                          </ValidationProvider>
+                        </v-flex>
+                      </v-layout>
+                    </v-container>
+                  </v-card-text>
+                  <v-card-actions>
+                    <v-spacer/>
+                    <v-btn color="blue darken-1" text @click.native="close">Cancel</v-btn>
+                    <v-btn type="submit" color="blue darken-1" text :disabled="invalid">Save</v-btn>
+                  </v-card-actions>
+                </form>
+              </ValidationObserver>
             </v-card>
           </v-dialog>
         </v-app-bar>
-        <v-data-table :headers="headers" :items="users" hide-actions class="elevation-1" >
-          <template slot="items" slot-scope="props">
-            <td class="text-xs-right">{{ props.item.id }}</td>
-            <td>{{ props.item.name }}</td>
-            <td>{{ props.item.email }}</td>
-            <td>{{ props.item.users }}</td>
-            <td class="justify-center layout px-0">
-              <v-icon small class="mr-2" @click="editItem(props.item)">edit</v-icon>
-              <v-icon small class="mr-2" @click.stop="showDeleteDialog(props.item)">delete</v-icon>
-            </td>
+        <v-data-table :headers="headers" :items="users" hide-default-footer class="elevation-1" >
+          <template slot="item" slot-scope="props">
+            <tr>
+              <td class="text-xs-right">{{ props.item.id }}</td>
+              <td>{{ props.item.name }}</td>
+              <td class="justify-center layout px-0">
+                <v-icon small class="mr-2" @click="editItem(props.item)">edit</v-icon>
+                <v-icon small class="mr-2" @click.stop="showDeleteDialog(props.item)">delete</v-icon>
+              </td>
+            </tr>
           </template>
           <template slot="no-data">
             <v-btn color="primary" @click="initialize">Reset</v-btn>
@@ -69,6 +71,7 @@
 import { reactive, computed, ref, defineComponent, useFetch, useContext, watch, shallowReadonly } from '@nuxtjs/composition-api';
 import { User } from '~/api/types/user';
 import { actionType as UsersAction, namespace as UsersNamespace } from '~/store/users';
+import { DataTableHeader } from 'vuetify';
 
 export default defineComponent({
   middleware: ['authenticated'],
@@ -76,11 +79,11 @@ export default defineComponent({
   setup(props, { root }) {
     const { store, redirect, route, params } = useContext();
 
-    const users = reactive<User[]>([]);
+    const users = ref<User[]>([]);
     const dialog = ref(false);
     const deleteDialog = ref(false);
     const deleteDialogItem = ref<User | null>(null);
-    const headers = shallowReadonly([
+    const headers = reactive<DataTableHeader[]>([
       { text: 'ID', value: 'id' },
       { text: 'Name', value: 'name' },
       { text: 'Actions', value: 'name', sortable: false },
@@ -104,8 +107,9 @@ export default defineComponent({
     });
     const formTitle = computed(() => editedIndex.value === -1 ? 'New Item' : 'Edit Item');
 
-    useFetch(async () => {
+    const { fetch } = useFetch(async () => {
       await store.dispatch(`${UsersNamespace}/${UsersAction.LIST_USERS}`);
+      users.value = store.getters[`${UsersNamespace}/users`] as User[];
     });
 
     watch(
@@ -116,16 +120,17 @@ export default defineComponent({
     );
 
     function editItem(item: User) {
-      editedIndex.value = users.indexOf(item);
+      console.log(item);
+      editedIndex.value = users.value.indexOf(item);
       editedItem.value = Object.assign({}, item);
       dialog.value = true;
     };
 
-    function deleteItem() {
+    async function deleteItem() {
       const item = deleteDialogItem.value;
       if (item != null) {
-        store.dispatch(`${UsersNamespace}/${UsersAction.DESTROY_USER}`, { id: item.id });
-        store.dispatch(`${UsersNamespace}/${UsersAction.LIST_USERS}`);
+        await store.dispatch(`${UsersNamespace}/${UsersAction.DESTROY_USER}`, { id: item.id });
+        fetch();
       }
     }
 
@@ -143,15 +148,21 @@ export default defineComponent({
 
     async function save() {
       if (editedIndex.value > -1) {
-        store.dispatch(`${UsersNamespace}/${UsersAction.UPDATE_USER}`, { user: editedItem.value });
+        await store.dispatch(`${UsersNamespace}/${UsersAction.UPDATE_USER}`, { user: editedItem.value });
       } else {
-        store.dispatch(`${UsersNamespace}/${UsersAction.CREATE_USER}`, { user: editedItem.value });
+        await store.dispatch(`${UsersNamespace}/${UsersAction.CREATE_USER}`, { user: editedItem.value });
       }
+      fetch();
       close();
     }
     
     async function initialize() {
       await store.dispatch(`${UsersNamespace}/${UsersAction.LIST_USERS}`);
+    }
+
+    function newItem() {
+      editedIndex.value = -1;
+      dialog.value = true;
     }
 
     return {
@@ -165,6 +176,7 @@ export default defineComponent({
       defaultItem,
       dictionary,
       formTitle,
+      newItem,
       editItem,
       deleteItem,
       showDeleteDialog,
