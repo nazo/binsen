@@ -7,7 +7,7 @@ export default defineNuxtPlugin(({ $http, redirect }: Context) => {
 
   $http.onError((error: ky.HTTPError) => {
     const code = error.response?.status;
-    if(code === 401) {
+    if (code === 401) {
       redirect('/signin');
     }
   });

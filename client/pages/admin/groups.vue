@@ -5,8 +5,10 @@
         <v-app-bar flat color="white">
           <v-toolbar-title>Groups</v-toolbar-title>
           <v-divider class="mx-2" inset vertical />
-          <v-spacer/>
-          <v-btn @click.stop="newItem" color="primary" dark class="mb-2">New Group</v-btn>
+          <v-spacer />
+          <v-btn color="primary" dark class="mb-2" @click.stop="newItem">
+            New Group
+          </v-btn>
           <v-dialog v-model="dialog" max-width="500px">
             <v-card>
               <ValidationObserver v-slot="{ invalid }">
@@ -18,8 +20,8 @@
                     <v-container grid-list-md>
                       <v-layout wrap>
                         <v-flex xs12 sm6 md4>
-                          <ValidationProvider name="name" rules="required|max:10" v-slot="{ errors }">
-                            <v-text-field v-model="editedItem.name" :counter="10" required data-vv-name="name" label="Name"/>
+                          <ValidationProvider v-slot="{ errors }" name="name" rules="required|max:10">
+                            <v-text-field v-model="editedItem.name" :counter="10" required data-vv-name="name" label="Name" />
                             <div>{{ errors[0] }}</div>
                           </ValidationProvider>
                         </v-flex>
@@ -27,38 +29,56 @@
                     </v-container>
                   </v-card-text>
                   <v-card-actions>
-                    <v-spacer/>
-                    <v-btn color="blue darken-1" text @click.native="close">Cancel</v-btn>
-                    <v-btn type="submit" color="blue darken-1" text :disabled="invalid">Save</v-btn>
+                    <v-spacer />
+                    <v-btn color="blue darken-1" text @click.native="close">
+                      Cancel
+                    </v-btn>
+                    <v-btn type="submit" color="blue darken-1" text :disabled="invalid">
+                      Save
+                    </v-btn>
                   </v-card-actions>
                 </form>
               </ValidationObserver>
             </v-card>
           </v-dialog>
         </v-app-bar>
-        <v-data-table :headers="headers" :items="groups" hide-default-footer class="elevation-1" >
+        <v-data-table :headers="headers" :items="groups" hide-default-footer class="elevation-1">
           <template slot="item" slot-scope="props">
             <tr>
-              <td class="text-xs-right">{{ props.item.id }}</td>
+              <td class="text-xs-right">
+                {{ props.item.id }}
+              </td>
               <td>{{ props.item.name }}</td>
               <td class="justify-center layout px-0">
-                <v-icon small class="mr-2" @click="editItem(props.item)">edit</v-icon>
-                <v-icon small class="mr-2" @click.stop="showDeleteDialog(props.item)">delete</v-icon>
+                <v-icon small class="mr-2" @click="editItem(props.item)">
+                  edit
+                </v-icon>
+                <v-icon small class="mr-2" @click.stop="showDeleteDialog(props.item)">
+                  delete
+                </v-icon>
               </td>
             </tr>
           </template>
           <template slot="no-data">
-            <v-btn color="primary" @click="initialize">Reset</v-btn>
+            <v-btn color="primary" @click="initialize">
+              Reset
+            </v-btn>
           </template>
         </v-data-table>
         <v-dialog v-model="deleteDialog" persistent max-width="290">
           <v-card>
-            <v-card-title class="headline">Delete</v-card-title>
+            <v-card-title class="headline">
+              Delete
+            </v-card-title>
             <v-card-text>Are you sure?</v-card-text>
             <v-card-actions>
               <v-spacer />
-              <v-btn color="green darken-1" flat @click.native="deleteDialog = false">Cancel</v-btn>
-              <v-btn color="green darken-1" flat @click.native="deleteDialog = false" @click.stop="deleteItem()">Delete</v-btn>
+              <v-btn color="green darken-1" flat @click.native="deleteDialog = false">
+                Cancel
+              </v-btn>
+              <v-btn color="green darken-1" flat @click.native="deleteDialog = false" @click.stop="deleteItem()">
+                Delete
+              </v-btn>
             </v-card-actions>
           </v-card>
         </v-dialog>
@@ -69,14 +89,14 @@
 
 <script lang="ts">
 import { reactive, computed, ref, defineComponent, useFetch, useContext, watch, shallowReadonly } from '@nuxtjs/composition-api';
+import { DataTableHeader } from 'vuetify';
 import { Group } from '~/api/types/group';
 import { actionType as GroupsAction, namespace as GroupsNamespace } from '~/store/groups';
-import { DataTableHeader } from 'vuetify';
 
 export default defineComponent({
   middleware: ['authenticated'],
 
-  setup(props, { root }) {
+  setup (props, { root }) {
     const { store, redirect, route, params } = useContext();
 
     const groups = ref<Group[]>([]);
@@ -86,26 +106,26 @@ export default defineComponent({
     const headers = reactive<DataTableHeader[]>([
       { text: 'ID', value: 'id' },
       { text: 'Name', value: 'name' },
-      { text: 'Actions', value: 'name', sortable: false },
+      { text: 'Actions', value: 'name', sortable: false }
     ]);
     const editedIndex = ref(-1);
     const editedItem = ref({
       id: 0,
-      name: '',
+      name: ''
     });
     const defaultItem = ref({
       id: 0,
-      name: '',
+      name: ''
     });
     const dictionary = shallowReadonly({
       custom: {
         name: {
           required: () => 'Name can not be empty',
-          max: 'The name field may not be greater than 10 characters',
-        },
-      },
+          max: 'The name field may not be greater than 10 characters'
+        }
+      }
     });
-    const formTitle = computed(() => editedIndex.value === -1 ? 'New Item' : 'Edit Item');
+    const formTitle = computed(() => (editedIndex.value === -1 ? 'New Item' : 'Edit Item'));
 
     const { fetch } = useFetch(async () => {
       await store.dispatch(`${GroupsNamespace}/${GroupsAction.LIST_GROUPS}`);
@@ -119,14 +139,14 @@ export default defineComponent({
       }
     );
 
-    function editItem(item: Group) {
+    function editItem (item: Group) {
       console.log(item);
       editedIndex.value = groups.value.indexOf(item);
       editedItem.value = Object.assign({}, item);
       dialog.value = true;
-    };
+    }
 
-    async function deleteItem() {
+    async function deleteItem () {
       const item = deleteDialogItem.value;
       if (item != null) {
         await store.dispatch(`${GroupsNamespace}/${GroupsAction.DESTROY_GROUP}`, { id: item.id });
@@ -134,19 +154,19 @@ export default defineComponent({
       }
     }
 
-    function showDeleteDialog(item: Group) {
+    function showDeleteDialog (item: Group) {
       deleteDialog.value = true;
       deleteDialogItem.value = item;
     }
 
-    async function close() {
+    async function close () {
       dialog.value = false;
       await root.$nextTick();
       editedItem.value = Object.assign({}, defaultItem.value);
       editedIndex.value = -1;
     }
 
-    async function save() {
+    async function save () {
       if (editedIndex.value > -1) {
         await store.dispatch(`${GroupsNamespace}/${GroupsAction.UPDATE_GROUP}`, { group: editedItem.value });
       } else {
@@ -155,12 +175,12 @@ export default defineComponent({
       fetch();
       close();
     }
-    
-    async function initialize() {
+
+    async function initialize () {
       await store.dispatch(`${GroupsNamespace}/${GroupsAction.LIST_GROUPS}`);
     }
 
-    function newItem() {
+    function newItem () {
       editedIndex.value = -1;
       dialog.value = true;
     }
@@ -182,7 +202,7 @@ export default defineComponent({
       showDeleteDialog,
       close,
       save,
-      initialize,
+      initialize
     };
   }
 });

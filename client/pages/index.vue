@@ -1,37 +1,22 @@
 <template>
   <v-container fluid>
-    <v-layout
-      column
-      justify-center
-      align-center>
-      <v-flex
-        xs12
-        sm8
-        md6>
-        <v-list
-          two-line
-          v-if="posts">
+    <v-layout column justify-center align-center>
+      <v-flex xs12 sm8 md6>
+        <v-list v-if="posts" two-line>
           <template v-for="post in posts">
-            <v-list-item
-              :key="post.id"
-              avatar
-              @click="showPost(post)"
-            >
+            <v-list-item :key="post.id" avatar @click="showPost(post)">
               <v-list-item-avatar>
                 <img src="">
               </v-list-item-avatar>
 
               <v-list-item-content>
-                <v-list-item-title v-text="post.title"/>
-                <v-list-item-sub-title v-text="post.body"/>
+                <v-list-item-title v-text="post.title" />
+                <v-list-item-sub-title v-text="post.body" />
               </v-list-item-content>
             </v-list-item>
           </template>
         </v-list>
-        <v-pagination
-          v-model="page"
-          :length="6"
-        />
+        <v-pagination v-model="page" :length="6" />
       </v-flex>
     </v-layout>
   </v-container>
@@ -44,28 +29,30 @@ import { actionType as RootAction } from '~/store';
 import { actionType as PostsAction, namespace as PostsNamespace } from '~/store/posts';
 
 export default defineComponent({
-  setup(props, { root }) {
+  setup (props, { root }) {
     const { store } = useContext();
 
     const page = ref(1);
 
     useFetch(async () => {
       await store.dispatch(RootAction.GET_WORKSPACES);
-      await store.dispatch(`${PostsNamespace}/${PostsAction.LIST_POSTS}`, { page: 1 });
+      await store.dispatch(`${PostsNamespace}/${PostsAction.LIST_POSTS}`, {
+        page: 1
+      });
     });
 
-    function showPost(post: Post): void {
+    function showPost (post: Post): void {
       root.$router.push(`/posts/${post.id}`);
     }
 
-    function posts(): Post[] {
+    function posts (): Post[] {
       return store.getters[`${PostsNamespace}/posts`];
     }
 
     return {
       page,
       showPost,
-      posts,
+      posts
     };
   }
 });

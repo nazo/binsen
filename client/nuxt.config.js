@@ -22,10 +22,10 @@ export default {
       {
         hid: 'description',
         name: 'description',
-        content: process.env.npm_package_description || '',
-      },
+        content: process.env.npm_package_description || ''
+      }
     ],
-    link: [{ rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }],
+    link: [{ rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }]
   },
   /*
    ** Global CSS
@@ -38,18 +38,14 @@ export default {
   router: {
     middleware: 'i18n'
   },
-  plugins: [
-    '~/plugins/vee-validate',
-    '~/plugins/i18n',
-    '~/plugins/http',
-  ],
+  plugins: ['~/plugins/vee-validate', '~/plugins/i18n', '~/plugins/http'],
   manifest: {
     name: 'binsen',
     lang: 'ja'
   },
   env: {
     API_CLIENT_BASE_URI: process.env.API_CLIENT_BASE_URI,
-    API_SERVER_BASE_URI: process.env.API_SERVER_BASE_URI,
+    API_SERVER_BASE_URI: process.env.API_SERVER_BASE_URI
   },
   /*
    ** Auto import components
@@ -63,9 +59,7 @@ export default {
   /*
    ** Nuxt.js modules
    */
-  modules: [
-    '@nuxt/http'
-  ],
+  modules: ['@nuxt/http'],
   /*
    ** HTTP module configuration
    ** Seehttps://http.nuxtjs.org/api/
@@ -73,21 +67,18 @@ export default {
   http: {
     proxyHeaders: true,
     baseURL: process.env.API_SERVER_BASE_URI,
-    browserBaseURL: process.env.API_CLIENT_BASE_URI,
+    browserBaseURL: process.env.API_CLIENT_BASE_URI
   },
   /*
    ** vuetify module configuration
    ** https://github.com/nuxt-community/vuetify-module
    */
-  vuetify: {
-  },
+  vuetify: {},
   /*
    ** Build configuration
    ** See https://nuxtjs.org/api/configuration-build/
    */
   build: {
-    transpile: [
-      "vee-validate/dist/rules"
-    ],
-  },
-}
+    transpile: ['vee-validate/dist/rules']
+  }
+};

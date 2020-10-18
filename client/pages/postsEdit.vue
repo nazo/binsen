@@ -1,65 +1,39 @@
 <template>
   <v-app>
-    <v-app-bar
-      fixed
-      app
-      :clipped-left="clipped">
-      <v-btn
-        icon
-        class="hidden-xs-only"
-        @click="goBack">
+    <v-app-bar fixed app :clipped-left="clipped">
+      <v-btn icon class="hidden-xs-only" @click="goBack">
         <v-icon>{{ icons.mdiArrowLeftCircle }}</v-icon>
       </v-btn>
-      <v-toolbar-title v-text="pageTitle"/>
+      <v-toolbar-title v-text="pageTitle" />
     </v-app-bar>
     <v-main>
-      <v-container
-        fluid
-        fill-height>
-        <v-container
-          fluid
-          fill-height>
+      <v-container fluid fill-height>
+        <v-container fluid fill-height>
           <v-layout column>
             <v-flex xs12>
-              <v-layout
-                fill-height
-                justify-space-between
-                column>
+              <v-layout fill-height justify-space-between column>
                 <div>
-                  <v-text-field
-                    label="Title"
-                    placeholder="Title"
-                    v-model="title"
-                  />
+                  <v-text-field v-model="title" label="Title" placeholder="Title" />
                 </div>
                 <div class="editor-area">
-                  <v-layout
-                    align-space-between
-                    justify-space-between
-                    row
-                    fill-height>
+                  <v-layout align-space-between justify-space-between row fill-height>
                     <div class="editor-side">
-                      <textarea
-                        class="editor-margined"
-                        v-model="body" />
+                      <textarea v-model="body" class="editor-margined" />
                     </div>
                     <div class="editor-side">
-                      <v-card
-                        dark
-                        class="editor-margined editor-preview"
-                        color="secondary">
-                        <v-card-text
-                          class="px-0"
-                          v-html="markedBody"/>
+                      <v-card dark class="editor-margined editor-preview" color="secondary">
+                        <v-card-text class="px-0" v-html="markedBody" />
                       </v-card>
                     </div>
                   </v-layout>
                 </div>
                 <div>
-                  <v-btn @click="saveDraft">Draft</v-btn>
-                  <v-btn
-                    color="success"
-                    @click="submitPost">Post</v-btn>
+                  <v-btn @click="saveDraft">
+                    Draft
+                  </v-btn>
+                  <v-btn color="success" @click="submitPost">
+                    Post
+                  </v-btn>
                 </div>
               </v-layout>
             </v-flex>
@@ -67,7 +41,7 @@
         </v-container>
       </v-container>
     </v-main>
-    <c-footer/>
+    <c-footer />
   </v-app>
 </template>
 
@@ -76,20 +50,20 @@ import marked from 'marked';
 import { Store } from 'vuex';
 import { Route } from 'vue-router';
 import { shallowReadonly, reactive, computed, ref, defineComponent, useFetch, useContext, onMounted } from '@nuxtjs/composition-api';
+import { mdiArrowLeftCircle } from '@mdi/js';
 import CFooter from '~/components/footer.vue';
 import { User } from '~/api/types/user';
 import { Post } from '~/api/types/post';
 import { Workspace } from '~/api/types/workspace';
-import { mdiArrowLeftCircle } from '@mdi/js';
 import { actionType as PostsAction, namespace as PostsNamespace } from '~/store/posts';
 
 export default defineComponent({
   layout: 'clean',
   middleware: ['authenticated', 'workspaces'],
   components: {
-    CFooter: CFooter,
+    CFooter
   },
-  setup(props, { root }) {
+  setup (props, { root }) {
     const { store, redirect, query } = useContext();
 
     const title = ref('');
@@ -97,7 +71,7 @@ export default defineComponent({
     const isNew = ref(true);
     const clipped = ref(true);
     const markedBody = computed(() => marked(body.value));
-    const pageTitle = computed(() => isNew.value ? 'new post' : 'edit post');
+    const pageTitle = computed(() => (isNew.value ? 'new post' : 'edit post'));
     const icons = shallowReadonly({
       mdiArrowLeftCircle
     });
@@ -120,29 +94,31 @@ export default defineComponent({
         return;
       }
       try {
-        await store.dispatch(`${PostsNamespace}/${PostsAction.GET_POST}`, { id: query.value.id });
+        await store.dispatch(`${PostsNamespace}/${PostsAction.GET_POST}`, {
+          id: query.value.id
+        });
       } catch (e) {
         redirect('/');
       }
     });
 
-    function saveDraft() {}
+    function saveDraft () {}
 
-    function clearFields() {
+    function clearFields () {
       title.value = '';
       body.value = '';
     }
 
-    async function submitPost() {
-      console.log("submitPost start");
+    async function submitPost () {
+      console.log('submitPost start');
       const currentPost = store.getters[`${PostsNamespace}/currentPost`] as Post | null;
-      const currentWorkspace = store.getters['currentWorkspace'] as Workspace | null;
+      const currentWorkspace = store.getters.currentWorkspace as Workspace | null;
       if (currentPost === null) {
         if (currentWorkspace !== null) {
           const { post } = await store.dispatch(`${PostsNamespace}/${PostsAction.CREATE_POST}`, {
             workspaceId: currentWorkspace.id,
             title: title.value,
-            body: body.value,
+            body: body.value
           });
           clearFields();
           root.$router.push('/posts/' + post.id);
@@ -151,14 +127,14 @@ export default defineComponent({
         const { post } = await store.dispatch(`${PostsNamespace}/${PostsAction.UPDATE_POST}`, {
           id: currentPost.id,
           title: title.value,
-          body: body.value,
+          body: body.value
         });
         clearFields();
         root.$router.push('/posts/' + post.id);
       }
     }
 
-    function goBack() {
+    function goBack () {
       root.$router.replace('/');
     }
 
@@ -172,8 +148,8 @@ export default defineComponent({
       saveDraft,
       submitPost,
       goBack,
-      icons,
-    }
+      icons
+    };
   }
 });
 </script>

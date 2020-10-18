@@ -1,7 +1,5 @@
 <template>
-  <v-footer 
-    fixed 
-    app>
+  <v-footer fixed app>
     <span>&copy; 2017-2020</span>
   </v-footer>
 </template>

@@ -6,7 +6,9 @@
           <v-toolbar-title>{{ $t('pages.signin.title') }}</v-toolbar-title>
         </v-app-bar>
         <v-card-actions>
-          <v-btn color="primary" @click="signinByGoogle">{{ $t('pages.signin.google_signin') }}</v-btn>
+          <v-btn color="primary" @click="signinByGoogle">
+            {{ $t('pages.signin.google_signin') }}
+          </v-btn>
         </v-card-actions>
       </v-card>
     </v-flex>
@@ -18,13 +20,13 @@ import { defineComponent } from '@nuxtjs/composition-api';
 
 export default defineComponent({
   layout: 'simple',
-  setup(_props, { root }) {
-    async function signinByGoogle() {
+  setup (_props, { root }) {
+    async function signinByGoogle () {
       root.$router.push('/auth/google/request');
     }
     return {
-      signinByGoogle,
-    }
+      signinByGoogle
+    };
   }
 });
 </script>

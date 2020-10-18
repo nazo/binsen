@@ -5,5 +5,4 @@ interface GetMeResponse {
   user: User;
 }
 
-export const get = (http: NuxtHTTPInstance): Promise<GetMeResponse> =>
-  http.$get<GetMeResponse>('/api/me/v1/get');
+export const get = (http: NuxtHTTPInstance): Promise<GetMeResponse> => http.$get<GetMeResponse>('/api/me/v1/get');

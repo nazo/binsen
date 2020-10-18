@@ -1,5 +1,5 @@
 <template>
-  <v-layout/>
+  <v-layout />
 </template>
 
 <script lang="ts">
@@ -9,7 +9,7 @@ import { auth as apiGoogleAuth } from '~/api/auth/google';
 export default defineComponent({
   layout: 'simple',
 
-  setup(_props, { root }) {
+  setup (_props, { root }) {
     onMounted(async () => {
       try {
         const { redirectUri } = await apiGoogleAuth(root.$http);
