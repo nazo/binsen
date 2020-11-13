@@ -1,46 +1,63 @@
-import { GetterTree, MutationTree, ActionTree, ActionContext } from 'vuex';
-import {
-  list as apiWorkspaceList,
-  create as apiWorkspaceCreate,
-} from '../api/workspace';
+import { GetterTree, MutationTree, ActionTree, ActionContext, Commit, Dispatch } from 'vuex';
+import type { RootState } from './index';
+import { list as apiWorkspaceList, create as apiWorkspaceCreate, update as apiWorkspaceUpdate } from '~/api/workspace';
+import { Workspace } from '~/api/types/workspace';
 
-export class State {
-  workspaces: Array<object> = [];
+export const namespace = 'workspaces';
+
+export class WorkspacesState {
+  workspaces: Workspace[] = [];
 }
 
-export const state = (): State => new State();
+export const state = (): WorkspacesState => new WorkspacesState();
 
-export const mutations: MutationTree<State> = {
-  setWorkspaces(state: State, { workspaces }) {
-    state.workspaces = workspaces || null;
-  },
-};
-
-export const getters: GetterTree<State, any> = {
-  workspaces(state: State) {
+export const getters: GetterTree<WorkspacesState, RootState> = {
+  workspaces (state: WorkspacesState) {
     return state.workspaces;
-  },
+  }
 };
 
-export const actions: ActionTree<State, any> = {
-  async listWorkspaces({ commit, state, rootGetters, dispatch }) {
-    const { workspaces } = await apiWorkspaceList(this.$axios);
-    commit('setWorkspaces', { workspaces });
+export const MutationType = {
+  SET_WORKSPACES: 'setWorkspaces'
+};
+
+export const mutations: MutationTree<WorkspacesState> = {
+  [MutationType.SET_WORKSPACES] (state: WorkspacesState, { workspaces }: { workspaces: Workspace[] }) {
+    state.workspaces = workspaces || null;
+  }
+};
+
+export const actionType = {
+  LIST_WORKSPACES: 'listWorkspaces',
+  CREATE_WORKSPACE: 'createWorkspace',
+  UPDATE_WORKSPACE: 'updateWorkspace',
+  DESTROY_WORKSPACE: 'destroyWorkspace'
+};
+
+export const actions: ActionTree<WorkspacesState, RootState> = {
+  async [actionType.LIST_WORKSPACES] ({ commit }: { commit: Commit }) {
+    try {
+      const { workspaces } = await apiWorkspaceList(this.$http);
+      commit('setWorkspaces', { workspaces });
+    } catch (e) {
+      // TODO
+    }
   },
-  async createWorkspace(
-    { commit, state, rootGetters, dispatch },
-    { workspace }
-  ) {
-    await apiWorkspaceCreate(this.$axios, { name: workspace.name });
-    dispatch('listWorkspaces');
+
+  async [actionType.CREATE_WORKSPACE] ({ dispatch }: { dispatch: Dispatch }, { workspace }: { workspace: Workspace }) {
+    try {
+      await apiWorkspaceCreate(this.$http, { name: workspace.name });
+    } catch (e) {
+      // TODO
+    }
   },
-  async updateWorkspace(
-    { commit, state, rootGetters, dispatch },
-    { workspace }
-  ) {
-    dispatch('listWorkspaces');
+
+  async [actionType.UPDATE_WORKSPACE] ({ dispatch }: { dispatch: Dispatch }, { workspace }: { workspace: Workspace }) {
+    await apiWorkspaceUpdate(this.$http, {
+      id: workspace.id,
+      name: workspace.name
+    });
   },
-  async destroyWorkspace({ commit, state, rootGetters, dispatch }, { id }) {
-    dispatch('listWorkspaces');
-  },
+
+  async [actionType.DESTROY_WORKSPACE] ({ dispatch }: { dispatch: Dispatch }, { id }: { id: number }) {}
 };

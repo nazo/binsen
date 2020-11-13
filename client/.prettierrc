@@ -1,18 +1,5 @@
-singleQuote: true
-trailingComma: es5
-bracketSpacing: true
-
-overrides:
-- files: "*.css"
-  options:
-    parser: css
-    singleQuote: false
-- files: "*.json"
-  options:
-    singleQuote: false
-- files: "*.vue"
-  options:
-    parser: vue
-- files: "*.ts"
-  options:
-    parser: typescript
+{
+  "semi": true,
+  "singleQuote": true,
+  "printWidth": 250
+}

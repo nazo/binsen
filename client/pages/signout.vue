@@ -1,18 +1,20 @@
 <template>
-  <v-layout/>
+  <v-layout />
 </template>
 
 <script lang="ts">
+import { defineComponent, onMounted } from '@nuxtjs/composition-api';
+import { NuxtHTTPInstance } from '@nuxt/http';
 import { signout as apiSignout } from '../api/signout';
-import { Component, Vue } from 'nuxt-property-decorator';
 
-@Component({
+export default defineComponent({
   layout: 'simple',
-})
-export default class extends Vue {
-  async mounted() {
-    await apiSignout(this.$axios);
-    this.$router.replace('/signin');
+  setup (_props, { root }) {
+    onMounted(async () => {
+      await apiSignout(root.$http);
+      root.$router.replace('/signin');
+    });
+    return {};
   }
-}
+});
 </script>

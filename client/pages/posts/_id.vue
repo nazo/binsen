@@ -1,25 +1,19 @@
 <template>
   <v-container fluid>
     <v-layout column>
-      <v-flex xs12>
-        <v-layout
-          align-space-between
-          justify-space-between
-          column
-          fill-height>
+      <v-flex v-if="currentPost" xs12>
+        <v-layout align-space-between justify-space-between column fill-height>
           <v-flex xs12>
-            <h3 class="display-3">{{ currentPost.title }}</h3>
+            <h3 class="display-3">
+              {{ currentPost.title }}
+            </h3>
             <div v-html="markedBody" />
           </v-flex>
           <v-flex xs12>
             <nuxt-link :to="editUrl">
-              <v-btn
-                color="teal"
-                flat
-                value="recent"
-              >
+              <v-btn color="teal" text value="recent">
                 <span>Edit</span>
-                <v-icon>edit</v-icon>
+                <v-icon>{{ editIcon }}</v-icon>
               </v-btn>
             </nuxt-link>
           </v-flex>
@@ -31,41 +25,45 @@
 
 <script lang="ts">
 import marked from 'marked';
-import { Component, Prop, Emit, Watch, Vue } from 'nuxt-property-decorator';
-import { State, Getter, Action, Mutation, namespace } from 'vuex-class';
-import { User } from '../../api/types/user';
-import { Post } from '../../api/types/post';
+import { Store } from 'vuex';
+import { Route } from 'vue-router';
+import { reactive, computed, ref, defineComponent, useFetch, useContext } from '@nuxtjs/composition-api';
+import { mdiPencil } from '@mdi/js';
+import { User } from '~/api/types/user';
+import { Post } from '~/api/types/post';
+import { actionType as PostsAction, namespace as PostsNamespace } from '~/store/posts';
 
-const PostsModule = namespace('posts');
-
-@Component({
+export default defineComponent({
   middleware: ['authenticated', 'workspaces'],
-})
-export default class extends Vue {
-  @PostsModule.Getter('currentPost')
-  currentPost!: Post;
+  setup (props, { root }) {
+    const { store, redirect, route, params } = useContext();
 
-  @Getter('loggedUser')
-  loggedUser!: User | null;
+    const currentPost = ref<Post | null>(null);
+    const markedBody = computed(() => marked(currentPost.value !== null ? currentPost.value.body : ''));
+    const editUrl = computed(() => `/postsEdit?id=${currentPost.value?.id}`);
+    const editIcon = ref(mdiPencil);
 
-  get editUrl() {
-    return `/postsEdit?id=${this.currentPost.id}`;
-  }
+    useFetch(async () => {
+      try {
+        await store.dispatch(`${PostsNamespace}/${PostsAction.GET_POST}`, {
+          id: params.value.id
+        });
+        currentPost.value = store.getters[`${PostsNamespace}/currentPost`];
+      } catch (e) {
+        redirect('/');
+      }
+    });
 
-  get markedBody() {
-    return marked(this.currentPost.body);
-  }
-
-  async fetch({ store, params, redirect }) {
-    try {
-      await store.dispatch('posts/getPost', { id: params.id });
-    } catch (e) {
-      redirect('/');
+    function validate () {
+      return /^\d+$/.test(params.value.id);
     }
-  }
 
-  validate({ params }) {
-    return /^\d+$/.test(params.id);
+    return {
+      currentPost,
+      markedBody,
+      editUrl,
+      editIcon
+    };
   }
-}
+});
 </script>

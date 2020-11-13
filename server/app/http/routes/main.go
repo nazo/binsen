@@ -1,7 +1,7 @@
 package routes
 
 import (
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 	"github.com/nazo/binsen/server/app/http/actions"
 	"github.com/nazo/binsen/server/app/http/actions/auth"
 	"github.com/nazo/binsen/server/app/http/middlewares"
@@ -18,6 +18,7 @@ func Main(e *echo.Echo) {
 	routeWorkspace.Use(middlewares.Security())
 	routeWorkspace.GET("/list", actions.GetWorkspaces)
 	routeWorkspace.PUT("/create", actions.CreateWorkspace)
+	routeWorkspace.PATCH("/update", actions.UpdateWorkspace)
 
 	routePost := e.Group("/api/post/v1")
 	routePost.Use(middlewares.Security())

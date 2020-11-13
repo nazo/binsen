@@ -15,6 +15,7 @@ type WorkspacesRepository interface {
 	GetWorkspaces() ([]*orm.Workspace, error)
 	GetWorkspace(id int64) (*orm.Workspace, error)
 	CreateWorkspace(name string) (*orm.Workspace, error)
+	UpdateWorkspace(workspace *orm.Workspace, name string) (*orm.Workspace, error)
 }
 
 // workspacesRepository todo
@@ -48,3 +49,11 @@ func (r *workspacesRepository) CreateWorkspace(name string) (*orm.Workspace, err
 	err := workspace.Insert(context.Background(), r.db, boil.Infer())
 	return workspace, err
 }
+
+// UpdateWorkspace create workspace
+func (r *workspacesRepository) UpdateWorkspace(workspace *orm.Workspace, name string) (*orm.Workspace, error) {
+	workspace.Name = name
+	_, err := workspace.Update(context.Background(), r.db, boil.Infer())
+	return workspace, err
+}
+

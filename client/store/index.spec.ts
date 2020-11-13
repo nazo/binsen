@@ -1,8 +1,8 @@
 import assert from 'power-assert';
-import { State, mutations } from './index';
+import { RootState, mutations } from './index';
 
 it('test mutations setLang', () => {
-  const state: State = new State();
+  const state: RootState = new RootState();
   assert.equal(state.locale, 'en');
   mutations.setLang(state, 'ja');
   assert.equal(state.locale, 'ja');

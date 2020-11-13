@@ -1,8 +1,8 @@
+import { NuxtHTTPInstance } from '@nuxt/http';
 import { User } from './types/user';
-import { NuxtAxiosInstance, AxiosPromise } from '@nuxtjs/axios';
 
 interface GetUsersResponse {
-  users: Array<User>;
+  users: User[];
 }
 
 interface CreateUserResponse {
@@ -15,25 +15,13 @@ interface UpdateUserResponse {
 
 interface DeleteUserResponse {}
 
-export const list = (
-  axios: NuxtAxiosInstance
-): AxiosPromise<GetUsersResponse> =>
-  axios.$get<GetUsersResponse>('/api/user/v1/list', {});
+export const list = (http: NuxtHTTPInstance): Promise<GetUsersResponse> => http.$get<GetUsersResponse>('/api/user/v1/list', {});
 
-export const create = (
-  axios: NuxtAxiosInstance,
-  { name, email }: { name: string; email: string }
-): AxiosPromise<CreateUserResponse> =>
-  axios.$put<CreateUserResponse>('/api/user/v1/create', { name, email });
+export const create = (http: NuxtHTTPInstance, { name, email }: { name: string; email: string }): Promise<CreateUserResponse> => http.$put<CreateUserResponse>('/api/user/v1/create', { name, email });
 
-export const update = (
-  axios: NuxtAxiosInstance,
-  { id, name, email }: { id: number; name: string; email: string }
-): AxiosPromise<UpdateUserResponse> =>
-  axios.$patch<UpdateUserResponse>('/api/user/v1/update', { id, name, email });
+export const update = (http: NuxtHTTPInstance, { id, name, email }: { id: number; name: string; email: string }): Promise<UpdateUserResponse> => http.$patch<UpdateUserResponse>('/api/user/v1/update', { id, name, email });
 
-export const destroy = (
-  axios: NuxtAxiosInstance,
-  { id }: { id: number }
-): AxiosPromise<DeleteUserResponse> =>
-  axios.$delete<DeleteUserResponse>('/api/user/v1/delete', { params: { id } });
+export const destroy = (http: NuxtHTTPInstance, { id }: { id: number }): Promise<DeleteUserResponse> =>
+  http.$delete<DeleteUserResponse>('/api/user/v1/delete', {
+    searchParams: { id }
+  });

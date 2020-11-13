@@ -1,124 +1,84 @@
 <template>
-  <v-container
-    page>
+  <v-container page>
     <v-layout>
       <v-flex xs12>
-        <v-toolbar
-          flat
-          color="white">
+        <v-app-bar flat color="white">
           <v-toolbar-title>Users</v-toolbar-title>
-          <v-divider
-            class="mx-2"
-            inset
-            vertical
-          />
-          <v-spacer/>
-          <v-dialog
-            v-model="dialog"
-            max-width="500px">
-            <v-btn
-              slot="activator"
-              color="primary"
-              dark
-              class="mb-2">New User</v-btn>
+          <v-divider class="mx-2" inset vertical />
+          <v-spacer />
+          <v-btn color="primary" dark class="mb-2" @click.stop="newItem">
+            New User
+          </v-btn>
+          <v-dialog v-model="dialog" max-width="500px">
             <v-card>
-              <v-card-title>
-                <span class="headline">{{ formTitle }}</span>
-              </v-card-title>
-              <v-card-text>
-                <v-container grid-list-md>
-                  <v-layout wrap>
-                    <v-flex
-                      xs12
-                      sm6
-                      md4>
-                      <v-text-field
-                        v-model="editedItem.name"
-                        :error-messages="errors.collect('name')"
-                        :counter="10"
-                        required
-                        v-validate="'required|max:10'"
-                        data-vv-name="name"
-                        label="Name"/>
-                    </v-flex>
-                    <v-flex
-                      xs12
-                      sm6
-                      md4>
-                      <v-text-field
-                        v-model="editedItem.email"
-                        :error-messages="errors.collect('email')"
-                        required
-                        v-validate="'required|email'"
-                        data-vv-name="email"
-                        label="email"/>
-                    </v-flex>
-                  </v-layout>
-                </v-container>
-              </v-card-text>
-
-              <v-card-actions>
-                <v-spacer/>
-                <v-btn
-                  color="blue darken-1"
-                  flat
-                  @click.native="close">Cancel</v-btn>
-                <v-btn
-                  color="blue darken-1"
-                  flat
-                  @click.native="save">Save</v-btn>
-              </v-card-actions>
+              <ValidationObserver v-slot="{ invalid }">
+                <form @submit.prevent="save">
+                  <v-card-title>
+                    <span class="headline">{{ formTitle }}</span>
+                  </v-card-title>
+                  <v-card-text>
+                    <v-container grid-list-md>
+                      <v-layout wrap>
+                        <v-flex xs12 sm6 md4>
+                          <ValidationProvider v-slot="{ errors }" name="name" rules="required|max:10">
+                            <v-text-field v-model="editedItem.name" :counter="10" required data-vv-name="name" label="Name" />
+                            <div>{{ errors[0] }}</div>
+                          </ValidationProvider>
+                        </v-flex>
+                      </v-layout>
+                    </v-container>
+                  </v-card-text>
+                  <v-card-actions>
+                    <v-spacer />
+                    <v-btn color="blue darken-1" text @click.native="close">
+                      Cancel
+                    </v-btn>
+                    <v-btn type="submit" color="blue darken-1" text :disabled="invalid">
+                      Save
+                    </v-btn>
+                  </v-card-actions>
+                </form>
+              </ValidationObserver>
             </v-card>
           </v-dialog>
-        </v-toolbar>
-        <v-data-table
-          :headers="headers"
-          :items="users"
-          hide-actions
-          class="elevation-1"
-        >
-          <template
-            slot="items"
-            slot-scope="props">
-            <td class="text-xs-right">{{ props.item.id }}</td>
-            <td>{{ props.item.name }}</td>
-            <td>{{ props.item.email }}</td>
-            <td>{{ props.item.groups }}</td>
-            <td class="justify-center layout px-0">
-              <v-icon
-                small
-                class="mr-2"
-                @click="editItem(props.item)">edit</v-icon>
-              <v-icon
-                small
-                class="mr-2"
-                @click.stop="showDeleteDialog(props.item)">delete</v-icon>
-            </td>
+        </v-app-bar>
+        <v-data-table :headers="headers" :items="users" hide-default-footer class="elevation-1">
+          <template slot="item" slot-scope="props">
+            <tr>
+              <td class="text-xs-right">
+                {{ props.item.id }}
+              </td>
+              <td>{{ props.item.name }}</td>
+              <td class="justify-center layout px-0">
+                <v-icon small class="mr-2" @click="editItem(props.item)">
+                  edit
+                </v-icon>
+                <v-icon small class="mr-2" @click.stop="showDeleteDialog(props.item)">
+                  delete
+                </v-icon>
+              </td>
+            </tr>
           </template>
           <template slot="no-data">
-            <v-btn
-              color="primary"
-              @click="initialize">Reset</v-btn>
+            <v-btn color="primary" @click="initialize">
+              Reset
+            </v-btn>
           </template>
         </v-data-table>
-        <v-dialog
-          v-model="deleteDialog"
-          persistent
-          max-width="290">
+        <v-dialog v-model="deleteDialog" persistent max-width="290">
           <v-card>
-            <v-card-title class="headline">Delete</v-card-title>
+            <v-card-title class="headline">
+              Delete
+            </v-card-title>
             <v-card-text>Are you sure?</v-card-text>
             <v-card-actions>
               <v-spacer />
-              <v-btn
-                color="green darken-1"
-                flat
-                @click.native="deleteDialog = false">Cancel</v-btn>
-              <v-btn
-                color="green darken-1"
-                flat
-                @click.native="deleteDialog = false"
-                @click.stop="deleteItem()">Delete</v-btn>
+              <v-btn color="green darken-1" flat @click.native="deleteDialog = false">
+                Cancel
+              </v-btn>
+              <v-btn color="green darken-1" flat @click.native="deleteDialog = false" @click.stop="deleteItem()">
+                Delete
+              </v-btn>
             </v-card-actions>
           </v-card>
         </v-dialog>
@@ -128,122 +88,128 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Emit, Watch, Vue } from 'nuxt-property-decorator';
-import { State, Getter, Action, Mutation, namespace } from 'vuex-class';
-import { User } from '../../api/types/user';
+import { reactive, computed, ref, defineComponent, useFetch, useContext, watch, shallowReadonly } from '@nuxtjs/composition-api';
+import { DataTableHeader } from 'vuetify';
+import { User } from '~/api/types/user';
+import { actionType as UsersAction, namespace as UsersNamespace } from '~/store/users';
 
-const UsersModule = namespace('users');
-
-@Component({
+export default defineComponent({
   middleware: ['authenticated'],
-  $_veeValidate: {
-    validator: 'new',
-  },
-})
-export default class extends Vue {
-  @UsersModule.Getter('users')
-  users: any;
 
-  @UsersModule.Action('listUsers')
-  listUsers: any;
+  setup (props, { root }) {
+    const { store, redirect, route, params } = useContext();
 
-  @UsersModule.Action('destroyUser')
-  destroyUser: any;
-
-  @UsersModule.Action('createUser')
-  createUser: any;
-
-  @UsersModule.Action('updateUser')
-  updateUser: any;
-
-  get formTitle() {
-    return this.editedIndex === -1 ? 'New Item' : 'Edit Item';
-  }
-
-  dialog: Boolean = false;
-  deleteDialog: Boolean = false;
-  deleteDialogItem: User | null = null;
-  headers = [
-    { text: 'ID', value: 'id' },
-    { text: 'Name', value: 'name' },
-    { text: 'Email', value: 'email' },
-    { text: 'Groups', value: 'groups' },
-    { text: 'Actions', value: 'name', sortable: false },
-  ];
-  editedIndex = -1;
-  editedItem = {
-    id: 0,
-    name: '',
-  };
-  defaultItem = {
-    id: 0,
-    name: '',
-  };
-  dictionary = {
-    attributes: {
-      email: 'E-mail Address',
-    },
-    custom: {
-      name: {
-        required: () => 'Name can not be empty',
-        max: 'The name field may not be greater than 10 characters',
-      },
-    },
-  };
-
-  @Watch('dialog')
-  onDialogChange(newValue: string, oldValue: string): void {
-    newValue || this.close();
-  }
-
-  async fetch({ store }) {
-    await store.dispatch('users/listUsers');
-  }
-
-  mounted() {
-    this.$validator.localize('en', this.dictionary);
-  }
-
-  initialize() {
-    this.listUsers();
-  }
-
-  editItem(item) {
-    this.editedIndex = this.users.indexOf(item);
-    this.editedItem = Object.assign({}, item);
-    this.dialog = true;
-  }
-
-  deleteItem() {
-    const item = this.deleteDialogItem;
-    if (item != null) {
-      this.destroyUser({ id: item.id });
-    }
-  }
-
-  showDeleteDialog(item: User) {
-    this.deleteDialog = true;
-    this.deleteDialogItem = item;
-  }
-
-  close() {
-    this.dialog = false;
-    setTimeout(() => {
-      this.editedItem = Object.assign({}, this.defaultItem);
-      this.editedIndex = -1;
-      this.$validator.reset();
-    }, 0);
-  }
-
-  async save() {
-    if (await this.$validator.validateAll()) {
-      if (this.editedIndex > -1) {
-        this.updateUser({ user: this.editedItem });
-      } else {
-        this.createUser({ user: this.editedItem });
+    const users = ref<User[]>([]);
+    const dialog = ref(false);
+    const deleteDialog = ref(false);
+    const deleteDialogItem = ref<User | null>(null);
+    const headers = reactive<DataTableHeader[]>([
+      { text: 'ID', value: 'id' },
+      { text: 'Name', value: 'name' },
+      { text: 'Actions', value: 'name', sortable: false }
+    ]);
+    const editedIndex = ref(-1);
+    const editedItem = ref({
+      id: 0,
+      name: ''
+    });
+    const defaultItem = ref({
+      id: 0,
+      name: ''
+    });
+    const dictionary = shallowReadonly({
+      custom: {
+        name: {
+          required: () => 'Name can not be empty',
+          max: 'The name field may not be greater than 10 characters'
+        }
       }
-      this.close();
+    });
+    const formTitle = computed(() => (editedIndex.value === -1 ? 'New Item' : 'Edit Item'));
+
+    const { fetch } = useFetch(async () => {
+      await store.dispatch(`${UsersNamespace}/${UsersAction.LIST_USERS}`);
+      users.value = store.getters[`${UsersNamespace}/users`] as User[];
+    });
+
+    watch(
+      () => dialog,
+      (newValue, oldValue) => {
+        newValue || close();
+      }
+    );
+
+    function editItem (item: User) {
+      console.log(item);
+      editedIndex.value = users.value.indexOf(item);
+      editedItem.value = Object.assign({}, item);
+      dialog.value = true;
     }
+
+    async function deleteItem () {
+      const item = deleteDialogItem.value;
+      if (item != null) {
+        await store.dispatch(`${UsersNamespace}/${UsersAction.DESTROY_USER}`, {
+          id: item.id
+        });
+        fetch();
+      }
+    }
+
+    function showDeleteDialog (item: User) {
+      deleteDialog.value = true;
+      deleteDialogItem.value = item;
+    }
+
+    async function close () {
+      dialog.value = false;
+      await root.$nextTick();
+      editedItem.value = Object.assign({}, defaultItem.value);
+      editedIndex.value = -1;
+    }
+
+    async function save () {
+      if (editedIndex.value > -1) {
+        await store.dispatch(`${UsersNamespace}/${UsersAction.UPDATE_USER}`, {
+          user: editedItem.value
+        });
+      } else {
+        await store.dispatch(`${UsersNamespace}/${UsersAction.CREATE_USER}`, {
+          user: editedItem.value
+        });
+      }
+      fetch();
+      close();
+    }
+
+    async function initialize () {
+      await store.dispatch(`${UsersNamespace}/${UsersAction.LIST_USERS}`);
+    }
+
+    function newItem () {
+      editedIndex.value = -1;
+      dialog.value = true;
+    }
+
+    return {
+      users,
+      dialog,
+      deleteDialog,
+      deleteDialogItem,
+      headers,
+      editedIndex,
+      editedItem,
+      defaultItem,
+      dictionary,
+      formTitle,
+      newItem,
+      editItem,
+      deleteItem,
+      showDeleteDialog,
+      close,
+      save,
+      initialize
+    };
   }
-}
+});
 </script>

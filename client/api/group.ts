@@ -1,8 +1,8 @@
-import { NuxtAxiosInstance, AxiosPromise } from '@nuxtjs/axios';
+import { NuxtHTTPInstance } from '@nuxt/http';
 import { Group } from './types/group';
 
 interface GetGroupsResponse {
-  groups: Array<Group>;
+  groups: Group[];
 }
 
 interface CreateGroupResponse {
@@ -15,27 +15,13 @@ interface UpdateGroupResponse {
 
 interface DeleteGroupResponse {}
 
-export const list = (
-  axios: NuxtAxiosInstance
-): AxiosPromise<GetGroupsResponse> =>
-  axios.$get<GetGroupsResponse>('/api/group/v1/list', {});
+export const list = (http: NuxtHTTPInstance): Promise<GetGroupsResponse> => http.$get<GetGroupsResponse>('/api/group/v1/list', {});
 
-export const create = (
-  axios: NuxtAxiosInstance,
-  { name }: { name: string }
-): AxiosPromise<CreateGroupResponse> =>
-  axios.$put<CreateGroupResponse>('/api/group/v1/create', { name });
+export const create = (http: NuxtHTTPInstance, { name }: { name: string }): Promise<CreateGroupResponse> => http.$put<CreateGroupResponse>('/api/group/v1/create', { name });
 
-export const update = (
-  axios: NuxtAxiosInstance,
-  { id, name }: { id: number; name: string }
-): AxiosPromise<UpdateGroupResponse> =>
-  axios.$patch<UpdateGroupResponse>('/api/group/v1/update', { id, name });
+export const update = (http: NuxtHTTPInstance, { id, name }: { id: number; name: string }): Promise<UpdateGroupResponse> => http.$patch<UpdateGroupResponse>('/api/group/v1/update', { id, name });
 
-export const destroy = (
-  axios: NuxtAxiosInstance,
-  { id }: { id: number }
-): AxiosPromise<DeleteGroupResponse> =>
-  axios.$delete<DeleteGroupResponse>('/api/group/v1/delete', {
-    params: { id },
+export const destroy = (http: NuxtHTTPInstance, { id }: { id: number }): Promise<DeleteGroupResponse> =>
+  http.$delete<DeleteGroupResponse>('/api/group/v1/delete', {
+    searchParams: { id }
   });

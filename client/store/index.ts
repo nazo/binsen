@@ -1,61 +1,29 @@
 import { GetterTree, MutationTree, ActionTree, ActionContext } from 'vuex';
-import { callback as apiGoogleCallback } from '../api/auth/google';
-import { list as apiWorkspaceList } from '../api/workspace';
-import { User } from '../api/types/user';
+import { callback as apiGoogleCallback } from '~/api/auth/google';
+import { list as apiWorkspaceList } from '~/api/workspace';
+import { User } from '~/api/types/user';
+import { Workspace } from '~/api/types/workspace';
 
-export class State {
+export class RootState {
   user: User | null = null;
   currentWorkspaceId: number | null = null;
-  workspaces: object | null = null;
-  locales: Array<string> = ['en', 'ja'];
+  workspaces: { [key: number]: Workspace } | null = null;
+  locales: string[] = ['en', 'ja'];
   locale: string = 'en';
 }
 
-export const state = (): State => new State();
+export const state = (): RootState => new RootState();
 
-export const mutations: MutationTree<State> = {
-  setLang(state: State, locale: string) {
-    if (state.locales.indexOf(locale) !== -1) {
-      state.locale = locale;
-    }
-  },
-  setUser(state: State, { user }: { user: User }) {
-    state.user = user || null;
-  },
-  setCurrentWorkspace(state: State, { workspaceId }) {
-    if (state.workspaces === null) {
-      state.currentWorkspaceId = null;
-      return;
-    }
-    if (!(workspaceId in state.workspaces)) {
-      state.currentWorkspaceId = null;
-      return;
-    }
-    state.currentWorkspaceId = workspaceId;
-  },
-  setWorkspaces(state: State, { workspaces }) {
-    if (workspaces === null) {
-      return;
-    }
-    const workspacesById = {};
-    workspaces.forEach(workspace => {
-      workspacesById[workspace.id] = workspace;
-    });
-    state.workspaces = workspacesById;
-    if (state.currentWorkspaceId === null) {
-      state.currentWorkspaceId = workspaces[0].id;
-    }
-  },
-};
-
-export const getters: GetterTree<State, any> = {
-  isAuthenticated(state: State) {
+export const getters: GetterTree<RootState, RootState> = {
+  isAuthenticated (state: RootState): boolean {
     return !!state.user;
   },
-  loggedUser(state: State): User | null {
+
+  loggedUser (state: RootState): User | null {
     return state.user;
   },
-  currentWorkspace(state: State) {
+
+  currentWorkspace (state: RootState): Workspace | null {
     if (state.currentWorkspaceId === null) {
       return null;
     }
@@ -67,24 +35,83 @@ export const getters: GetterTree<State, any> = {
     }
     return state.workspaces[state.currentWorkspaceId];
   },
-  workspaces(state: State) {
+
+  workspaces (state: RootState): { [key: number]: Workspace } | null {
     return state.workspaces;
-  },
+  }
 };
 
-export const actions: ActionTree<State, any> = {
-  async getWorkspaces({ commit }) {
-    const { workspaces } = await apiWorkspaceList(this.$axios);
-    commit('setWorkspaces', { workspaces });
+export const MutationType = {
+  SET_LANG: 'setLang',
+  SET_USER: 'setUser',
+  SET_CURRENT_WORKSPACE: 'setCurrentWorkspace',
+  SET_WORKSPACES: 'setWorkspaces'
+};
+
+export const mutations: MutationTree<RootState> = {
+  [MutationType.SET_LANG] (state: RootState, locale: string) {
+    if (state.locales.includes(locale)) {
+      state.locale = locale;
+    }
   },
-  setWorkspace({ commit }, { workspaceId }) {
+
+  [MutationType.SET_USER] (state: RootState, { user }: { user: User }) {
+    state.user = user || null;
+  },
+
+  [MutationType.SET_CURRENT_WORKSPACE] (state: RootState, { workspaceId }: { workspaceId: number }) {
+    if (state.workspaces === null) {
+      state.currentWorkspaceId = null;
+      return;
+    }
+    if (!(workspaceId in state.workspaces)) {
+      state.currentWorkspaceId = null;
+      return;
+    }
+    state.currentWorkspaceId = workspaceId;
+  },
+
+  [MutationType.SET_WORKSPACES] (state: RootState, { workspaces }: { workspaces: Workspace[] }) {
+    if (workspaces === null) {
+      return;
+    }
+    const workspacesById: { [key: number]: Workspace } = {};
+    workspaces.forEach((workspace: Workspace) => {
+      workspacesById[workspace.id] = workspace;
+    });
+    state.workspaces = workspacesById;
+    if (state.currentWorkspaceId === null) {
+      state.currentWorkspaceId = workspaces[0].id;
+    }
+  }
+};
+
+export const actionType = {
+  GET_WORKSPACES: 'getWorkspaces',
+  SET_WORKSPACE: 'setWorkspace',
+  LOGIN_FROM_GOOGLE_CALLBACK: 'loginFromGoogleCallback'
+};
+
+export const actions: ActionTree<RootState, RootState> = {
+  async [actionType.GET_WORKSPACES] ({ commit }: ActionContext<RootState, RootState>) {
+    try {
+      const { workspaces } = await apiWorkspaceList(this.$http);
+      commit('setWorkspaces', { workspaces });
+    } catch (e) {
+      // TODO
+    }
+  },
+
+  [actionType.SET_WORKSPACE] ({ commit }: ActionContext<RootState, RootState>, { workspaceId }: { workspaceId: number }) {
     commit('setCurrentWorkspace', { workspaceId });
   },
-  async loginFromGoogleCallback(
-    { commit },
-    { code, state }: { code: string; state: string }
-  ) {
-    const { user } = await apiGoogleCallback(this.$axios, { code, state });
-    commit('setUser', { user });
-  },
+
+  async [actionType.LOGIN_FROM_GOOGLE_CALLBACK] ({ commit }: ActionContext<RootState, RootState>, { code, state }: { code: string; state: string }) {
+    try {
+      const { user } = await apiGoogleCallback(this.$http, { code, state });
+      commit('setUser', { user });
+    } catch (e) {
+      // TODO
+    }
+  }
 };

@@ -1,31 +1,23 @@
 <template>
   <v-app>
-    <c-sidebar/>
-    <v-toolbar
-      fixed
-      app
-      clipped-left/>
-    <v-content>
+    <c-sidebar />
+    <v-app-bar fixed app clipped-left />
+    <v-main>
       <nuxt />
-    </v-content>
-    <c-footer/>
+    </v-main>
+    <c-footer />
   </v-app>
 </template>
 
 <script lang="ts">
-import CFooter from '../components/footer.vue';
-import CSidebar from '../components/sidebar.vue';
-import { Component, Prop, Emit, Watch, Vue } from 'nuxt-property-decorator';
+import { defineComponent } from '@nuxtjs/composition-api';
+import CFooter from '~/components/footer.vue';
+import CSidebar from '~/components/sidebar.vue';
 
-@Component({
+export default defineComponent({
   components: {
     CSidebar,
-    CFooter,
-  },
-})
-export default class extends Vue {
-  clipped = true;
-  fixed = false;
-  miniVariant = false;
-}
+    CFooter
+  }
+});
 </script>

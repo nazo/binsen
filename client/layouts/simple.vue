@@ -1,11 +1,9 @@
 <template>
   <v-app>
-    <v-content>
-      <v-container
-        fluid
-        fill-height>
-        <nuxt/>
+    <v-main>
+      <v-container fluid fill-height>
+        <nuxt />
       </v-container>
-    </v-content>
+    </v-main>
   </v-app>
 </template>

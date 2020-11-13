@@ -9,7 +9,10 @@ This project is WIP, DO NOT USE PRODCUTION.
 
 - cp ./server/.env.example ./server/.env
 - edit `./server/.env`
+- run `docker-compose run server make migrate`
+- run `docker-compose run server go run cmd/main.go u add [your gmail address]`
 - run `docker-compose up`
+- open `http://localhost:50002/signin`
 
 # production
 

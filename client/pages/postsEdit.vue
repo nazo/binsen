@@ -1,176 +1,157 @@
 <template>
   <v-app>
-    <v-toolbar
-      fixed
-      app
-      :clipped-left="clipped">
-      <v-btn
-        icon
-        class="hidden-xs-only"
-        @click="goBack">
-        <v-icon>arrow_back</v-icon>
+    <v-app-bar fixed app :clipped-left="clipped">
+      <v-btn icon class="hidden-xs-only" @click="goBack">
+        <v-icon>{{ icons.mdiArrowLeftCircle }}</v-icon>
       </v-btn>
-      <v-toolbar-title v-text="pageTitle"/>
-    </v-toolbar>
-    <v-content>
-      <v-container
-        fluid
-        fill-height>
-        <v-container
-          fluid
-          fill-height>
+      <v-toolbar-title v-text="pageTitle" />
+    </v-app-bar>
+    <v-main>
+      <v-container fluid fill-height>
+        <v-container fluid fill-height>
           <v-layout column>
             <v-flex xs12>
-              <v-layout
-                fill-height
-                justify-space-between
-                column>
+              <v-layout fill-height justify-space-between column>
                 <div>
-                  <v-text-field
-                    label="Title"
-                    placeholder="Title"
-                    v-model="title"
-                  />
+                  <v-text-field v-model="title" label="Title" placeholder="Title" />
                 </div>
                 <div class="editor-area">
-                  <v-layout
-                    align-space-between
-                    justify-space-between
-                    row
-                    fill-height>
-                    <div>
-                      <textarea
-                        class="editor-margined"
-                        v-model="body" />
+                  <v-layout align-space-between justify-space-between row fill-height>
+                    <div class="editor-side">
+                      <textarea v-model="body" class="editor-margined" />
                     </div>
-                    <div>
-                      <v-card
-                        dark
-                        class="editor-margined editor-preview"
-                        color="secondary">
-                        <v-card-text
-                          class="px-0"
-                          v-html="markedBody"/>
+                    <div class="editor-side">
+                      <v-card dark class="editor-margined editor-preview" color="secondary">
+                        <v-card-text class="px-0" v-html="markedBody" />
                       </v-card>
                     </div>
                   </v-layout>
                 </div>
                 <div>
-                  <v-btn @click="saveDraft">Draft</v-btn>
-                  <v-btn
-                    color="success"
-                    @click="submitPost">Post</v-btn>
+                  <v-btn @click="saveDraft">
+                    Draft
+                  </v-btn>
+                  <v-btn color="success" @click="submitPost">
+                    Post
+                  </v-btn>
                 </div>
               </v-layout>
             </v-flex>
           </v-layout>
         </v-container>
       </v-container>
-    </v-content>
-    <c-footer/>
+    </v-main>
+    <c-footer />
   </v-app>
 </template>
 
 <script lang="ts">
 import marked from 'marked';
-import { Component, Prop, Emit, Watch, Vue } from 'nuxt-property-decorator';
-import { State, Getter, Action, Mutation, namespace } from 'vuex-class';
-import CFooter from '../components/footer.vue';
-import { User } from '../api/types/user';
-import { Post } from '../api/types/post';
-import { Workspace } from '../api/types/workspace';
+import { Store } from 'vuex';
+import { Route } from 'vue-router';
+import { shallowReadonly, reactive, computed, ref, defineComponent, useFetch, useContext, onMounted } from '@nuxtjs/composition-api';
+import { mdiArrowLeftCircle } from '@mdi/js';
+import CFooter from '~/components/footer.vue';
+import { User } from '~/api/types/user';
+import { Post } from '~/api/types/post';
+import { Workspace } from '~/api/types/workspace';
+import { actionType as PostsAction, namespace as PostsNamespace } from '~/store/posts';
 
-const PostsModule = namespace('posts');
-
-@Component({
+export default defineComponent({
   layout: 'clean',
   middleware: ['authenticated', 'workspaces'],
   components: {
-    CFooter: CFooter,
+    CFooter
   },
-})
-export default class extends Vue {
-  @Getter('loggedUser')
-  loggedUser: User | null = null;
+  setup (props, { root }) {
+    const { store, redirect, query } = useContext();
 
-  @Getter('currentWorkspace')
-  currentWorkspace: Workspace | null = null;
+    const title = ref('');
+    const body = ref('');
+    const isNew = ref(true);
+    const clipped = ref(true);
+    const markedBody = computed(() => marked(body.value));
+    const pageTitle = computed(() => (isNew.value ? 'new post' : 'edit post'));
+    const icons = shallowReadonly({
+      mdiArrowLeftCircle
+    });
 
-  @PostsModule.Getter('currentPost')
-  currentPost: Post | null = null;
-
-  @PostsModule.Action('createPost')
-  createPost: any;
-
-  @PostsModule.Action('updatePost')
-  updatePost: any;
-
-  @PostsModule.Action('getPost')
-  getPost: any;
-
-  title: string = '';
-  body: string = '';
-
-  clipped = true;
-  drawer = true;
-  fixed = false;
-  miniVariant = false;
-
-  get markedBody() {
-    return marked(this.$data.body);
-  }
-
-  get pageTitle() {
-    if (this.currentPost === null) {
-      return 'new post';
-    }
-    return 'edit post';
-  }
-
-  saveDraft() {}
-
-  async submitPost() {
-    if (this.currentPost === null) {
-      if (this.currentWorkspace !== null) {
-        const response = await this.createPost({
-          workspaceId: this.currentWorkspace.id,
-          title: this.$data.title,
-          body: this.$data.body,
-        });
-        this.$router.push('/posts/' + response.post.id);
+    onMounted(() => {
+      const post = store.getters[`${PostsNamespace}/currentPost`] as Post | null;
+      if (post === null) {
+        isNew.value = true;
+        clearFields();
+      } else {
+        isNew.value = false;
+        title.value = post.title;
+        body.value = post.body;
       }
-    } else {
-      const response = await this.updatePost({
-        id: this.currentPost.id,
-        title: this.$data.title,
-        body: this.$data.body,
-      });
-      this.$router.push('/posts/' + response.post.id);
-    }
-  }
+    });
 
-  mounted() {
-    if (this.currentPost !== null) {
-      this.title = this.currentPost.title;
-      this.body = this.currentPost.body;
-    }
-  }
+    useFetch(async () => {
+      if (!('id' in query.value)) {
+        await store.dispatch(`${PostsNamespace}/${PostsAction.CLEAR_POST}`);
+        return;
+      }
+      try {
+        await store.dispatch(`${PostsNamespace}/${PostsAction.GET_POST}`, {
+          id: query.value.id
+        });
+      } catch (e) {
+        redirect('/');
+      }
+    });
 
-  async fetch({ store, query, redirect }) {
-    if (!('id' in query)) {
-      return;
-    }
-    try {
-      await store.dispatch('posts/getPost', { id: query.id });
-    } catch (e) {
-      redirect('/');
-    }
-  }
+    function saveDraft () {}
 
-  goBack() {
-    this.$router.replace('/');
+    function clearFields () {
+      title.value = '';
+      body.value = '';
+    }
+
+    async function submitPost () {
+      console.log('submitPost start');
+      const currentPost = store.getters[`${PostsNamespace}/currentPost`] as Post | null;
+      const currentWorkspace = store.getters.currentWorkspace as Workspace | null;
+      if (currentPost === null) {
+        if (currentWorkspace !== null) {
+          const { post } = await store.dispatch(`${PostsNamespace}/${PostsAction.CREATE_POST}`, {
+            workspaceId: currentWorkspace.id,
+            title: title.value,
+            body: body.value
+          });
+          clearFields();
+          root.$router.push('/posts/' + post.id);
+        }
+      } else {
+        const { post } = await store.dispatch(`${PostsNamespace}/${PostsAction.UPDATE_POST}`, {
+          id: currentPost.id,
+          title: title.value,
+          body: body.value
+        });
+        clearFields();
+        root.$router.push('/posts/' + post.id);
+      }
+    }
+
+    function goBack () {
+      root.$router.replace('/');
+    }
+
+    return {
+      isNew,
+      title,
+      body,
+      clipped,
+      markedBody,
+      pageTitle,
+      saveDraft,
+      submitPost,
+      goBack,
+      icons
+    };
   }
-}
+});
 </script>
 
 <style scoped>
@@ -187,11 +168,15 @@ export default class extends Vue {
   width: 100%;
   border: 1px solid #000;
 }
+.editor-side {
+  width: 50%;
+}
 .editor-margined {
   margin: 5px;
   word-break: break-all;
 }
 .editor-preview {
+  width: 100%;
   overflow: scroll;
 }
 </style>

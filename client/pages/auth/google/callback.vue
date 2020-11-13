@@ -1,30 +1,31 @@
 <template>
-  <v-layout/>
+  <v-layout />
 </template>
 
 <script lang="ts">
-import { Component, Prop, Emit, Watch, Vue } from 'nuxt-property-decorator';
-import { State, Getter, Action, Mutation, namespace } from 'vuex-class';
+import { defineComponent, onMounted, useContext } from '@nuxtjs/composition-api';
 
-@Component({
+export default defineComponent({
   layout: 'simple',
-})
-export default class extends Vue {
-  @Action('loginFromGoogleCallback')
-  loginFromGoogleCallback: any;
 
-  async mounted() {
-    try {
-      await this.loginFromGoogleCallback({
-        code: this.$route.query.code,
-        state: this.$route.query.state,
-      });
-      if (this.$store.getters.isAuthenticated) {
-        this.$router.replace('/');
+  setup (_props, { root }) {
+    const { store, query } = useContext();
+
+    onMounted(async () => {
+      try {
+        await store.dispatch('loginFromGoogleCallback', {
+          code: query.value.code,
+          state: query.value.state
+        });
+        if (store.getters.isAuthenticated) {
+          root.$router.replace('/');
+        }
+      } catch (e) {
+        root.$router.replace('/signin');
       }
-    } catch (e) {
-      this.$router.replace('/signin');
-    }
+    });
+
+    return {};
   }
-}
+});
 </script>

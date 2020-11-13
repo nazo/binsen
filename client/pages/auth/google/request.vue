@@ -1,22 +1,25 @@
 <template>
-  <v-layout/>
+  <v-layout />
 </template>
 
 <script lang="ts">
-import { auth as apiGoogleAuth } from '../../../api/auth/google';
-import { Component, Prop, Emit, Watch, Vue } from 'nuxt-property-decorator';
+import { defineComponent, onMounted } from '@nuxtjs/composition-api';
+import { auth as apiGoogleAuth } from '~/api/auth/google';
 
-@Component({
+export default defineComponent({
   layout: 'simple',
-})
-export default class extends Vue {
-  async mounted() {
-    try {
-      const { redirectUri } = await apiGoogleAuth(this.$axios);
-      window.location.href = redirectUri;
-    } catch (e) {
-      this.$router.replace('/signin');
-    }
+
+  setup (_props, { root }) {
+    onMounted(async () => {
+      try {
+        const { redirectUri } = await apiGoogleAuth(root.$http);
+        window.location.href = redirectUri;
+      } catch (e) {
+        root.$router.replace('/signin');
+      }
+    });
+
+    return {};
   }
-}
+});
 </script>
